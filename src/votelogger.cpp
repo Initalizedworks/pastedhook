@@ -126,9 +126,14 @@ void dispatchUserMessage(bf_read &buffer, int type)
         }
         if (*chat_partysay)
         {
+            using namespace playerlist;
+
+            auto &pl_caller      = AccessData(info2.friendsID);
+            bool friendly_caller = pl_caller.state != k_EState::FRIEND;
+
             char formated_string[256];
-            std::snprintf(formated_string, sizeof(formated_string), "[CAT] votekick called: %s => %s (%s)", info2.name, info.name, reason);
-            if (chat_partysay)
+            std::snprintf(formated_string, sizeof(formated_string), "Kick called by %s", info2.name);
+            if (chat_partysay && friendly_caller)
                 re::CTFPartyClient::GTFPartyClient()->SendPartyChat(formated_string);
         }
 #if ENABLE_VISUALS

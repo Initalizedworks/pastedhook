@@ -27,9 +27,27 @@
                     <Option name="Random" value="1"/>
                     <Option name="Medic" value="2"/>
                     <Option name="Thanks" value="3"/>
-                    <Option name="Nice shot" value="4"/>
-                    <Option name="Cheers" value="5"/>
-                    <Option name="Jeers" value="6"/>
+                    <Option name="Go Go Go" value="4"/>
+                    <Option name="Move Up" value="5"/>
+                    <Option name="Go Left" value="6"/>
+                    <Option name="Go Right" value="7"/>
+                    <Option name="Yes" value="8"/>
+                    <Option name="Nope" value="9"/>
+                    <Option name="Incoming" value="10"/>
+                    <Option name="Spy" value="11"/>
+                    <Option name="Sentry Ahead" value="12"/>
+                    <Option name="Teleporter Here" value="13"/>
+                    <Option name="Dispenser Here" value="14"/>
+                    <Option name="Sentry Here" value="15"/>
+                    <Option name="Activate Charge" value="16"/>
+                    <Option name="Help" value="17"/>
+                    <Option name="Battle Cry" value="18"/>
+                    <Option name="Cheers" value="19"/>
+                    <Option name="Jeers" value="20"/>
+                    <Option name="Positive" value="21"/>
+                    <Option name="Negative" value="22"/>
+                    <Option name="Nice Shot" value="23"/>
+                    <Option name="Nice Job" value="24"/>
                 </Select>
             </LabeledObject>
         </List>
