@@ -90,8 +90,8 @@ fonts::font bold{ paths::getDataPath("/menu/VerdanaBold.ttf"), 9 };
 namespace style::colors
 {
 
-color_type text{ "zk.style.menu.color.text", "c4d3e1" };
-color_type text_shadow{ "zk.style.menu.color.text_shadow", "000000" };
+color_type text{ "zk.style.menu.color.text", "ffffffff" };
+color_type text_shadow{ "zk.style.menu.color.text_shadow", "ffffffff" };
 
 color_type error{ "zk.style.menu.color.error", "ff0000" };
 } // namespace style::colors
