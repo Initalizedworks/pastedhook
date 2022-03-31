@@ -87,7 +87,7 @@ void DrawText_hook(int *_this, int x, int y, vgui::HFont hFont, Color clr, const
                                   return 2;
                               case playerlist::k_EState::RAGE:
                               case playerlist::k_EState::PAZER:
-                              case playerlist::k_EState::ABUSE:
+                              case playerlist::k_EState::CHEATER:
                                   return 3;
                               default:
                                   return 1;

@@ -25,7 +25,6 @@
 #include "drawmgr.hpp"
 
 static settings::Boolean info_text{ "hack-info.enable", "true" };
-static settings::Boolean info_text_min{ "hack-info.minimal", "false" };
 
 void render_cheat_visuals()
 {
@@ -82,16 +81,6 @@ void DrawCheatVisuals()
             auto color = colors::RainbowCurrent();
             color.a    = 1.0f;
             AddSideString("cathook by nullworks", color);
-            if (!info_text_min)
-            {
-                AddSideString(hack::GetVersion(),
-                              colors::gui);                  // github commit and date
-                AddSideString(hack::GetType(), colors::gui); //  Compile type
-#if ENABLE_GUI
-                AddSideString("Press '" + open_gui_button.toString() + "' key to open/close cheat menu.", colors::gui);
-                AddSideString("Use mouse to navigate in menu.", colors::gui);
-#endif
-            }
         }
     }
     if (spectator_target)
