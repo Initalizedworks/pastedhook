@@ -501,22 +501,6 @@ bool WorldToScreen(const Vector &origin, Vector &screen)
     return false;
 }
 
-void StartupSound()
-{
-    // 100% based unique meowhook only feature do not steal
-    std::string cur_line;
-    std::vector<std::string> line_count;
-    std::ifstream sfile(paths::getDataPath("/startup_sounds.txt"));
-    int total_lines = 0;
-    while (getline(sfile, cur_line))
-    {
-        total_lines++;
-        line_count.push_back(cur_line);
-    }
-    int random_number = rand() % total_lines;
-    g_ISurface->PlaySound(line_count[random_number].c_str());
-}
-
 #if ENABLE_ENGINE_DRAWING
 bool Texture::load()
 {
@@ -607,7 +591,6 @@ void InitGL()
 
 #if ENABLE_GUI
     gui::init();
-    StartupSound();
 #endif
 }
 
