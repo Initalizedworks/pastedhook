@@ -264,23 +264,77 @@ void createMove()
         {
             switch (*voicecommand_spam)
             {
-            case 1: // RANDOM
-                g_IEngine->ServerCmd(format("voicemenu ", UniformRandomInt(0, 2), " ", UniformRandomInt(0, 8)).c_str());
-                break;
-            case 2: // MEDIC
-                g_IEngine->ServerCmd("voicemenu 0 0");
-                break;
-            case 3: // THANKS
-                g_IEngine->ServerCmd("voicemenu 0 1");
-                break;
-            case 4: // NICE SHOT
-                g_IEngine->ServerCmd("voicemenu 2 6");
-                break;
-            case 5: // CHEERS
-                g_IEngine->ServerCmd("voicemenu 2 2");
-                break;
-            case 6: // JEERS
-                g_IEngine->ServerCmd("voicemenu 2 3");
+                case 1: // RANDOM
+                    g_IEngine->ServerCmd(format("voicemenu ", UniformRandomInt(0, 2), " ", UniformRandomInt(0, 8)).c_str());
+                    break;
+                case 2: // MEDIC
+                    g_IEngine->ServerCmd("voicemenu 0 0");
+                    break;
+                case 3: // THANKS
+                    g_IEngine->ServerCmd("voicemenu 0 1");
+                    break;
+                case 4: // Go Go Go!
+                    g_IEngine->ServerCmd("voicemenu 0 2");
+                    break;
+                case 5: // Move up!
+                    g_IEngine->ServerCmd("voicemenu 0 3");
+                    break;
+                case 6: // Go left!
+                    g_IEngine->ServerCmd("voicemenu 0 4");
+                    break;
+                case 7: // Go right!
+                    g_IEngine->ServerCmd("voicemenu 0 5");
+                    break;
+                case 8: // Yes!
+                    g_IEngine->ServerCmd("voicemenu 0 6");
+                    break;
+                case 9: // No!
+                    g_IEngine->ServerCmd("voicemenu 0 7");
+                    break;
+                case 10: // Incoming!
+                    g_IEngine->ServerCmd("voicemenu 1 0");
+                    break;
+                case 11: // Spy!
+                    g_IEngine->ServerCmd("voicemenu 1 1");
+                    break;
+                case 12: // Sentry Ahead!
+                    g_IEngine->ServerCmd("voicemenu 1 2");
+                    break;
+                case 13: // Need Teleporter Here!
+                    g_IEngine->ServerCmd("voicemenu 1 3");
+                    break;
+                case 14: // Need Dispenser Here!
+                    g_IEngine->ServerCmd("voicemenu 1 4");
+                    break;
+                case 15: // Need Sentry Here!
+                    g_IEngine->ServerCmd("voicemenu 1 5");
+                    break;
+                case 16: // Activate Charge!
+                    g_IEngine->ServerCmd("voicemenu 1 6");
+                    break;
+                case 17: // Help!
+                    g_IEngine->ServerCmd("voicemenu 2 0");
+                    break;
+                case 18: // Battle Cry!
+                    g_IEngine->ServerCmd("voicemenu 2 1");
+                    break;
+                case 19: // Cheers!
+                    g_IEngine->ServerCmd("voicemenu 2 2");
+                    break;
+                case 20: // Jeers!
+                    g_IEngine->ServerCmd("voicemenu 2 3");
+                    break;
+                case 21: // Positive!
+                    g_IEngine->ServerCmd("voicemenu 2 4");
+                    break;
+                case 22: // Negative!
+                    g_IEngine->ServerCmd("voicemenu 2 5");
+                    break;
+                case 23: // Nice shot!
+                    g_IEngine->ServerCmd("voicemenu 2 6");
+                    break;
+                case 24: // Nice job!
+                    g_IEngine->ServerCmd("voicemenu 2 7");
             }
         }
     }

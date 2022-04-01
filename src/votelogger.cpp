@@ -18,8 +18,6 @@ static settings::Boolean chat{ "votelogger.chat", "true" };
 static settings::Boolean chat_partysay{ "votelogger.chat.partysay", "false" };
 static settings::Boolean chat_casts{ "votelogger.chat.casts", "false" };
 static settings::Boolean chat_casts_f1_only{ "votelogger.chat.casts.f1-only", "true" };
-// Leave party and crash, useful for personal party bots
-static settings::Boolean abandon_and_crash_on_kick{ "votelogger.restart-on-kick", "false" };
 
 namespace votelogger
 {
@@ -129,10 +127,10 @@ void dispatchUserMessage(bf_read &buffer, int type)
             using namespace playerlist;
 
             auto &pl_caller      = AccessData(info2.friendsID);
-            bool friendly_caller = pl_caller.state != k_EState::FRIEND;
+            bool friendly_caller = pl_caller.state != k_EState::FRIEND && pl_caller.state != k_EState::CAT && pl_caller.state != k_EState::PARTY;
 
             char formated_string[256];
-            std::snprintf(formated_string, sizeof(formated_string), "Kick called by %s", info2.name);
+            std::snprintf(formated_string, sizeof(formated_string), "kick called by %s", info2.name);
             if (chat_partysay && friendly_caller)
                 re::CTFPartyClient::GTFPartyClient()->SendPartyChat(formated_string);
         }
@@ -145,8 +143,6 @@ void dispatchUserMessage(bf_read &buffer, int type)
     case 47:
     {
         logging::Info("Vote passed");
-        // if (was_local_player && requeue)
-        //    tfmm::startQueue();
         break;
     }
     case 48:
@@ -172,12 +168,6 @@ void onShutdown(std::string message)
         found_message = false;
         return;
     }
-    if (abandon_and_crash_on_kick)
-    {
-        found_message = true;
-        g_IEngine->ClientCmd_Unrestricted("tf_party_leave");
-        local_kick_timer.update();
-    }
     else
         found_message = false;
 }
@@ -197,8 +187,6 @@ static void setup_paint_abandon()
                 return;
             if (local_kick_timer.check(60000) || !local_kick_timer.test_and_set(10000) || !was_local_player)
                 return;
-            if (abandon_and_crash_on_kick)
-                *(int *) 0 = 0;
         },
         "vote_abandon_restart");
 }
@@ -234,7 +222,7 @@ public:
             if (chat_partysay)
             {
                 char formated_string[256];
-                std::snprintf(formated_string, sizeof(formated_string), "[CAT] %s voted %s", info.name, vote_option ? "No" : "Yes");
+                std::snprintf(formated_string, sizeof(formated_string), "%s voted %s", info.name, vote_option ? "No" : "Yes");
 
                 re::CTFPartyClient::GTFPartyClient()->SendPartyChat(formated_string);
             }
