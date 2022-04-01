@@ -80,7 +80,7 @@ void DrawCheatVisuals()
         {
             auto color = colors::RainbowCurrent();
             color.a    = 1.0f;
-            AddSideString("cathook by nullworks", color);
+            AddSideString("pastedhook!!!!", color);
         }
     }
     if (spectator_target)
