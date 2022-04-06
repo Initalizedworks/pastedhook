@@ -125,6 +125,7 @@ static CatCommand mm_debug_banned("mm_debug_banned", "Prints if your are MM bann
 bool isMMBanned()
 {
     /* Competitive only bans are not interesting */
+    // whoever wrote this and commented this is my new favorite person ^
     return getMMBanData(0, nullptr, nullptr);
 }
 int getQueue()

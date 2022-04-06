@@ -18,7 +18,6 @@
 #include "hitrate.hpp"
 #include "FollowBot.hpp"
 #include "Warp.hpp"
-#include "AntiCheatBypass.hpp"
 #include "WeaponData.hpp"
 
 namespace hacks::aimbot
@@ -366,10 +365,6 @@ static void CreateMove()
     fov      = *normal_fov;
 
     spectatorUpdate();
-    // Adjust for AC
-    if (hacks::antianticheat::enabled)
-        fov = std::min(fov > 0.0f ? fov : FLT_MAX, 10.0f);
-
     if (CE_BAD(LOCAL_E) || !LOCAL_E->m_bAlivePlayer() || CE_BAD(LOCAL_W))
         enable = false;
 

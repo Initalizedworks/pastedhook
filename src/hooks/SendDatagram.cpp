@@ -6,13 +6,12 @@
  */
 #include "HookedMethods.hpp"
 #include "Backtrack.hpp"
-#include "AntiCheatBypass.hpp"
 
 namespace hooked_methods
 {
 DEFINE_HOOKED_METHOD(SendDatagram, int, INetChannel *ch, bf_write *buf)
 {
-    if (!isHackActive() || !ch || (CE_BAD(LOCAL_E) && !hacks::antianticheat::enabled) || std::floor(*hacks::backtrack::latency) == 0)
+    if (!isHackActive() || !ch || std::floor(*hacks::backtrack::latency) == 0)
         return original::SendDatagram(ch, buf);
 
     int in    = ch->m_nInSequenceNr;
