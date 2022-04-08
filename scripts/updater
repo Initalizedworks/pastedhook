@@ -89,9 +89,8 @@ if [ "$AUTO_UPDATER_ENABLED" == "true" ]; then
 fi
 
 function performupdate() {
-    # If init, then update_channel isn't set yet. Assume stable.
     if [ "$INIT" == true ]; then
-        update_channel="stable"
+        update_channel="master"
     else
         #get update channel from config
         exists=true
@@ -106,7 +105,7 @@ function performupdate() {
     # Store info about the currently checked out updater script hash
     OLD_UPDATE="$(git rev-parse HEAD:scripts/updater || echo invalid)"
 
-    if [ "$update_channel" == "stable" ]; then
+    if [ "$update_channel" == "master" ]; then
         git fetch --force --depth 1 origin && git reset --hard origin/master
  git fetch --force --depth 1 origin || { echo -e "\033[1;33m\nFailed to pull from github! Trying alternative pull (legacy)\n\033[0m"; git fetch --depth 1 || { echo -e "\033[1;31m\nFailed to pull from github! A reinstall is recommended. https://github.com/ARandomlyGeneratedUsername/pastedhook\n\033[0m"; exit 1; } }
     elif [ "$update_channel" == "developer" ]; then
@@ -114,7 +113,7 @@ function performupdate() {
     else
         if [ "$dialog" == true ]; then
             value=true
-            dialog --keep-tite --title "Updater"  --yesno "Unknown update channel or version. Restore to stable update channel and reset version?" 10 25 || value=false
+            dialog --keep-tite --title "Updater"  --yesno "Unknown update channel or version. Restore to master update channel and reset version?" 10 25 || value=false
             if [ "$value" == true ]; then
                 # force reinit
                 ./scripts/migrations $tui true false || exit 1

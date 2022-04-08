@@ -39,6 +39,7 @@
     </Box>
     <Box padding="12 6 6 6" width="content" height="content" name="Misc" x="195" y="135">
         <List width="180">
+            <AutoVariable width="fill" target="visual.no-shake" label="No shake" tooltip="Stops the screen from shaking"/>
             <AutoVariable width="fill" target="visual.night-mode.gui" label="Nightmode (GUI)" min="0" max="100" step="0.1"/>
             <AutoVariable width="fill" target="visual.night-mode.world" label="Nightmode (world)" min="0" max="100" step="0.1"/>
             <AutoVariable width="fill" target="visual.night-mode.skybox" label="Nightmode (skybox)" min="0" max="100" step="0.1"/>

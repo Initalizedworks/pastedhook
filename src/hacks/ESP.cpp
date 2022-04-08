@@ -231,7 +231,6 @@ struct bonelist_s
 };
 
 // These are strings that never change and should only be constructed once
-const std::string hoovy_str                = "Hoovy";
 const std::string dormant_str              = "*Dormant*";
 const std::string jarated_str              = "*Jarate*";
 const std::string taunting_str             = "*Taunt*";

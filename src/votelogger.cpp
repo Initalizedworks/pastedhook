@@ -11,13 +11,14 @@
 #include "CatBot.hpp"
 #include "votelogger.hpp"
 
-static settings::Boolean vote_kicky{ "votelogger.autovote.yes", "false" };
-static settings::Boolean vote_kickn{ "votelogger.autovote.no", "false" };
-static settings::Boolean vote_rage_vote{ "votelogger.autovote.no.rage", "false" };
-static settings::Boolean chat{ "votelogger.chat", "true" };
-static settings::Boolean chat_partysay{ "votelogger.chat.partysay", "false" };
-static settings::Boolean chat_casts{ "votelogger.chat.casts", "false" };
-static settings::Boolean chat_casts_f1_only{ "votelogger.chat.casts.f1-only", "true" };
+static settings::Boolean vote_kicky{"votelogger.autovote.yes", "false"};
+static settings::Boolean vote_kickn{"votelogger.autovote.no", "false"};
+static settings::Boolean vote_rage_vote{"votelogger.autovote.no.rage", "false"};
+static settings::Boolean chat{"votelogger.chat", "true"};
+static settings::Boolean chat_partysay{"votelogger.chat.partysay", "false"};
+static settings::Boolean chat_casts{"votelogger.chat.casts", "false"};
+static settings::Boolean chat_casts_f1_only{"votelogger.chat.casts.f1-only", "true"};
+static settings::Boolean requeueonkick{"votelogger.requeue-on-kick", "false"};
 
 namespace votelogger
 {
@@ -121,6 +122,10 @@ void dispatchUserMessage(bf_read &buffer, int type)
                 vote_command = { "vote option1", 1u + (rand() % 200) };
                 vote_command.timer.update();
             }
+        }
+        {
+        if (was_local_player && *requeueonkick)
+            tfmm::startQueue();
         }
         if (*chat_partysay)
         {

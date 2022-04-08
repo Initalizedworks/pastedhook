@@ -25,12 +25,7 @@ bool ignoreKeys{ false };
 settings::Boolean clean_chat{ "chat.clean", "false" };
 
 settings::Boolean crypt_chat{ "chat.crypto", "true" };
-settings::Boolean clean_screenshots{ "visual.clean-screenshots", "false" };
-#if ENABLE_TEXTMODE
-settings::Boolean nolerp{ "misc.no-lerp", "true" };
-#else
 settings::Boolean nolerp{ "misc.no-lerp", "false" };
-#endif
 float backup_lerp = 0.0f;
 settings::Int fakelag_amount{ "misc.fakelag", "0" };
 settings::Boolean fakelag_midair{ "misc.fakelag-midair-only", "false" };
