@@ -59,49 +59,6 @@ bool hasEnding(std::string const &fullString, std::string const &ending)
         return false;
 }
 
-std::vector<std::string> config_list(std::string in)
-{
-    std::string complete_in = paths::getConfigPath() + "/" + in;
-    if (!hasEnding(complete_in, ".conf"))
-        complete_in = complete_in + ".conf";
-    std::vector<std::string> config_vec;
-    size_t i;
-    int flags = 0;
-    glob_t results;
-    int ret;
-
-    flags |= 0;
-    ret = glob(complete_in.c_str(), flags, globerr, &results);
-    if (ret != 0)
-    {
-        std::string ret_str;
-        switch (ret)
-        {
-        case GLOB_ABORTED:
-            ret_str = "filesystem problem";
-            break;
-        case GLOB_NOMATCH:
-            ret_str = "no match of pattern";
-            break;
-        case GLOB_NOSPACE:
-            ret_str = "out of memory";
-            break;
-        default:
-            ret_str = "Unknown problem";
-            break;
-        }
-
-        logging::Info("problem with %s (%s), stopping early\n", in.c_str(), ret_str.c_str());
-        return config_vec;
-    }
-
-    for (i = 0; i < results.gl_pathc; i++)
-        // /configs/ is 9 extra chars i have to remove
-        config_vec.push_back(std::string(results.gl_pathv[i]).substr(paths::getDataPath().length() + 9));
-
-    globfree(&results);
-    return config_vec;
-}
 static std::string blacklist;
 void do_random_votekick()
 {
@@ -454,6 +411,11 @@ void init()
 {
     // g_IEventManager2->AddListener(&listener(), "player_death", false);
     g_IEventManager2->AddListener(&listener2(), "vote_maps_changed", false);
+}
+
+void level_init()
+{
+    level_init_timer.update();
 }
 
 void shutdown()

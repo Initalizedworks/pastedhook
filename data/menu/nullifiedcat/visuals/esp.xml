@@ -20,8 +20,6 @@
             	<AutoVariable width="fill" target="esp.item.enable" label="Enable item ESP" tooltip="Master switch for all below items"/>
             	<AutoVariable width="fill" target="esp.item.health" label="Health packs"/>
             	<AutoVariable width="fill" target="esp.item.ammo" label="Ammo packs"/>
-            	<AutoVariable width="fill" target="esp.item.money" label="MvM money" tooltip="Regular MvM money that needs to be picked up"/>
-            	<AutoVariable width="fill" target="esp.item.money-red" label="MvM red money" tooltip="Red MvM money that is automatically picked up"/>
             	<AutoVariable width="fill" target="esp.item.powerup" label="Mannpower powerups"/>
             	<AutoVariable width="fill" target="esp.item.spellbook" label="Spellbooks"/>
             	<AutoVariable width="fill" target="esp.item.objectives" label="Objectives" tooltip="Intel, carts and mvm bombs"/>
@@ -111,13 +109,6 @@
             </LabeledObject>
             <AutoVariable width="fill" target="esp.hide-invis" label="Hide invisible"/>
         </List>
-    </Box>
-    <Box padding="12 6 6 6" width="content" height="content" name="Player Info" x="340" y="290">
-        <List width="150">
-            <AutoVariable width="fill" target="misc.playerinfo.draw-kda" label="Draw K/D over head"/>
-            <AutoVariable width="fill" target="misc.playerinfo.draw-level" label="That's how Mafia works"/>
-        </List>
-    </Box>
     <Box padding="12 6 6 6" width="content" height="content" name="Strings" x="340">
         <List width="150">
             <AutoVariable width="fill" target="esp.info.name" label="Name"/>
@@ -139,21 +130,6 @@
             <AutoVariable width="fill" target="dominatemark.enable" label="Enable" tooltip="Enables a mark on people you are dominating, similar to the one shown if someone is dominating you"/>
             <AutoVariable width="fill" target="dominatemark.min-size" label="Draw min size"/>
             <AutoVariable width="fill" target="dominatemark.max-size" label="Draw max size"/>
-        </List>
-    </Box>
-    <Box padding="12 6 6 6" width="content" height="content" name="Head ESP" x="340" y="220">
-        <List width="150">
-            <LabeledObject width="fill" label="Head ESP mode" tooltip="Puts a certain icon over players' heads, independent of regular ESP settings">
-                <Select target="headesp.mode">
-                    <Option name="Off" value="0"/>
-                    <Option name="Circle" value="1"/>
-                    <Option name="Class" value="2"/>
-                    <Option name="Joy" value="3"/>
-                    <Option name="Thinking" value="4"/>
-                </Select>
-            </LabeledObject>
-            <AutoVariable width="fill" target="headesp.size-scaling" label="Size scaling" tooltip="Sets the size of the head ESP." min="2.5" max="8.01" step="0.1"/>
-            <AutoVariable width="fill" target="headesp.teammates" label="Teammates" tooltip="Toggles whether teammates have the head ESP"/>
         </List>
     </Box>
 </Tab>
