@@ -92,25 +92,6 @@
             </Box>
         </List>
     </Box>
-    <Box name="Uber chat" width="content" height="content" padding="12 6 6 6" x="352">
-        <List width="177">
-            <LabeledObject width="fill" label="Source" tooltip="Automatically sends uber % to chat">
-                <Select target="uberspam.source">
-                    <Option name="Disable" value="0"/>
-                    <Option name="Default" value="1"/>
-                    <Option name="Null Core" value="2"/>
-                    <Option name="Custom" value="3"/>
-                </Select>
-            </LabeledObject>
-            <AutoVariable width="fill" target="uberspam.file" label="Custom uber chat"/>
-            <AutoVariable width="fill" target="uberspam.team-chat" label="Team chat" tooltip="Only send uber chat to teamchat"/>
-            <AutoVariable width="fill" target="uberspam.triggers.ended" label="Uber end"/>
-            <AutoVariable width="fill" target="uberspam.triggers.ready" label="Uber ready"/>
-            <AutoVariable width="fill" target="uberspam.triggers.used" label="Uber used"/>
-            <AutoVariable width="fill" target="uberspam.triggers.every-n-percent" label="Every %" tooltip="Increment of percent of uber to send info to chat"/>
-            <!-- FIXME add button -->
-        </List>
-    </Box>
     <Box name="Misc" width="content" height="content" padding="12 6 6 6" x="352" y="130">
         <List width="177">
             <AutoVariable width="fill" target="chat.clean" label="Remove newlines" tooltip="Hides newline spam"/>
