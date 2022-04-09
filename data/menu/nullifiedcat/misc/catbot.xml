@@ -1,10 +1,11 @@
 
 <Tab name="Cat-Bot" padding="4 4 4 4">
-    <Box name="Autojoin and taunt" width="content" height="content" padding="12 6 6 6">
+    <Box name="Autojoin" width="content" height="content" padding="12 6 6 6">
         <List width="200">
             <AutoVariable width="fill" target="autojoin.auto-queue" label="Auto queue"/>
             <AutoVariable width="fill" target="autojoin.auto-requeue" label="Auto requeue"/>
             <AutoVariable width="fill" target="autoqueue.mode" label="Autoqueue mode" min="0" max="12"/>
+            <AutoVariable width="fill" target="votelogger.requeue-on-kick" label="Requeue if kicked"/>
             <LabeledObject width="fill" label="Autojoin class" tooltip="Automatically pick a class">
                 <Select target="autojoin.class">
                     <Option name="None" value="0"/>
