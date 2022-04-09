@@ -92,7 +92,7 @@
             </Box>
         </List>
     </Box>
-    <Box name="Misc" width="content" height="content" padding="12 6 6 6" x="352" y="130">
+    <Box name="Misc" width="content" height="content" padding="12 6 6 6" x="352">
         <List width="177">
             <AutoVariable width="fill" target="chat.clean" label="Remove newlines" tooltip="Hides newline spam"/>
             <AutoVariable width="fill" target="chat.anti-spam" label="Anti-spam" tooltip="Hides chat spam"/>

@@ -19,7 +19,6 @@
 namespace hacks::catbot
 {
 
-
 static settings::Int abandon_if_ipc_bots_gte{ "cat-bot.abandon-if.ipc-bots-gte", "0" };
 static settings::Int abandon_if_humans_lte{ "cat-bot.abandon-if.humans-lte", "0" };
 static settings::Int abandon_if_players_lte{ "cat-bot.abandon-if.players-lte", "0" };
@@ -30,7 +29,7 @@ static settings::Int micspam_off{ "cat-bot.micspam.interval-off", "60" };
 
 static settings::Boolean random_votekicks{ "cat-bot.votekicks", "false" };
 static settings::Boolean votekick_rage_only{ "cat-bot.votekicks.rage-only", "false" };
-static settings::Boolean autovote_map{ "cat-bot.autovote-map", "false" };
+static settings::Boolean autovote_map{ "cat-bot.autovote-map", "true" };
 
 settings::Boolean catbotmode{ "cat-bot.enable", "false" };
 settings::Boolean anti_motd{ "cat-bot.anti-motd", "false" };
@@ -132,7 +131,12 @@ struct Upgradeinfo
 
 void SendNetMsg(INetMessage &msg)
 {
-
+    /*
+    if (!strcmp(msg.GetName(), "clc_CmdKeyValues"))
+    {
+        if ((KeyValues *) (((unsigned *) &msg)[4]))
+            MvM_Autoupgrade((KeyValues *) (((unsigned *) &msg)[4]));
+    }*/
 }
 
 class CatBotEventListener2 : public IGameEventListener2
@@ -152,8 +156,8 @@ CatBotEventListener2 &listener2()
 }
 
 Timer timer_votekicks{};
-static Timer timer_catbot_list{};
 static Timer timer_abandon{};
+static Timer timer_catbot_list{};
 
 static int count_ipc = 0;
 static std::vector<unsigned> ipc_list{ 0 };
@@ -174,6 +178,7 @@ Timer level_init_timer{};
 Timer micspam_on_timer{};
 Timer micspam_off_timer{};
 
+
 CatCommand print_ammo("debug_print_ammo", "debug",
                       []()
                       {
@@ -184,6 +189,7 @@ CatCommand print_ammo("debug_print_ammo", "debug",
                               logging::Info("Ammo Table %d: %d", i, CE_INT(LOCAL_E, netvar.m_iAmmo + i * 4));
                       });
 static Timer disguise{};
+static Timer report_timer{};
 static std::string health = "Health: 0/0";
 static std::string ammo   = "Ammo: 0/0";
 static int max_ammo;
@@ -222,9 +228,6 @@ static Timer unstuck{};
 static int unstucks;
 void update()
 {
-    if (g_Settings.bInvalid)
-        return;
-
     if (!catbotmode)
         return;
 
