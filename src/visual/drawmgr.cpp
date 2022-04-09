@@ -78,9 +78,7 @@ void DrawCheatVisuals()
         PROF_SECTION(PT_info_text);
         if (info_text)
         {
-            auto color = colors::RainbowCurrent();
-            color.a    = 1.0f;
-            AddSideString("pastedhook!!!!", color);
+            AddSideString("pastedhook!!!!", colors::yellow);
         }
     }
     if (spectator_target)
