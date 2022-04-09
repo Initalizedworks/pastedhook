@@ -16,7 +16,7 @@
 #include "SettingCommands.hpp"
 #include "glob.h"
 
-namespace hacks::shared::catbot
+namespace hacks::catbot
 {
 
 
@@ -30,10 +30,10 @@ static settings::Int micspam_off{ "cat-bot.micspam.interval-off", "60" };
 
 static settings::Boolean random_votekicks{ "cat-bot.votekicks", "false" };
 static settings::Boolean votekick_rage_only{ "cat-bot.votekicks.rage-only", "false" };
-static settings::Boolean autovote_map{ "cat-bot.autovote-map", "true" };
+static settings::Boolean autovote_map{ "cat-bot.autovote-map", "false" };
 
-settings::Boolean catbotmode{ "cat-bot.enable", "true" };
-settings::Boolean anti_motd{ "cat-bot.anti-motd", "true" };
+settings::Boolean catbotmode{ "cat-bot.enable", "false" };
+settings::Boolean anti_motd{ "cat-bot.anti-motd", "false" };
 
 
 struct catbot_user_state
@@ -425,4 +425,4 @@ static InitRoutine runinit(
 #endif
         init();
     });
-} // namespace hacks::shared::catbot
+} // namespace hacks::catbot
