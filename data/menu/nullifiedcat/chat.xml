@@ -61,7 +61,7 @@
     </Box>
     <Box name="Chat censor" width="content" height="content" padding="12 6 6 6" y="200">
         <List width="150">
-            <AutoVariable width="fill" target="chat.censor.enable" label="Enable chat censor" tooltip="Censors cheating accusations. Hides phrases like 'cheat' and 'kick'"/>
+            <AutoVariable width="fill" target="chat.censor.enable" label="Enable China mode" tooltip="Censors cheating accusations. Hides phrases like 'cheat' and 'kick'"/>
             <AutoVariable width="fill" target="chat.censor.filter" label="Filter"/>
         </List>
     </Box>
@@ -77,19 +77,6 @@
             </LabeledObject>
             <AutoVariable width="fill" target="killsay.file" label="Custom killsay"/>
             <AutoVariable width="fill" target="killsay.delay" label="Killsay delay" tooltip="Delay in milliseconds"/>
-            <Box name="Critsay" width="165" height="content" padding="12 6 6 6">
-                <List width="150">
-                    <LabeledObject width="fill" label="Critsay mode">
-                        <Select target="critsay.mode">
-                            <Option name="Disable" value="0"/>
-                            <Option name="Custom" value="1"/>
-                            <Option name="Default" value="2"/>
-                        </Select>
-                    </LabeledObject>
-                    <AutoVariable width="fill" target="critsay.file" label="Custom critsay"/>
-                    <AutoVariable width="fill" target="critsay.delay" label="Critsay delay"/>
-                </List>
-            </Box>
         </List>
     </Box>
     <Box name="Misc" width="content" height="content" padding="12 6 6 6" x="352">
@@ -111,7 +98,7 @@
             <AutoVariable width="fill" target="chat.identify.answer" label="Counter identify"/>
         </List>
     </Box>
-    <Box name="Votelogger" width="content" height="content" padding="12 6 6 6" x="170" y="140">
+    <Box name="Votelogger" width="content" height="content" padding="12 6 6 6" x="170" y="70">
         <List width="165">
             <AutoVariable width="fill" target="votelogger.autovote.yes" label="Autovote yes"/>
             <AutoVariable width="fill" target="votelogger.autovote.no" label="Autovote no"/>

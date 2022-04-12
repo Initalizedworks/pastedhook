@@ -1539,13 +1539,13 @@ void Draw()
     {
         Vector out;
         if (draw::WorldToScreen(area, out))
-            draw::Rectangle(out.x - 2.0f, out.y - 2.0f, 4.0f, 4.0f, colors::orange);
+            draw::Rectangle(out.x - 2.0f, out.y - 2.0f, 4.0f, 4.0f, colors::green);
     }
     for (auto &area : slight_danger_drawlist_dormant)
     {
         Vector out;
         if (draw::WorldToScreen(area, out))
-            draw::Rectangle(out.x - 2.0f, out.y - 2.0f, 4.0f, 4.0f, colors::orange);
+            draw::Rectangle(out.x - 2.0f, out.y - 2.0f, 4.0f, 4.0f, colors::green);
     }
     for (auto &area : *navparser::NavEngine::getFreeBlacklist())
     {

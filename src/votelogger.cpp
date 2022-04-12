@@ -87,8 +87,6 @@ void dispatchUserMessage(bf_read &buffer, int type)
         buffer.Seek(0);
         target >>= 1;
 
-        // info is the person getting kicked,
-        // info2 is the person calling the kick.
         player_info_s info{}, info2{};
         if (!GetPlayerInfo(target, &info) || !GetPlayerInfo(caller, &info2))
             break;
@@ -103,11 +101,13 @@ void dispatchUserMessage(bf_read &buffer, int type)
 
         if (*vote_kickn || *vote_kicky)
         {
+            // info is the person getting kicked,
+            // info2 is the person calling the kick.
             using namespace playerlist;
 
             auto &pl             = AccessData(info.friendsID);
             auto &pl_caller      = AccessData(info2.friendsID);
-            bool friendly_kicked = pl.state != k_EState::RAGE && pl.state != k_EState::DEFAULT;
+            bool friendly_kicked = pl.state != k_EState::RAGE && pl.state != k_EState::DEFAULT && pl.state != k_EState::PAZER && pl.state != k_EState::CHEATER && pl.state != k_EState::CAT;
             bool friendly_caller = pl_caller.state != k_EState::RAGE && pl_caller.state != k_EState::DEFAULT;
 
             if (*vote_kickn && friendly_kicked)

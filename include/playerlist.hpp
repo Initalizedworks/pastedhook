@@ -25,6 +25,7 @@ enum class k_EState
     CAT,
     PAZER,
     CHEATER,
+    PASTER,
     PARTY,
     STATE_LAST = PARTY
 };

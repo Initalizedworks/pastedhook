@@ -1,3 +1,4 @@
+
 /*
   Created by Jenny White on 29.04.18.
   Copyright (c) 2018 nullworks. All rights reserved.
@@ -12,13 +13,23 @@
 #include "e8call.hpp"
 #include "Warp.hpp"
 #include "nospread.hpp"
-
+// needs work
 static settings::Int newlines_msg{ "chat.prefix-newlines", "0" };
 static settings::Boolean log_sent{ "debug.log-sent-chat", "false" };
 static settings::Boolean answerIdentify{ "chat.identify.answer", "true" };
+static settings::Boolean identify{ "chat.identify", "true" };
+/*
+static settings::Boolean publicidentify{"chat.public.identify", "true"};
+static settings::Boolean answerpublicIdentify{"chat.identify.answer.public", "true"};
+*/
 static Timer identify_timer{};
+// i wonder if it even works lol
+constexpr int PASTED_IDENTIFY   = 3239;
+constexpr int PASTED_REPLY      = 3240;
+/*
 constexpr int CAT_IDENTIFY   = 0xCA7;
 constexpr int CAT_REPLY      = 0xCA8;
+*/
 constexpr float AUTH_MESSAGE = 1234567.0f;
 
 namespace hacks::catbot
@@ -31,7 +42,7 @@ namespace hooked_methods
 static bool send_achievement_reply{};
 static Timer send_achievement_reply_timer{};
 
-// Welcome back Achievement based identify.
+// Welcome back Achievement "based" identify.
 void sendAchievementKv(int value)
 {
     KeyValues *kv = new KeyValues("AchievementEarned");
@@ -39,16 +50,10 @@ void sendAchievementKv(int value)
     g_IEngine->ServerCmdKeyValues(kv);
 }
 
-void sendIdentifyMessage(bool reply)
+void sendIdentifyMessagepr(bool reply)
 {
-    reply ? sendAchievementKv(CAT_REPLY) : sendAchievementKv(CAT_IDENTIFY);
+    reply ? sendAchievementKv(PASTED_REPLY) : sendAchievementKv(PASTED_IDENTIFY);
 }
-
-#if ENABLE_TEXTMODE
-settings::Boolean identify{ "chat.identify", "true" };
-#else
-settings::Boolean identify{ "chat.identify", "false" };
-#endif
 
 std::vector<KeyValues *> Iterate(KeyValues *event, int depth)
 {
@@ -137,23 +142,25 @@ void ParseKeyValue(KeyValues *event)
 
 void ProcessAchievement(IGameEvent *ach)
 {
-    int player_idx  = ach->GetInt("player", 0xDEAD);
-    int achievement = ach->GetInt("achievement", 0xDEAD);
-    if (player_idx != 0xDEAD && (achievement == CAT_IDENTIFY || achievement == CAT_REPLY))
+    // ill work on this later
+    int player_idxpr  = ach->GetInt("player", 0xCD);
+    int achievementpr = ach->GetInt("achievement", 0xCD);
+    if (player_idxpr != 0xCD && (achievementpr == PASTED_IDENTIFY || achievementpr == PASTED_REPLY))
     {
-        // Always reply and set on CA7 and only set on CA8
-        bool reply = achievement == CAT_IDENTIFY;
+        bool reply = achievementpr == PASTED_IDENTIFY;
         player_info_s info;
-        if (!g_IEngine->GetPlayerInfo(player_idx, &info))
+        if (!g_IEngine->GetPlayerInfo(player_idxpr, &info))
             return;
-        if (reply && *answerIdentify && player_idx != g_pLocalPlayer->entity_idx)
+        if (reply && *answerIdentify && player_idxpr != g_pLocalPlayer->entity_idx)
         {
             send_achievement_reply_timer.update();
             send_achievement_reply = true;
         }
-        if (playerlist::ChangeState(info.friendsID, playerlist::k_EState::CAT))
-            PrintChat("Detected \x07%06X%s\x01 as a Cathook user", 0xe1ad01, info.name);
+        if (playerlist::ChangeState(info.friendsID, playerlist::k_EState::PASTER))
+            PrintChat("Detected \x07%06X%s\x01 as a Paster", 0xe1ad01, info.name);
+        // else
     }
+    //
 }
 
 class AchievementListener : public IGameEventListener2
