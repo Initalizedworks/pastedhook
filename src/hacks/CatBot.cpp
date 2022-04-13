@@ -22,7 +22,7 @@ namespace hacks::catbot
 static settings::Int requeue_if_humans_lte{"cat-bot.requeue-if.humans-lte", "0"};
 static settings::Int requeue_if_players_lte{"cat-bot.requeue-if.players-lte", "0"};
 
-static settings::Int stopqueue_if_humans_lte{"cat-bot.stopqueue-if.humans-lte", "0"};
+static settings::Int stopqueue_if_humans_gte{"cat-bot.stopqueue-if.humans-gte", "0"};
 static settings::Int stopqueue_if_players_gte{"cat-bot.stopqueue-if.players-gte", "0"};
 
 static settings::Boolean micspam{ "cat-bot.micspam.enable", "false" };
@@ -291,13 +291,13 @@ void update()
                 return;
             }
         }
-        if (stopqueue_if_humans_lte)
+        if (stopqueue_if_humans_gte)
         {
-            if (count_total - count_ipc <= int(stopqueue_if_humans_lte))
+            if (count_total - count_ipc <= int(stopqueue_if_humans_gte))
             {
                 logging::Info("We are going to stop queue because there are %d non-bots in "
-                              "the game, and stopqueue_if_humans_lte is %d.",
-                              count_total - count_ipc, int(requeue_if_humans_lte));
+                              "the game, and stopqueue_if_humans_gte is %d.",
+                              count_total - count_ipc, int(stopqueue_if_humans_gte));
                 tfmm::leaveQueue();
             }
         }

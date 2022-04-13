@@ -23,7 +23,7 @@ const char *const k_pszNames[]                                  = { "DEFAULT", "
 const std::array<std::pair<k_EState, size_t>, 5> k_arrGUIStates = { std::pair(k_EState::DEFAULT, 0), { k_EState::FRIEND, 1 }, { k_EState::RAGE, 2 }, { k_EState::PAZER, 3 }, { k_EState::CHEATER, 4 } };
 const userdata null_data{};
 #if ENABLE_VISUALS
-std::array<rgba_t, 8> k_Colors = { colors::empty, colors::FromRGBA8(99, 226, 161, 255), colors::FromRGBA8(226, 204, 99, 255), colors::FromRGBA8(232, 134, 6, 255), colors::FromRGBA8(232, 134, 6, 255), colors::empty, colors::FromRGBA8(150, 75, 0, 255), colors::FromRGBA8(99, 226, 161, 255) };
+std::array<rgba_t, 8> k_Colors = { colors::empty, colors::FromRGBA8(99, 226, 161, 255), colors::FromRGBA8(226, 204, 99, 255), colors::FromRGBA8(232, 134, 6, 255), colors::FromRGBA8(232, 134, 6, 255), colors::empty, colors::FromRGBA8(150, 75, 0, 255), colors::FromRGBA8(255, 140, 0, 1) };
 #endif
 bool ShouldSave(const userdata &data)
 {

@@ -16,9 +16,7 @@
 static settings::Int newlines_msg{ "chat.prefix-newlines", "0" };
 static settings::Boolean log_sent{ "debug.log-sent-chat", "false" };
 static settings::Boolean answerIdentify{ "chat.identify.answer", "true" };
-static settings::Boolean identify{ "chat.identify", "true" };
 static Timer identify_timer{};
-// ill just let neko worry about this
 constexpr int CAT_IDENTIFY   = 0xCA7;
 constexpr int CAT_REPLY      = 0xCA8;
 constexpr float AUTH_MESSAGE = 1234567.0f;
@@ -33,7 +31,7 @@ namespace hooked_methods
 static bool send_achievement_reply{};
 static Timer send_achievement_reply_timer{};
 
-// Welcome back Achievement "based" identify.
+// Welcome back Achievement based identify.
 void sendAchievementKv(int value)
 {
     KeyValues *kv = new KeyValues("AchievementEarned");
@@ -45,6 +43,12 @@ void sendIdentifyMessage(bool reply)
 {
     reply ? sendAchievementKv(CAT_REPLY) : sendAchievementKv(CAT_IDENTIFY);
 }
+
+#if ENABLE_TEXTMODE
+settings::Boolean identify{ "chat.identify", "true" };
+#else
+settings::Boolean identify{ "chat.identify", "false" };
+#endif
 
 std::vector<KeyValues *> Iterate(KeyValues *event, int depth)
 {
@@ -152,46 +156,6 @@ void ProcessAchievement(IGameEvent *ach)
     }
 }
 
-/*
-bool logch(unsigned steamID, const char *username)
-{
-    std::ifstream chusers_r(DATA_PATH "/chusers.txt", std::ios::in);
-    std::string steamID_str = std::to_string(steamID);
-
-    // Check to make sure this ID is not already saved by another bot (shouldn't happen)
-    try
-    {
-        std::string line;
-        while (std::getline(chusers_r, line))
-        {
-            if (line.find(steamID_str) != std::string::npos)
-                return false;
-        }
-
-        chusers_r.close();
-    }
-    catch (std::exception &e)
-    {
-        logging::Info("Unable to read userinfo on [U:1:%u] (%s): %s", steamID, username, e.what());
-        PrintChat("Unable to read userinfo on [U:1:%u] (%s): %s", steamID, username, e.what);
-    }
-
-    std::ofstream chusers_a(DATA_PATH "/chusers.txt", std::ios::app);
-    try
-    {
-        chusers_a << steamID_str << " " << username << "\n";
-        chusers_a.close();
-    }
-    catch (std::exception &e)
-    {
-        logging::Info("Unable to add user [U:1:%u] (%s) to the list of cathook users: %s", steamID, username, e.what());
-        PrintChat("Unable to add user [U:1:%u] (%s) to the list of cathook users: %s", steamID
-    }
-    logging::Info("User [U:1:%u] (%s) has sucessfully been addd to the list of cathook users!", steamID, username);
-    PrintChat("User [U:1:%u] (%s) has sucessfully been addd to the list of cathook users!", steamID, username);
-    return true;
-}
-*/
 class AchievementListener : public IGameEventListener2
 {
     virtual void FireGameEvent(IGameEvent *event)
@@ -240,7 +204,6 @@ DEFINE_HOOKED_METHOD(SendNetMsg, bool, INetChannel *this_, INetMessage &msg, boo
         force_reliable = true;
     // Don't use warp with nospread
     else
-        // CATHOOK IDENTIFY WITH WARP!?!?!!?!?
         hacks::warp::SendNetMessage(msg);
 
     // net_StringCmd

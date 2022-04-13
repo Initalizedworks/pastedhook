@@ -5,7 +5,7 @@
             <AutoVariable width="fill" target="autojoin.auto-queue" label="Auto queue"/>
             <AutoVariable width="fill" target="autojoin.auto-requeue" label="Auto requeue"/>
             <AutoVariable width="fill" target="autoqueue.mode" label="Autoqueue mode" min="0" max="12"/>
-            <AutoVariable width="fill" target="votelogger.requeue-on-kick" label="Requeue if kicked"/>
+            <AutoVariable width="fill" target="votelogger.requeue-on-kick" label="Requeue on kick" tooltip="I couldn't come up with a better name for this lol"/>
             <LabeledObject width="fill" label="Autojoin class" tooltip="Automatically pick a class">
                 <Select target="autojoin.class">
                     <Option name="None" value="0"/>
@@ -26,10 +26,11 @@
     <Box name="Utilities" width="content" height="content" padding="12 6 6 6" x="215">
         <List width="200">
             <AutoVariable width="fill" target="cat-bot.enable" label="Enable utilities"/>
-            <AutoVariable width="fill" target="cat-bot.abandon-if.bots-gte" label="Abandon if bots Gte"/>
-            <AutoVariable width="fill" target="cat-bot.abandon-if.ipc-bots-gte" label="Abandon if IPC bots Gte"/>
-            <AutoVariable width="fill" target="cat-bot.abandon-if.humans-lte" label="Abandon if humans Lte"/>
-            <AutoVariable width="fill" target="cat-bot.abandon-if.players-lte" label="Abandon if players Lte"/>
+            <!-- probably useless lol -->
+            <AutoVariable width="fill" target="cat-bot.requeue-if.humans-lte" label="Requeue if humans Lte"/>
+            <AutoVariable width="fill" target="cat-bot.requeue-if.players-lte" label="Requeue if players Lte"/>
+            <AutoVariable width="fill" target="cat-bot.stopqueue-if.humans-gte" label="Stop queue if humans Gte"/>
+            <AutoVariable width="fill" target="cat-bot.stopqueue-if.players-gte" label="Stop queue if players Gte"/>
             <AutoVariable width="fill" target="cat-bot.micspam.enable" label="Micspam"/>
             <AutoVariable width="fill" target="cat-bot.micspam.interval-off" label="Micspam interval off"/>
             <AutoVariable width="fill" target="cat-bot.micspam.interval-on" label="Micspam interval on"/>

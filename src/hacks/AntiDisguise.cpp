@@ -13,9 +13,9 @@ namespace hacks::antidisguise
 #if ENABLE_TEXTMODE
 static settings::Boolean enable{ "remove.disguise", "true" };
 #else
-static settings::Boolean enable{ "remove.disguise", "false" };
+static settings::Boolean enable{ "remove.disguise", "true" };
 #endif
-static settings::Boolean no_invisibility{ "remove.cloak", "false" };
+static settings::Boolean no_invisibility{ "remove.cloak", "true" };
 
 void cm()
 {
