@@ -8,35 +8,34 @@
 #include "PlayerTools.hpp"
 #include "entitycache.hpp"
 #include "settings/Bool.hpp"
-#include "MiscTemporary.hpp"
-
-namespace player_tools
-{
+#include "Aimbot.hpp"
 
 static settings::Int betrayal_limit{ "player-tools.betrayal-limit", "2" };
-static settings::Boolean betrayal_sync{ "player-tools.betrayal-ipc-sync", "true" };
 
 static settings::Boolean taunting{ "player-tools.ignore.taunting", "true" };
 static settings::Boolean ignoreCathook{ "player-tools.ignore.cathook", "true" };
 
 static std::unordered_map<unsigned, unsigned> betrayal_list{};
 
-static CatCommand forgive_all("pt_forgive_all", "Clear betrayal list", []() { betrayal_list.clear(); });
+namespace player_tools
+{
 
 bool shouldTargetSteamId(unsigned id)
 {
     if (betrayal_limit)
     {
-        if (betrayal_list[id] > (unsigned) *betrayal_limit)
+        if (betrayal_list[id] >= *betrayal_limit)
             return true;
     }
 
     auto &pl = playerlist::AccessData(id);
+    if (pl.state == playerlist::k_EState::IPC)
+        return true;
     if (playerlist::IsFriendly(pl.state) || (pl.state == playerlist::k_EState::CAT && *ignoreCathook))
         return false;
+
     return true;
 }
-
 bool shouldTarget(CachedEntity *entity)
 {
     if (entity->m_Type() == ENTITY_PLAYER)
@@ -45,26 +44,23 @@ bool shouldTarget(CachedEntity *entity)
             return false;
         if (HasCondition<TFCond_HalloweenGhostMode>(entity))
             return false;
-        // Don't shoot players in truce
-        if (isTruce())
+        if (hacks::aimbot::ignore_cloak && IsPlayerInvisible(entity))
             return false;
         return shouldTargetSteamId(entity->player_info.friendsID);
     }
-    else if (entity->m_Type() == ENTITY_BUILDING)
-        // Don't shoot buildings in truce
-        if (isTruce())
-            return false;
 
     return true;
 }
+
 bool shouldAlwaysRenderEspSteamId(unsigned id)
 {
     if (id == 0)
         return false;
 
     auto &pl = playerlist::AccessData(id);
-    if (pl.state != playerlist::k_EState::DEFAULT)
+    if (pl.state != playerlist::k_EState::DEFAULT && pl.state != playerlist::k_EState::RAGE)
         return true;
+
     return false;
 }
 bool shouldAlwaysRenderEsp(CachedEntity *entity)
@@ -100,82 +96,140 @@ std::optional<colors::rgba_t> forceEspColor(CachedEntity *entity)
 }
 #endif
 
-void onKilledBy(unsigned id)
+void loadBetrayList()
 {
-    auto &pl = playerlist::AccessData(id);
-    if (!shouldTargetSteamId(id) && !playerlist::IsFriendly(pl.state))
+    std::ifstream betray_list_r(DATA_PATH "/betray_list.txt", std::ios::in);
+
+    try
     {
-        // We ignored the gamer, but they still shot us
-        if (betrayal_list.find(id) == betrayal_list.end())
-            betrayal_list[id] = 0;
-        betrayal_list[id]++;
-        // Notify other bots
-        if (id && betrayal_list[id] == *betrayal_limit && betrayal_sync)
+        std::string line;
+        while (std::getline(betray_list_r, line))
         {
-            if (ipc::peer && ipc::peer->connected)
-            {
-                std::string command = "cat_ipc_exec_all cat_pl_mark_betrayal " + std::to_string(id);
-                if (command.length() >= 63)
-                    ipc::peer->SendMessage(0, -1, ipc::commands::execute_client_cmd_long, command.c_str(), command.length() + 1);
-                else
-                    ipc::peer->SendMessage(command.c_str(), -1, ipc::commands::execute_client_cmd, 0, 0);
-            }
+            size_t spacePos = line.find(' ');
+            if (spacePos == std::string::npos)
+                continue;
+            unsigned steamid = std::stoi(line.substr(0, spacePos));
+            if (betrayal_list.find(steamid) == betrayal_list.end() || betrayal_list[steamid] < *betrayal_limit)
+                betrayal_list[steamid] = *betrayal_limit;
         }
     }
+    catch (std::exception &e)
+    {
+        logging::Info("Reading betray list unsuccessful: %s", e.what());
+    }
+    logging::Info("Reading betray list successful!");
 }
 
-static CatCommand mark_betrayal("pl_mark_betrayal", "Mark a steamid32 as betrayal",
-                                [](const CCommand &args)
-                                {
-                                    if (args.ArgC() < 2)
-                                    {
-                                        g_ICvar->ConsoleColorPrintf(MENU_COLOR, "Please provide a valid steamid32!");
-                                        return;
-                                    }
-                                    try
-                                    {
-                                        // Grab steamid
-                                        unsigned steamid       = std::stoul(args.Arg(1));
-                                        betrayal_list[steamid] = *betrayal_limit;
-                                    }
-                                    catch (const std::invalid_argument &)
-                                    {
-                                        g_ICvar->ConsoleColorPrintf(MENU_COLOR, "Invalid Steamid32 provided.");
-                                    }
-                                });
-
-void onKilledBy(CachedEntity *entity)
+bool appendBetrayToFile(unsigned steamID, const char *username)
 {
-    onKilledBy(entity->player_info.friendsID);
+    std::ifstream betray_list_r(DATA_PATH "/betray_list.txt", std::ios::in);
+    std::string steamID_str = std::to_string(steamID);
+
+    // Check to make sure this ID is not already saved by another bot (shouldn't happen)
+    try
+    {
+        std::string line;
+        while (std::getline(betray_list_r, line))
+        {
+            if (line.find(steamID_str) != std::string::npos)
+                return false;
+        }
+
+        betray_list_r.close();
+    }
+    catch (std::exception &e)
+    {
+        logging::Info("Reading betray list for appending [U:1:%u] (%s) unsuccessful: %s", steamID, username, e.what());
+    }
+
+    std::ofstream betray_list_a(DATA_PATH "/betray_list.txt", std::ios::app);
+    try
+    {
+        betray_list_a << steamID_str << " " << username << "\n";
+        betray_list_a.close();
+    }
+    catch (std::exception &e)
+    {
+        logging::Info("Appending of [U:1:%u] (%s) to betray list unsuccessful: %s", steamID, username, e.what());
+    }
+    logging::Info("Appending of [U:1:%u] (%s) to betray list successful!", steamID, username);
+    return true;
 }
 
-class PlayerToolsEventListener : public IGameEventListener2
+class PlayerDeathListener : public IGameEventListener2
 {
+public:
     void FireGameEvent(IGameEvent *event) override
     {
-
-        int killer_id = GetPlayerForUserID(event->GetInt("attacker"));
-        int victim_id = GetPlayerForUserID(event->GetInt("userid"));
-
-        if (victim_id == g_IEngine->GetLocalPlayer())
-        {
-            onKilledBy(ENTITY(killer_id));
+        player_info_s killer_info{};
+        int attacker_id = g_IEngine->GetPlayerForUserID(event->GetInt("attacker"));
+        int victim_id   = g_IEngine->GetPlayerForUserID(event->GetInt("userid"));
+        if (!g_IEngine->GetPlayerInfo(attacker_id, &killer_info))
             return;
+
+        unsigned id = killer_info.friendsID;
+        auto &pl    = playerlist::AccessData(id);
+
+        if (victim_id == g_IEngine->GetLocalPlayer() && pl.state == playerlist::k_EState::CAT && pl.state != playerlist::k_EState::IPC)
+        {
+            if (betrayal_list.find(id) == betrayal_list.end())
+                betrayal_list[id] = 1;
+            else
+                betrayal_list[id]++;
+
+            logging::Info("Incremented betray on [U:1:%u] (%s) (%d TOTAL)", id, killer_info.name, betrayal_list[id]);
+
+            if (id && betrayal_list[id] == *betrayal_limit)
+            {
+                logging::Info("New betray: [U:1:%u] (%s)", id, killer_info.name);
+
+                // Try to add this traitor to the betray list file
+                if (appendBetrayToFile(id, killer_info.name))
+                {
+                    // Make IPC peers refresh their betray list
+                    if (ipc::peer && ipc::peer->connected)
+                    {
+                        const std::string command = "cat_pt_load_betraylist";
+                        if (command.length() >= 63)
+                            ipc::peer->SendMessage(nullptr, -1, ipc::commands::execute_client_cmd_long, command.c_str(), command.length() + 1);
+                        else
+                            ipc::peer->SendMessage(command.c_str(), -1, ipc::commands::execute_client_cmd, nullptr, 0);
+                    }
+                }
+            }
         }
     }
 };
 
-PlayerToolsEventListener &listener()
-{
-    static PlayerToolsEventListener object{};
-    return object;
-}
+static CatCommand load_betraylist("pt_load_betraylist", "Load betrayal list", []() { loadBetrayList(); });
+static CatCommand clear_betraylist("pt_betraylist_forgive_all", "Forgive all betrayal list entries", []() { betrayal_list.clear(); });
 
-static InitRoutine register_event(
-    []()
+static CatCommand print_betraylist("pt_print_betraylist", "Print betrayal list", []() {
+    for (auto entry : betrayal_list)
+        logging::Info("[U:1:%u]", entry.first);
+});
+
+static CatCommand add_betraylist_entry("pt_add_betraylist_entry", "Add entry to betrayal list", [](const CCommand &args) {
+    if (args.ArgC() < 2)
     {
-        g_IEventManager2->AddListener(&listener(), "player_death", false);
-        EC::Register(
-            EC::Shutdown, []() { g_IEventManager2->RemoveListener(&listener()); }, "playerlist_shutdown");
-    });
+        logging::Info("Invalid input.");
+        return;
+    }
+
+    betrayal_list[std::stoi(args.Arg(1))] = std::stoi(args.Arg(2));
+});
+
+static CatCommand clear_betraylist_entry("pt_betraylist_forgive", "Forgive a entry on the betrayal list", [](const CCommand &args) {
+    if (args.ArgC() < 1)
+    {
+        logging::Info("Invalid input.");
+        return;
+    }
+
+    betrayal_list[std::stoi(args.Arg(1))] = 0;
+});
+
+static PlayerDeathListener betray_listener;
+static InitRoutine init_betray([]() { g_IEventManager2->AddListener(&betray_listener, "player_death", false); });
+
 } // namespace player_tools

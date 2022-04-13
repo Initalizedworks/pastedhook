@@ -19,9 +19,11 @@
 namespace hacks::catbot
 {
 
-static settings::Int abandon_if_ipc_bots_gte{ "cat-bot.abandon-if.ipc-bots-gte", "0" };
-static settings::Int abandon_if_humans_lte{ "cat-bot.abandon-if.humans-lte", "0" };
-static settings::Int abandon_if_players_lte{ "cat-bot.abandon-if.players-lte", "0" };
+static settings::Int requeue_if_humans_lte{"cat-bot.requeue-if.humans-lte", "0"};
+static settings::Int requeue_if_players_lte{"cat-bot.requeue-if.players-lte", "0"};
+
+static settings::Int stopqueue_if_humans_lte{"cat-bot.stopqueue-if.humans-lte", "0"};
+static settings::Int stopqueue_if_players_gte{"cat-bot.stopqueue-if.players-gte", "0"};
 
 static settings::Boolean micspam{ "cat-bot.micspam.enable", "false" };
 static settings::Int micspam_on{ "cat-bot.micspam.interval-on", "3" };
@@ -131,12 +133,7 @@ struct Upgradeinfo
 
 void SendNetMsg(INetMessage &msg)
 {
-    /*
-    if (!strcmp(msg.GetName(), "clc_CmdKeyValues"))
-    {
-        if ((KeyValues *) (((unsigned *) &msg)[4]))
-            MvM_Autoupgrade((KeyValues *) (((unsigned *) &msg)[4]));
-    }*/
+
 }
 
 class CatBotEventListener2 : public IGameEventListener2
@@ -166,7 +163,6 @@ static bool waiting_for_quit_bool{ false };
 static Timer waiting_for_quit_timer{};
 
 static std::vector<unsigned> ipc_blacklist{};
-
 #if ENABLE_IPC
 void update_ipc_data(ipc::user_data_s &data)
 {
@@ -284,104 +280,46 @@ void update()
                 ++count_ipc;
             }
         }
-
-        if (abandon_if_ipc_bots_gte)
+        if (requeue_if_humans_lte)
         {
-            if (count_ipc >= int(abandon_if_ipc_bots_gte))
+            if (count_total - count_ipc <= int(requeue_if_humans_lte))
             {
-                // Store local IPC Id and assign to the quit_id variable for later comparisions
-                unsigned local_ipcid = ipc::peer->client_id;
-                unsigned quit_id     = local_ipcid;
-
-                // Iterate all the players marked as bot
-                for (auto &id : ipc_list)
-                {
-                    // We already know we shouldn't quit, so just break out of the loop
-                    if (quit_id < local_ipcid)
-                        break;
-
-                    // Reduce code size
-                    auto &peer_mem = ipc::peer->memory;
-
-                    // Iterate all ipc peers
-                    for (unsigned i = 0; i < cat_ipc::max_peers; i++)
-                    {
-                        // If that ipc peer is alive and in has the steamid of that player
-                        if (!peer_mem->peer_data[i].free && peer_mem->peer_user_data[i].friendid == id)
-                        {
-                            // Check against blacklist
-                            if (std::find(ipc_blacklist.begin(), ipc_blacklist.end(), i) != ipc_blacklist.end())
-                                continue;
-
-                            // Found someone with a lower ipc id
-                            if (i < local_ipcid)
-                            {
-                                quit_id = i;
-                                break;
-                            }
-                        }
-                    }
-                }
-                // Only quit if you are the player with the lowest ipc id
-                if (quit_id == local_ipcid)
-                {
-                    // Clear blacklist related stuff
-                    waiting_for_quit_bool = false;
-                    ipc_blacklist.clear();
-
-                    logging::Info("Abandoning because there are %d local players "
-                                  "in game, and abandon_if_ipc_bots_gte is %d.",
-                                  count_ipc, int(abandon_if_ipc_bots_gte));
-                    tfmm::abandon();
-                    return;
-                }
-                else
-                {
-                    if (!waiting_for_quit_bool)
-                    {
-                        // Waiting for that ipc id to quit, we use this timer in order to blacklist
-                        // ipc peers which refuse to quit for some reason
-                        waiting_for_quit_bool = true;
-                        waiting_for_quit_timer.update();
-                    }
-                    else
-                    {
-                        // IPC peer isn't leaving, blacklist for now
-                        if (waiting_for_quit_timer.test_and_set(10000))
-                        {
-                            ipc_blacklist.push_back(quit_id);
-                            waiting_for_quit_bool = false;
-                        }
-                    }
-                }
-            }
-            else
-            {
-                // Reset Bool because no reason to quit
-                waiting_for_quit_bool = false;
-                ipc_blacklist.clear();
-            }
-        }
-        if (abandon_if_humans_lte)
-        {
-            if (count_total - count_ipc <= int(abandon_if_humans_lte))
-            {
-                logging::Info("Abandoning because there are %d non-bots in "
-                              "game, and abandon_if_humans_lte is %d.",
-                              count_total - count_ipc, int(abandon_if_humans_lte));
-                tfmm::abandon();
+                logging::Info("Start queue because there are %d non-bots in "
+                              "game, and requeue_if_humans_lte is %d.",
+                              count_total - count_ipc, int(requeue_if_humans_lte));
+                tfmm::startQueue();
                 return;
             }
         }
-        if (abandon_if_players_lte)
+        if (stopqueue_if_humans_lte)
         {
-            if (count_total <= int(abandon_if_players_lte))
+            if (count_total - count_ipc <= int(stopqueue_if_humans_lte))
             {
-                logging::Info("Abandoning because there are %d total players "
-                              "in game, and abandon_if_players_lte is %d.",
-                              count_total, int(abandon_if_players_lte));
-                tfmm::abandon();
+                logging::Info("We are going to stop queue because there are %d non-bots in "
+                              "the game, and stopqueue_if_humans_lte is %d.",
+                              count_total - count_ipc, int(requeue_if_humans_lte));
+                tfmm::leaveQueue();
+            }
+        }
+        if (requeue_if_players_lte)
+        {
+            if (count_total <= int(requeue_if_players_lte))
+            {
+                logging::Info("Start queue because there are %d total players "
+                              "in game, and requeue_if_players_lte is %d.",
+                              count_total, int(requeue_if_players_lte));
+                tfmm::startQueue();
                 return;
+            }
+        }
+        if (stopqueue_if_players_gte)
+        {
+            if (count_total <= int(stopqueue_if_players_gte))
+            {
+                logging::Info("Stop queue because there are %d total players "
+                              "in game, and stopqueue_if_players_gte is %d",
+                              count_total, int(requeue_if_players_lte));
+                tfmm::leaveQueue();
             }
         }
     }

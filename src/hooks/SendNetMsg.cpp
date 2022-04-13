@@ -1,4 +1,3 @@
-
 /*
   Created by Jenny White on 29.04.18.
   Copyright (c) 2018 nullworks. All rights reserved.
@@ -13,23 +12,15 @@
 #include "e8call.hpp"
 #include "Warp.hpp"
 #include "nospread.hpp"
-// needs work
+
 static settings::Int newlines_msg{ "chat.prefix-newlines", "0" };
 static settings::Boolean log_sent{ "debug.log-sent-chat", "false" };
 static settings::Boolean answerIdentify{ "chat.identify.answer", "true" };
 static settings::Boolean identify{ "chat.identify", "true" };
-/*
-static settings::Boolean publicidentify{"chat.public.identify", "true"};
-static settings::Boolean answerpublicIdentify{"chat.identify.answer.public", "true"};
-*/
 static Timer identify_timer{};
-// i wonder if it even works lol
-constexpr int PASTED_IDENTIFY   = 3239;
-constexpr int PASTED_REPLY      = 3240;
-/*
+// ill just let neko worry about this
 constexpr int CAT_IDENTIFY   = 0xCA7;
 constexpr int CAT_REPLY      = 0xCA8;
-*/
 constexpr float AUTH_MESSAGE = 1234567.0f;
 
 namespace hacks::catbot
@@ -50,9 +41,9 @@ void sendAchievementKv(int value)
     g_IEngine->ServerCmdKeyValues(kv);
 }
 
-void sendIdentifyMessagepr(bool reply)
+void sendIdentifyMessage(bool reply)
 {
-    reply ? sendAchievementKv(PASTED_REPLY) : sendAchievementKv(PASTED_IDENTIFY);
+    reply ? sendAchievementKv(CAT_REPLY) : sendAchievementKv(CAT_IDENTIFY);
 }
 
 std::vector<KeyValues *> Iterate(KeyValues *event, int depth)
@@ -142,27 +133,65 @@ void ParseKeyValue(KeyValues *event)
 
 void ProcessAchievement(IGameEvent *ach)
 {
-    // ill work on this later
-    int player_idxpr  = ach->GetInt("player", 0xCD);
-    int achievementpr = ach->GetInt("achievement", 0xCD);
-    if (player_idxpr != 0xCD && (achievementpr == PASTED_IDENTIFY || achievementpr == PASTED_REPLY))
+    int player_idx  = ach->GetInt("player", 0xDEAD);
+    int achievement = ach->GetInt("achievement", 0xDEAD);
+    if (player_idx != 0xDEAD && (achievement == CAT_IDENTIFY || achievement == CAT_REPLY))
     {
-        bool reply = achievementpr == PASTED_IDENTIFY;
+        // Always reply and set on CA7 and only set on CA8
+        bool reply = achievement == CAT_IDENTIFY;
         player_info_s info;
-        if (!g_IEngine->GetPlayerInfo(player_idxpr, &info))
+        if (!g_IEngine->GetPlayerInfo(player_idx, &info))
             return;
-        if (reply && *answerIdentify && player_idxpr != g_pLocalPlayer->entity_idx)
+        if (reply && *answerIdentify && player_idx != g_pLocalPlayer->entity_idx)
         {
             send_achievement_reply_timer.update();
             send_achievement_reply = true;
         }
-        if (playerlist::ChangeState(info.friendsID, playerlist::k_EState::PASTER))
-            PrintChat("Detected \x07%06X%s\x01 as a Paster", 0xe1ad01, info.name);
-        // else
+        if (playerlist::ChangeState(info.friendsID, playerlist::k_EState::CAT))
+            PrintChat("Detected \x07%06X%s\x01 as a Cathook user", 0xe1ad01, info.name);
     }
-    //
 }
 
+/*
+bool logch(unsigned steamID, const char *username)
+{
+    std::ifstream chusers_r(DATA_PATH "/chusers.txt", std::ios::in);
+    std::string steamID_str = std::to_string(steamID);
+
+    // Check to make sure this ID is not already saved by another bot (shouldn't happen)
+    try
+    {
+        std::string line;
+        while (std::getline(chusers_r, line))
+        {
+            if (line.find(steamID_str) != std::string::npos)
+                return false;
+        }
+
+        chusers_r.close();
+    }
+    catch (std::exception &e)
+    {
+        logging::Info("Unable to read userinfo on [U:1:%u] (%s): %s", steamID, username, e.what());
+        PrintChat("Unable to read userinfo on [U:1:%u] (%s): %s", steamID, username, e.what);
+    }
+
+    std::ofstream chusers_a(DATA_PATH "/chusers.txt", std::ios::app);
+    try
+    {
+        chusers_a << steamID_str << " " << username << "\n";
+        chusers_a.close();
+    }
+    catch (std::exception &e)
+    {
+        logging::Info("Unable to add user [U:1:%u] (%s) to the list of cathook users: %s", steamID, username, e.what());
+        PrintChat("Unable to add user [U:1:%u] (%s) to the list of cathook users: %s", steamID
+    }
+    logging::Info("User [U:1:%u] (%s) has sucessfully been addd to the list of cathook users!", steamID, username);
+    PrintChat("User [U:1:%u] (%s) has sucessfully been addd to the list of cathook users!", steamID, username);
+    return true;
+}
+*/
 class AchievementListener : public IGameEventListener2
 {
     virtual void FireGameEvent(IGameEvent *event)
@@ -211,6 +240,7 @@ DEFINE_HOOKED_METHOD(SendNetMsg, bool, INetChannel *this_, INetMessage &msg, boo
         force_reliable = true;
     // Don't use warp with nospread
     else
+        // CATHOOK IDENTIFY WITH WARP!?!?!!?!?
         hacks::warp::SendNetMessage(msg);
 
     // net_StringCmd

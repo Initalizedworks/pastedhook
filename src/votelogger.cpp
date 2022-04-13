@@ -107,7 +107,7 @@ void dispatchUserMessage(bf_read &buffer, int type)
 
             auto &pl             = AccessData(info.friendsID);
             auto &pl_caller      = AccessData(info2.friendsID);
-            bool friendly_kicked = pl.state != k_EState::RAGE && pl.state != k_EState::DEFAULT && pl.state != k_EState::PAZER && pl.state != k_EState::CHEATER && pl.state != k_EState::CAT;
+            bool friendly_kicked = pl.state != k_EState::RAGE && pl.state != k_EState::DEFAULT && pl.state != k_EState::PAZER && pl.state != k_EState::CHEATER;
             bool friendly_caller = pl_caller.state != k_EState::RAGE && pl_caller.state != k_EState::DEFAULT;
 
             if (*vote_kickn && friendly_kicked)
