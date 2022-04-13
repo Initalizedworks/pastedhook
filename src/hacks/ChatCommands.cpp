@@ -17,6 +17,7 @@
 #include "common.hpp"
 #include "ChatCommands.hpp"
 #include "MiscTemporary.hpp"
+#include "PlayerTools.hpp"
 #include <iostream>
 
 namespace hacks::ChatCommands
@@ -88,11 +89,40 @@ void handleChatMessage(std::string message, int senderid)
         player_info_s senderinfo{};
         if (!GetPlayerInfo(senderid, &senderinfo))
             return;
+        std::vector<int> targets;
+        player_info_s local_info;
 
+        if (CE_BAD(LOCAL_E) || !GetPlayerInfo(LOCAL_E->m_IDX, &local_info))
+            return;
+        for (int i = 1; i < g_GlobalVars->maxClients; ++i)
+        {
+            player_info_s info;
+            if (!GetPlayerInfo(i, &info) || !info.friendsID)
+                continue;
+            if (g_pPlayerResource->GetTeam(i) != g_pLocalPlayer->team)
+                continue;
+            if (info.friendsID == local_info.friendsID)
+                continue;
+            auto &pl = playerlist::AccessData(info.friendsID);
+                continue;
+            if (pl.state != playerlist::k_EState::RAGE && pl.state != playerlist::k_EState::DEFAULT && pl.state != playerlist::k_EState::CHEATER)
+                continue;
+
+                targets.push_back(info.userID);
+        }
+
+        if (targets.empty())
+                return;
+
+            int target = targets[rand() % targets.size()];
+            player_info_s info;
+            if (!GetPlayerInfo(GetPlayerForUserID(target), &info))
+                return;
         ReplaceString(cmd, "%myname%", std::string(localinfo.name));
         ReplaceString(cmd, "%name%", std::string(senderinfo.name));
         ReplaceString(cmd, "%steamid%", std::to_string(senderinfo.friendsID));
         ReplaceString(cmd, "%all_params%", all_params);
+        ReplaceString(cmd, "%random%", std::to_string(target));
         g_IEngine->ClientCmd_Unrestricted(cmd.c_str());
     }
 }

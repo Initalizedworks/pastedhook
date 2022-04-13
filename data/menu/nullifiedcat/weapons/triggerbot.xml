@@ -80,31 +80,4 @@
             </List>
         </Box>
     </Box>
-    <Box padding="12 6 6 6" width="content" height="content" name="Auto Detonator" x="410">
-        <List width="150">
-            <AutoVariable width="fill" target="auto-detonator.enable" label="Enable auto Detonator" tooltip="Auto explode Detonator flares"/>
-            <AutoVariable width="fill" target="auto-detonator.ignore-cloaked" label="Ignore cloaked"/>
-        </List>
-    </Box>
-    <Box padding="12 6 6 6" width="content" height="content" name="Auto sticky" x="410" y="50">
-        <List width="150">
-            <AutoVariable width="fill" target="autosticky.enable" label="Enable auto sticky" tooltip="Auto detonate stickies"/>
-            <AutoVariable width="fill" target="autosticky.buildings" label="Detonate on buildings"/>
-                <LabeledObject width="fill" label="Legit mode" tooltip="Rage: No changes to make the autosticky appear more legit. Semi-legit: Require a line of sight to the Sticky and ignores invisible spies. Legit: same as semi-legit but also require a line of sight to the enemy">
-                    <Select target="autosticky.legit-mode">
-                        <Option name="Rage" value="0"/>
-                        <Option name="Semi-legit" value="1"/>
-                        <Option name="Legit" value="2"/>
-                    </Select>
-                </LabeledObject>
-            <AutoVariable width="fill" target="autosticky.dontblowmeup" label="Don't blow me up" tooltip="Don't detonate if you would recieve damage"/>
-            <AutoVariable width="fill" target="autosticky.min-dist" label="Min distance" tooltip="Stickies will be auto-detonated if enemies are within this distance (measured in Hammer units)" min="0" max="130" step="5"/>
-        </List>
-    </Box>
-    <Box padding="12 6 6 6" width="content" height="content" name="Auto Dead Ringer" x="410" y="150">
-        <List width="150">
-            <AutoVariable width="fill" target="auto-deadringer.enable" label="Enable auto Dead Ringer" tooltip="Auto activate the Dead Ringer if equipped"/>
-            <AutoVariable width="fill" target="auto-deadringer.health" label="Trigger at health"/>
-        </List>
-    </Box>
 </Tab>

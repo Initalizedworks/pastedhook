@@ -13,7 +13,7 @@
 #include <hacks/SkinChanger.hpp>
 #include <settings/Bool.hpp>
 #include <boost/functional/hash.hpp>
-
+//
 namespace hacks::skinchanger
 {
 static settings::Boolean enable{ "skinchanger.enable", "false" };

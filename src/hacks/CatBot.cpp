@@ -78,9 +78,9 @@ void do_random_votekick()
         if (info.friendsID == local_info.friendsID)
             continue;
         auto &pl = playerlist::AccessData(info.friendsID);
-        if (votekick_rage_only && pl.state != playerlist::k_EState::RAGE)
+        if (votekick_rage_only && pl.state != playerlist::k_EState::RAGE && pl.state != playerlist::k_EState::PAZER)
             continue;
-        if (pl.state != playerlist::k_EState::RAGE && pl.state != playerlist::k_EState::DEFAULT)
+        if (pl.state != playerlist::k_EState::RAGE && pl.state != playerlist::k_EState::DEFAULT && pl.state != playerlist::k_EState::CHEATER)
             continue;
 
         targets.push_back(info.userID);
@@ -293,11 +293,11 @@ void update()
         }
         if (stopqueue_if_humans_gte)
         {
-            if (count_total - count_ipc <= int(stopqueue_if_humans_gte))
+            if (count_total + count_ipc <= int(stopqueue_if_humans_gte))
             {
                 logging::Info("We are going to stop queue because there are %d non-bots in "
                               "the game, and stopqueue_if_humans_gte is %d.",
-                              count_total - count_ipc, int(stopqueue_if_humans_gte));
+                              count_total + count_ipc, int(stopqueue_if_humans_gte));
                 tfmm::leaveQueue();
             }
         }
