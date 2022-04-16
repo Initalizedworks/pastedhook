@@ -102,7 +102,6 @@
                     <Option name="Off" value="2"/>
                 </Select>
             </LabeledObject>
-            <AutoVariable width="fill" target="visual.killfeedcolor.enable" label="Enable killfeed coloring" tooltip="Colors names in killfeed to reflect player states eg: RAGE"/>
         </List>
     </Box>
 </Tab>
