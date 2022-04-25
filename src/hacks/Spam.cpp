@@ -223,14 +223,35 @@ bool SubstituteQueries(std::string &input)
     return true;
 }
 
+void SubstituteLines(std::string &input)
+{
+    size_t index = input.find("%lines%");
+    if (index != std::string::npos)
+    {
+        int len      = input.length() - 7;
+        int leftover = 127 - len;
+
+        std::string replace;
+        while (replace.length() < leftover)
+            replace += "\n";
+
+        ReplaceString(input, "%lines%", replace);
+    }
+}
+
 bool FormatSpamMessage(std::string &message)
 {
     ReplaceSpecials(message);
     bool team       = g_pLocalPlayer->team - 2;
     bool enemy_team = !team;
-    ReplaceString(message, "%myteam%", teams[team]);
-    ReplaceString(message, "%enemyteam%", teams[enemy_team]);
-    return SubstituteQueries(message);
+    {
+        ReplaceString(message, "%myteam%", teams[team]);
+        ReplaceString(message, "%enemyteam%", teams[enemy_team]);
+    }
+    if (!SubstituteQueries(message))
+        return false;
+    SubstituteLines(message); /* Last so we always add perfect amount of newlines */
+    return true;
 }
 
 // What to spam
