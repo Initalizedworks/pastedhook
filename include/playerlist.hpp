@@ -25,6 +25,8 @@ enum class k_EState
     CAT,
     PAZER,
     CHEATER,
+    ABUSE,
+    BRI,
     PARTY,
     STATE_LAST = PARTY
 };
@@ -34,7 +36,7 @@ static_assert(sizeof(rgba_t) == sizeof(float) * 4, "player list is going to be i
 #endif
 extern const std::string k_Names[];
 extern const char *const k_pszNames[];
-extern const std::array<std::pair<k_EState, size_t>, 5> k_arrGUIStates;
+extern const std::array<std::pair<k_EState, size_t>, 6> k_arrGUIStates;
 
 struct userdata
 {
@@ -56,7 +58,7 @@ void Load();
 
 constexpr bool IsFriendly(k_EState state)
 {
-    return state != k_EState::RAGE && state != k_EState::DEFAULT && state != k_EState::CAT && state != k_EState::PAZER && state != k_EState::CHEATER;
+    return state != k_EState::RAGE && state != k_EState::DEFAULT && state != k_EState::CAT && state != k_EState::PAZER && state != k_EState::CHEATER && state != k_EState::ABUSE && state != k_EState::BRI;
 }
 #if ENABLE_VISUALS
 rgba_t Color(unsigned steamid);
