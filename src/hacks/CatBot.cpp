@@ -293,11 +293,11 @@ void update()
         }
         if (stopqueue_if_humans_gte)
         {
-            if (count_total + count_ipc <= int(stopqueue_if_humans_gte))
+            if (count_total - count_ipc <= int(stopqueue_if_humans_gte))
             {
                 logging::Info("We are going to stop queue because there are %d non-bots in "
                               "the game, and stopqueue_if_humans_gte is %d.",
-                              count_total + count_ipc, int(stopqueue_if_humans_gte));
+                              count_total - count_ipc, int(stopqueue_if_humans_gte));
                 tfmm::leaveQueue();
             }
         }
@@ -314,7 +314,7 @@ void update()
         }
         if (stopqueue_if_players_gte)
         {
-            if (count_total <= int(stopqueue_if_players_gte))
+            if (count_total = int(stopqueue_if_players_gte))
             {
                 logging::Info("Stop queue because there are %d total players "
                               "in game, and stopqueue_if_players_gte is %d",

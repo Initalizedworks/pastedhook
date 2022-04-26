@@ -872,14 +872,6 @@ void CreateMove()
         return;
     }
     round_states round_state = g_pTeamRoundTimer->GetRoundState();
-    // Still in setuptime, if on fitting team, then do not path yet
-    // F you Pipeline
-    if (round_state == RT_STATE_SETUP && GetLevelName() != "plr_pipeline" && g_pLocalPlayer->team == TEAM_BLU)
-    {
-        if (navparser::NavEngine::isPathing())
-            navparser::NavEngine::cancelPath();
-        return;
-    }
 
     if (vischeck_runtime)
         vischeckPath();
@@ -970,16 +962,16 @@ void drawNavArea(CNavArea *area)
 
     // Nw -> Ne
     if (nw_screen && ne_screen)
-        draw::Line(nw.x, nw.y, ne.x - nw.x, ne.y - nw.y, colors::green, 1.0f);
+        draw::Line(nw.x, nw.y, ne.x - nw.x, ne.y - nw.y, colors::white, 1.0f);
     // Nw -> Sw
     if (nw_screen && sw_screen)
-        draw::Line(nw.x, nw.y, sw.x - nw.x, sw.y - nw.y, colors::green, 1.0f);
+        draw::Line(nw.x, nw.y, sw.x - nw.x, sw.y - nw.y, colors::white, 1.0f);
     // Ne -> Se
     if (ne_screen && se_screen)
-        draw::Line(ne.x, ne.y, se.x - ne.x, se.y - ne.y, colors::green, 1.0f);
+        draw::Line(ne.x, ne.y, se.x - ne.x, se.y - ne.y, colors::white, 1.0f);
     // Sw -> Se
     if (sw_screen && se_screen)
-        draw::Line(sw.x, sw.y, se.x - sw.x, se.y - sw.y, colors::green, 1.0f);
+        draw::Line(sw.x, sw.y, se.x - sw.x, se.y - sw.y, colors::white, 1.0f);
 }
 
 void Draw()
@@ -1007,13 +999,11 @@ void Draw()
         Vector start_screen, end_screen;
         if (draw::WorldToScreen(start_pos, start_screen))
         {
-            draw::Rectangle(start_screen.x - 5.0f, start_screen.y - 5.0f, 10.0f, 10.0f, colors::white);
-
             if (i < crumbs.size() - 1)
             {
                 Vector end_pos = crumbs[i + 1].vec;
                 if (draw::WorldToScreen(end_pos, end_screen))
-                    draw::Line(start_screen.x, start_screen.y, end_screen.x - start_screen.x, end_screen.y - start_screen.y, colors::white, 2.0f);
+                    draw::Line(start_screen.x, start_screen.y, end_screen.x - start_screen.x, end_screen.y - start_screen.y, colors::green, 2.0f);
             }
         }
     }

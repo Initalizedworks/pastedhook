@@ -1,8 +1,8 @@
 <Tab name="Movement" padding="6 6 6 6">
     <Box padding="12 6 6 6" width="content" height="content" name="General">
         <List width="150">
-            <AutoVariable width="fill" target="misc.auto-jump" label="Auto jump" tooltip="Automatically bunnyhop."/>
-            <AutoVariable width="fill" target="misc.auto-jump.chance" label="Auto jump chance" tooltip="% chance of a successful bunnyhop"/>
+            <AutoVariable width="fill" target="misc.auto-jump" label="Bunnyhop" tooltip="Automatically bunnyhop."/>
+            <AutoVariable width="fill" target="misc.auto-jump.chance" label="Bhop chance" tooltip="% chance of a successful bunnyhop"/>
             <LabeledObject width="fill" label="Auto strafe">
                 <Select target="misc.autostrafe">
                     <Option name="Off" value="0"/>

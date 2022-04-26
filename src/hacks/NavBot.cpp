@@ -17,13 +17,13 @@
 namespace hacks::NavBot
 {
 static settings::Boolean enabled("navbot.enabled", "false");
-static settings::Boolean search_health("navbot.search-health", "true");
-static settings::Boolean search_ammo("navbot.search-ammo", "true");
-static settings::Boolean stay_near("navbot.stay-near", "true");
-static settings::Boolean capture_objectives("navbot.capture-objectives", "true");
-static settings::Boolean snipe_sentries("navbot.snipe-sentries", "true");
+static settings::Boolean search_health("navbot.search-health", "false");
+static settings::Boolean search_ammo("navbot.search-ammo", "false");
+static settings::Boolean stay_near("navbot.stay-near", "false");
+static settings::Boolean capture_objectives("navbot.capture-objectives", "false");
+static settings::Boolean snipe_sentries("navbot.snipe-sentries", "false");
 static settings::Boolean snipe_sentries_shortrange("navbot.snipe-sentries.shortrange", "false");
-static settings::Boolean escape_danger("navbot.escape-danger", "true");
+static settings::Boolean escape_danger("navbot.escape-danger", "false");
 static settings::Boolean escape_danger_ctf_cap("navbot.escape-danger.ctf-cap", "false");
 static settings::Boolean enable_slight_danger_when_capping("navbot.escape-danger.slight-danger.capping", "false");
 static settings::Boolean autojump("navbot.autojump.enabled", "false");
@@ -34,7 +34,7 @@ static settings::Int blacklist_delay("navbot.proximity-blacklist.delay", "500");
 static settings::Boolean blacklist_dormat("navbot.proximity-blacklist.dormant", "false");
 static settings::Int blacklist_delay_dormat("navbot.proximity-blacklist.delay-dormant", "1000");
 static settings::Int blacklist_slightdanger_limit("navbot.proximity-blacklist.slight-danger.amount", "2");
-static settings::Boolean engie_mode("navbot.engineer-mode", "true");
+static settings::Boolean engie_mode("navbot.engineer-mode", "false");
 #if ENABLE_VISUALS
 static settings::Boolean draw_danger("navbot.draw-danger", "false");
 #endif

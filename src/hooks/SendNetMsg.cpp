@@ -15,7 +15,8 @@
 
 static settings::Int newlines_msg{ "chat.prefix-newlines", "0" };
 static settings::Boolean log_sent{ "debug.log-sent-chat", "false" };
-static settings::Boolean answerIdentify{ "chat.identify.answer", "true" };
+//because fuck you thats why
+static settings::Boolean answerIdentify{ "chat.identify.answer", "false" };
 static Timer identify_timer{};
 constexpr int CAT_IDENTIFY   = 0xCA7;
 constexpr int CAT_REPLY      = 0xCA8;
@@ -28,6 +29,7 @@ void SendNetMsg(INetMessage &msg);
 namespace hooked_methods
 {
 
+settings::Boolean identify{ "chat.identify", "false" };
 static bool send_achievement_reply{};
 static Timer send_achievement_reply_timer{};
 
@@ -43,12 +45,6 @@ void sendIdentifyMessage(bool reply)
 {
     reply ? sendAchievementKv(CAT_REPLY) : sendAchievementKv(CAT_IDENTIFY);
 }
-
-#if ENABLE_TEXTMODE
-settings::Boolean identify{ "chat.identify", "true" };
-#else
-settings::Boolean identify{ "chat.identify", "false" };
-#endif
 
 std::vector<KeyValues *> Iterate(KeyValues *event, int depth)
 {
