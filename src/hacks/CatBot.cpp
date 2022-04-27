@@ -31,6 +31,10 @@ static settings::Int micspam_off{ "cat-bot.micspam.interval-off", "60" };
 
 static settings::Boolean random_votekicks{ "cat-bot.votekicks", "false" };
 static settings::Boolean votekick_rage_only{ "cat-bot.votekicks.rage-only", "false" };
+static settings::Boolean votekick_pazer_only{ "cat-bot.votekicks.pazer-only", "false" };
+static settings::Boolean votekick_bri_only{ "cat-bot.votekicks.bri-only", "false" };
+static settings::Boolean votekick_abuse_only{ "cat-bot.votekicks.abuse-only", "false" };
+static settings::Boolean votekick_cheater_only{ "cat-bot.votekicks.cheater-only", "false" };
 static settings::Boolean autovote_map{ "cat-bot.autovote-map", "true" };
 
 settings::Boolean catbotmode{ "cat-bot.enable", "false" };
@@ -78,7 +82,15 @@ void do_random_votekick()
         if (info.friendsID == local_info.friendsID)
             continue;
         auto &pl = playerlist::AccessData(info.friendsID);
-        if (votekick_rage_only && pl.state != playerlist::k_EState::RAGE && pl.state != playerlist::k_EState::PAZER)
+        if (votekick_rage_only && pl.state != playerlist::k_EState::RAGE)
+            continue;
+        if (votekick_pazer_only && pl.state != playerlist::k_EState::PAZER)
+            continue;
+        if (votekick_bri_only && pl.state != playerlist::k_EState::BRI)
+            continue;
+        if (votekick_abuse_only && pl.state != playerlist::k_EState::ABUSE)
+            continue;
+        if (votekick_cheater_only && pl.state != playerlist::k_EState::CHEATER)
             continue;
         if (pl.state != playerlist::k_EState::RAGE && pl.state != playerlist::k_EState::DEFAULT && pl.state != playerlist::k_EState::CHEATER)
             continue;

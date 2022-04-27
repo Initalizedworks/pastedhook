@@ -147,14 +147,20 @@ void dispatchUserMessage(bf_read &buffer, int type)
     }
     case 47:
     {
+        if (chat)
+            PrintChat("Vote passed");
         logging::Info("Vote passed");
         break;
     }
     case 48:
+        if (chat)
+            PrintChat("Vote failed");
         logging::Info("Vote failed");
         break;
     case 49:
-        logging::Info("VoteSetup?");
+        if (chat)
+            PrintChat("VoteSetup");
+        logging::Info("VoteSetup");
         break;
     default:
         break;
