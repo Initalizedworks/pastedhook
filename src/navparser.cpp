@@ -489,8 +489,7 @@ Vector last_destination;
 
 bool isReady()
 {
-    // F you Pipeline
-    return enabled && map && map->state == NavState::Active && (GetLevelName() == "plr_pipeline" || (g_pGameRules->roundmode > 3 && (g_pTeamRoundTimer->GetRoundState() != RT_STATE_SETUP || g_pLocalPlayer->team != TEAM_BLU)));
+    return enabled && map && map->state == NavState::Active && g_pGameRules->roundmode > 3;
 }
 
 bool isPathing()
@@ -728,13 +727,6 @@ static void followCrumbs()
         }
     }
 
-    /*if (inactivity.check(*stuck_time) || (inactivity.check(*unreachable_time) && !IsVectorVisible(g_pLocalPlayer->v_Origin, *crumb_vec + Vector(.0f, .0f, 41.5f), false, LOCAL_E, MASK_PLAYERSOLID)))
-    {
-        if (crumbs[0].navarea)
-            ignoremanager::addTime(last_area, *crumb, inactivity);
-        repath();
-        return;
-    }*/
 
     // Look at path
     if (look && !hacks::aimbot::isAiming())

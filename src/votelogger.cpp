@@ -10,6 +10,7 @@
 #include <settings/Bool.hpp>
 #include "CatBot.hpp"
 #include "votelogger.hpp"
+#include "teamroundtimer.hpp"
 
 static settings::Boolean vote_kicky{"votelogger.autovote.yes", "false"};
 static settings::Boolean vote_kickn{"votelogger.autovote.no", "false"};
@@ -17,13 +18,15 @@ static settings::Boolean vote_rage_vote{"votelogger.autovote.no.rage", "false"};
 static settings::Boolean chat{"votelogger.chat", "true"};
 static settings::Boolean chat_partysay{"votelogger.chat.partysay", "false"};
 static settings::Boolean chat_casts{"votelogger.chat.casts", "false"};
-static settings::Boolean chat_casts_f1_only{"votelogger.chat.casts.f1-only", "true"};
 static settings::Boolean requeueonkick{"votelogger.requeue-on-kick", "false"};
+static settings::Boolean leave_after_local_vote{"votelogger.leave-after-local-vote", "false"};
+// static settings::Boolean abandon_if_not_setup{"votelogger.abandon-if-not-setup", "false"};
 
 namespace votelogger
 {
 
 static bool was_local_player{ false };
+static bool was_local_player_caller{ false };
 static Timer local_kick_timer{};
 static int kicked_player;
 
@@ -90,6 +93,8 @@ void dispatchUserMessage(bf_read &buffer, int type)
         player_info_s info{}, info2{};
         if (!GetPlayerInfo(target, &info) || !GetPlayerInfo(caller, &info2))
             break;
+        if (CE_GOOD(LOCAL_E) && caller == LOCAL_E->m_IDX)
+            was_local_player_caller = true;
 
         kicked_player = target;
         logging::Info("Vote called to kick %s [U:1:%u] for %s by %s [U:1:%u]", info.name, info.friendsID, reason, info2.name, info2.friendsID);
@@ -139,6 +144,11 @@ void dispatchUserMessage(bf_read &buffer, int type)
             if (chat_partysay && friendly_caller)
                 re::CTFPartyClient::GTFPartyClient()->SendPartyChat(formated_string);
         }
+/*      {
+        if (abandon_if_not_setup && (g_pTeamRoundTimer->GetRoundState() != RT_STATE_SETUP ));
+            tfmm::abandon();
+        } */
+
 #if ENABLE_VISUALS
         if (chat)
             PrintChat("\x07%06X%s\x01 called a votekick on \x07%06X%s\x01 for the reason \"%s\"", 0xe1ad01, info2.name, 0xe1ad01, info.name, reason);
@@ -150,17 +160,24 @@ void dispatchUserMessage(bf_read &buffer, int type)
         if (chat)
             PrintChat("Vote passed");
         logging::Info("Vote passed");
+
+        if (was_local_player_caller)
+            if (leave_after_local_vote)
+                tfmm::abandon();
+
         break;
     }
     case 48:
         if (chat)
             PrintChat("Vote failed");
         logging::Info("Vote failed");
+
+        if (was_local_player_caller)
+            if (leave_after_local_vote)
+                tfmm::abandon();
         break;
     case 49:
-        if (chat)
-            PrintChat("VoteSetup");
-        logging::Info("VoteSetup");
+        logging::Info("VoteSetup?");
         break;
     default:
         break;
@@ -212,53 +229,6 @@ static void reset_vote_rage()
     EC::Unregister(EC::CreateMove, "vote_rage_back");
 }
 
-class VoteEventListener : public IGameEventListener
-{
-public:
-    void FireGameEvent(KeyValues *event) override
-    {
-        if (!*chat_casts || (!*chat_partysay && !chat))
-            return;
-        const char *name = event->GetName();
-        if (!strcmp(name, "vote_cast"))
-        {
-            bool vote_option = event->GetInt("vote_option");
-            if (*chat_casts_f1_only && vote_option)
-                return;
-            int eid = event->GetInt("entityid");
-
-            player_info_s info{};
-            if (!GetPlayerInfo(eid, &info))
-                return;
-            if (chat_partysay)
-            {
-                char formated_string[256];
-                std::snprintf(formated_string, sizeof(formated_string), "%s voted %s", info.name, vote_option ? "No" : "Yes");
-
-                re::CTFPartyClient::GTFPartyClient()->SendPartyChat(formated_string);
-            }
-#if ENABLE_VISUALS
-            if (chat)
-            {
-                switch (vote_option)
-                {
-                case true:
-                {
-                    PrintChat("\x07%06X%s\x01 voted \x07%06XNo\x01", 0xe1ad01, info.name, 0x00ff00);
-                    break;
-                }
-                case false:
-                {
-                    PrintChat("\x07%06X%s\x01 voted \x07%06XYes\x01", 0xe1ad01, info.name, 0xff0000);
-                    break;
-                }
-                }
-            }
-#endif
-        }
-    }
-};
-static VoteEventListener listener{};
 static InitRoutine init(
     []()
     {
@@ -274,8 +244,5 @@ static InitRoutine init(
                 else
                     reset_vote_rage();
             });
-        g_IGameEventManager->AddListener(&listener, false);
-        EC::Register(
-            EC::Shutdown, []() { g_IGameEventManager->RemoveListener(&listener); }, "event_shutdown_vote");
     });
 } // namespace votelogger

@@ -35,9 +35,9 @@ static settings::Boolean votekick_pazer_only{ "cat-bot.votekicks.pazer-only", "f
 static settings::Boolean votekick_bri_only{ "cat-bot.votekicks.bri-only", "false" };
 static settings::Boolean votekick_abuse_only{ "cat-bot.votekicks.abuse-only", "false" };
 static settings::Boolean votekick_cheater_only{ "cat-bot.votekicks.cheater-only", "false" };
-static settings::Boolean autovote_map{ "cat-bot.autovote-map", "true" };
+static settings::Boolean autovote_map{ "cat-bot.autovote-map", "false" };
 
-settings::Boolean catbotmode{ "cat-bot.enable", "false" };
+settings::Boolean catbotmode{ "cat-bot.enable", "true" };
 settings::Boolean anti_motd{ "cat-bot.anti-motd", "false" };
 
 
@@ -305,7 +305,7 @@ void update()
         }
         if (stopqueue_if_humans_gte)
         {
-            if (count_total - count_ipc <= int(stopqueue_if_humans_gte))
+            if (count_total - count_ipc >= int(stopqueue_if_humans_gte))
             {
                 logging::Info("We are going to stop queue because there are %d non-bots in "
                               "the game, and stopqueue_if_humans_gte is %d.",
@@ -326,7 +326,7 @@ void update()
         }
         if (stopqueue_if_players_gte)
         {
-            if (count_total = int(stopqueue_if_players_gte))
+            if (count_total >= int(stopqueue_if_players_gte))
             {
                 logging::Info("Stop queue because there are %d total players "
                               "in game, and stopqueue_if_players_gte is %d",
