@@ -126,6 +126,8 @@ DEFINE_HOOKED_METHOD(PaintTraverse, void, vgui::IPanel *this_, vgui::VPANEL pane
 
     if (disable_visuals)
         return;
+    if (clean_screenshots && g_IEngine->IsTakingScreenshot())
+        return;
     draw::UpdateWTS();
 }
 } // namespace hooked_methods

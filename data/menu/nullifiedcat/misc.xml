@@ -2,6 +2,7 @@
     <TabContainer width="fill" height="fill">
         <Include path="nullifiedcat/misc/autoitem.xml"/>
         <Include path="nullifiedcat/misc/collective.xml"/>
+        <Include path="nullifiedcat/misc/votekicks.xml"/>
         <Include path="nullifiedcat/misc/catbot.xml"/>
         <Include path="nullifiedcat/misc/autoparty.xml"/>
         <Include path="nullifiedcat/misc/datacenters.xml"/>

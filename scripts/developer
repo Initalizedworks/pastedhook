@@ -4,15 +4,6 @@ if [ $EUID == 0 ]; then
     exit
 fi
 
-while true; do
-    read -p "Do you want to switch your cathook repository into developer mode? y/n " yn
-    case $yn in
-        [Yy]* ) break;;
-        [Nn]* ) exit;;
-        * ) echo "Please answer yes or no.";;
-    esac
-done
-
 # git setup
 git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
 git fetch --unshallow
@@ -25,14 +16,6 @@ configfile="$DIR/updater-preferences"
 . config.shlib
 cfg_write $configfile update_channel developer
 
-while true; do
-    read -p "Would you like to reset your repository to the origin/master branch? y/n " yn
-    case $yn in
-        [Yy]* ) break;;
-        [Nn]* ) exit;;
-        * ) echo "Please answer yes or no.";;
-    esac
-done
 
 # more git setup
 git reset --hard origin/master

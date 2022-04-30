@@ -16,11 +16,13 @@ static settings::Boolean vote_kicky{"votelogger.autovote.yes", "false"};
 static settings::Boolean vote_kickn{"votelogger.autovote.no", "false"};
 static settings::Boolean vote_rage_vote{"votelogger.autovote.no.rage", "false"};
 static settings::Boolean chat{"votelogger.chat", "true"};
+static settings::Boolean chat_results{"votelogger.chat.results", "false"};
 static settings::Boolean chat_partysay{"votelogger.chat.partysay", "false"};
+static settings::Boolean chat_partysay_results{"votelogger.chat.partysay.results", "false"};
 static settings::Boolean chat_casts{"votelogger.chat.casts", "false"};
 static settings::Boolean requeueonkick{"votelogger.requeue-on-kick", "false"};
 static settings::Boolean leave_after_local_vote{"votelogger.leave-after-local-vote", "false"};
-// static settings::Boolean abandon_if_not_setup{"votelogger.abandon-if-not-setup", "false"};
+static settings::Boolean abandon_if_not_setup{"votelogger.abandon-if-not-setup", "false"};
 
 namespace votelogger
 {
@@ -144,10 +146,10 @@ void dispatchUserMessage(bf_read &buffer, int type)
             if (chat_partysay && friendly_caller)
                 re::CTFPartyClient::GTFPartyClient()->SendPartyChat(formated_string);
         }
-/*      {
-        if (abandon_if_not_setup && (g_pTeamRoundTimer->GetRoundState() != RT_STATE_SETUP ));
+        if (abandon_if_not_setup); {
+            if (g_pTeamRoundTimer->GetRoundState() == RT_STATE_SETUP)
             tfmm::abandon();
-        } */
+        }
 
 #if ENABLE_VISUALS
         if (chat)
@@ -157,9 +159,16 @@ void dispatchUserMessage(bf_read &buffer, int type)
     }
     case 47:
     {
-        if (chat)
+        if (chat_results)
             PrintChat("Vote passed");
         logging::Info("Vote passed");
+
+        if (chat_partysay_results)
+        {
+            char formated_string[256];
+            std::snprintf(formated_string, sizeof(formated_string), "kick passed");
+            re::CTFPartyClient::GTFPartyClient()->SendPartyChat(formated_string);
+        }
 
         if (was_local_player_caller)
             if (leave_after_local_vote)
@@ -168,9 +177,16 @@ void dispatchUserMessage(bf_read &buffer, int type)
         break;
     }
     case 48:
-        if (chat)
+        if (chat_results)
             PrintChat("Vote failed");
         logging::Info("Vote failed");
+
+        if (chat_partysay_results)
+        {
+            char formated_string[256];
+            std::snprintf(formated_string, sizeof(formated_string), "kick failed");
+            re::CTFPartyClient::GTFPartyClient()->SendPartyChat(formated_string);
+        }
 
         if (was_local_player_caller)
             if (leave_after_local_vote)
