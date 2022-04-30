@@ -18,8 +18,6 @@ static settings::Boolean random_order{ "spam.random", "0" };
 static settings::String filename{ "spam.filename", "spam.txt" };
 static settings::Int spam_delay{ "spam.delay", "4500" };
 static settings::Int voicecommand_spam{ "spam.voicecommand", "0" };
-static settings::Boolean teamname_spam{ "spam.teamname", "0" };
-static settings::String teamname_file{ "spam.teamname.file", "teamspam.txt" };
 static settings::Boolean team_only{ "spam.teamchat", "false" };
 
 static size_t last_index;
@@ -254,30 +252,9 @@ bool FormatSpamMessage(std::string &message)
     return true;
 }
 
-// What to spam
-static std::vector<std::string> teamspam_text = { "CAT", "HOOK" };
-// Current spam index
-static size_t current_teamspam_idx = 0;
 
 void createMove()
 {
-    // Spam changes the tournament name in casual and compeditive gamemodes
-    if (teamname_spam)
-    {
-        if (!(g_GlobalVars->tickcount % 10))
-        {
-            if (teamspam_text.size())
-            {
-                // We've hit the end of the vector, loop back to the front
-                // We need to do it like this, otherwise a file reload happening could cause this to crash at ".at"
-                if (current_teamspam_idx >= teamspam_text.size())
-                    current_teamspam_idx = 0;
-                g_IEngine->ServerCmd(format("tournament_teamname ", teamspam_text.at(current_teamspam_idx)).c_str());
-                current_teamspam_idx++;
-            }
-        }
-    }
-
     if (voicecommand_spam)
     {
         static Timer last_voice_spam;
@@ -457,36 +434,12 @@ const std::vector<std::string> builtin_nonecore = { "NULL CORE - REDUCE YOUR RIS
 const std::vector<std::string> builtin_lmaobox  = { "GET GOOD, GET LMAOBOX!", "LMAOBOX - WAY TO THE TOP", "WWW.LMAOBOX.NET - BEST FREE TF2 HACK!" };
 const std::vector<std::string> builtin_lithium  = { "CHECK OUT www.YouTube.com/c/DurRud FOR MORE INFORMATION!", "PWNING AIMBOTS WITH OP ANTI-AIMS SINCE 2015 - LITHIUMCHEAT", "STOP GETTING MAD AND STABILIZE YOUR MOOD WITH LITHIUMCHEAT!", "SAVE YOUR MONEY AND GET LITHIUMCHEAT! IT IS FREE!", "GOT ROLLED BY LITHIUM? HEY, THAT MEANS IT'S TIME TO GET LITHIUMCHEAT!!" };
 
-void teamspam_reload(std::string after)
-{
-    // Clear spam vector
-    teamspam_text.clear();
-    // Reset Spam idx
-    current_teamspam_idx = 0;
-    if (after != "")
-    {
-        static TextFile teamspam;
-        if (teamspam.TryLoad(after))
-        {
-            teamspam_text = teamspam.lines;
-            for (auto &text : teamspam_text)
-                ReplaceSpecials(text);
-        }
-    }
-}
-void teamspam_reload_command()
-{
-    teamspam_reload(*teamname_file);
-}
 static InitRoutine EC(
     []()
     {
-        teamname_file.installChangeCallback([](settings::VariableBase<std::string> &, std::string after) { teamspam_reload(after); });
         EC::Register(EC::CreateMove, createMove, "spam", EC::average);
         init();
     });
 
-static CatCommand reload_ts("teamspam_reload", "Relaod teamspam file", teamspam_reload_command);
-
-static CatCommand reload_cc("spam_reload", "Reload spam file", hacks::spam::reloadSpamFile);
 } // namespace hacks::spam
+static CatCommand reload("spam_reload", "Reload spam file", hacks::spam::reloadSpamFile);

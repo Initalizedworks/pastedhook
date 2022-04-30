@@ -534,7 +534,7 @@ void ApplyChams(ChamColors colors, bool recurse, bool render_original, bool over
 
 DEFINE_HOOKED_METHOD(DrawModelExecute, void, IVModelRender *this_, const DrawModelState_t &state, const ModelRenderInfo_t &info, matrix3x4_t *bone)
 {
-    if (!isHackActive() || effect_glow::g_EffectGlow.drawing || chams_attachment_drawing || (*clean_screenshots && g_IEngine->IsTakingScreenshot()) || disable_visuals || CE_BAD(LOCAL_E) || (!enable && !no_hats && !no_arms && !blend_zoom && !arms_chams && !local_weapon_chams))
+    if (!isHackActive() || effect_glow::g_EffectGlow.drawing || chams_attachment_drawing || disable_visuals || CE_BAD(LOCAL_E) || (!enable && !no_hats && !no_arms && !blend_zoom && !arms_chams && !local_weapon_chams))
         return original::DrawModelExecute(this_, state, info, bone);
 
     PROF_SECTION(DrawModelExecute);

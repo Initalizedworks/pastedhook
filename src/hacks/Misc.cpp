@@ -32,7 +32,6 @@ static settings::Int auto_jump_chance{ "misc.auto-jump.chance", "100" };
 static settings::Int auto_strafe{ "misc.autostrafe", "0" };
 static settings::Boolean accurate_movement{ "misc.accurate-movement", "false" };
 settings::Boolean tauntslide{ "misc.tauntslide", "false" };
-static settings::Boolean auto_balance_spam{ "misc.auto-balance-spam", "false" };
 static settings::Boolean nopush_enabled{ "misc.no-push", "false" };
 static settings::Boolean dont_hide_stealth_kills{ "misc.dont-hide-stealth-kills", "true" };
 static settings::Boolean unlimit_bumpercart_movement{ "misc.bumpercarthax.enable", "true" };
@@ -137,20 +136,6 @@ CatCommand fix_cursor("fix_cursor", "Fix the GUI cursor being visible",
                           g_ISurface->LockCursor();
                           g_ISurface->SetCursorAlwaysVisible(false);
                       });
-
-// Use to send a autobalance request to the server that doesnt prevent you from
-// using it again, Allowing infinite use of it.
-void SendAutoBalanceRequest()
-{ // Credits to blackfire
-    if (!g_IEngine->IsInGame())
-        return;
-    KeyValues *kv = new KeyValues("AutoBalanceVolunteerReply");
-    kv->SetInt("response", 1);
-    g_IEngine->ServerCmdKeyValues(kv);
-}
-
-// Catcommand for above
-CatCommand SendAutoBlRqCatCom("request_balance", "Request Infinite Auto-Balance", [](const CCommand &args) { SendAutoBalanceRequest(); });
 
 int last_number{ 0 };
 static bool flash_light_spam_switch{ false };
@@ -371,10 +356,6 @@ void CreateMove()
         if (CE_GOOD(LOCAL_E) && HasCondition<TFCond_Taunting>(LOCAL_E))
             current_user_cmd->viewangles.x = (current_user_cmd->buttons & IN_BACK) ? 91.0f : (current_user_cmd->buttons & IN_FORWARD) ? 0.0f : 90.0f;
     }
-
-    // Spams infinite autobalance spam function
-    if (auto_balance_spam && auto_balance_timer.test_and_set(150))
-        SendAutoBalanceRequest();
 
     // Simple No-Push through cvars
     g_ICvar->FindVar("tf_avoidteammates_pushaway")->SetValue(!nopush_enabled);
@@ -696,25 +677,6 @@ CatCommand say_lines("say_lines", "Say with newlines (\\n)",
                          std::string cmd = format("say ", message);
                          g_IEngine->ServerCmd(cmd.c_str());
                      });
-CatCommand disconnect("disconnect", "Disconnect with custom reason",
-                      [](const CCommand &args)
-                      {
-                          INetChannel *ch = (INetChannel *) g_IEngine->GetNetChannelInfo();
-                          if (!ch)
-                              return;
-                          std::string string = args.ArgS();
-                          ReplaceSpecials(string);
-                          ch->Shutdown(string.c_str());
-                      });
-
-CatCommand disconnect_vac("disconnect_vac", "Disconnect (fake VAC)",
-                          []()
-                          {
-                              INetChannel *ch = (INetChannel *) g_IEngine->GetNetChannelInfo();
-                              if (!ch)
-                                  return;
-                              ch->Shutdown("VAC banned from secure server\n");
-                          });
 
 // Netvars stuff
 void DumpRecvTable(CachedEntity *ent, RecvTable *table, int depth, const char *ft, unsigned acc_offset)
@@ -1159,49 +1121,3 @@ static InitRoutine init(
 #endif
     });
 } // namespace hacks::misc
-
-/*void DumpRecvTable(CachedEntity* ent, RecvTable* table, int depth, const char*
-ft, unsigned acc_offset) { bool forcetable = ft && strlen(ft); if (!forcetable
-|| !strcmp(ft, table->GetName())) logging::Info("==== TABLE: %s",
-table->GetName()); for (int i = 0; i < table->GetNumProps(); i++) { RecvProp*
-prop = table->GetProp(i); if (!prop) continue; if (prop->GetDataTable()) {
-            DumpRecvTable(ent, prop->GetDataTable(), depth + 1, ft, acc_offset +
-prop->GetOffset());
-        }
-        if (forcetable && strcmp(ft, table->GetName())) continue;
-        switch (prop->GetType()) {
-        case SendPropType::DPT_Float:
-            logging::Info("%s [0x%04x] = %f", prop->GetName(),
-prop->GetOffset(), CE_FLOAT(ent, acc_offset + prop->GetOffset())); break; case
-SendPropType::DPT_Int: logging::Info("%s [0x%04x] = %i | %u | %hd | %hu",
-prop->GetName(), prop->GetOffset(), CE_INT(ent, acc_offset + prop->GetOffset()),
-CE_VAR(ent, acc_offset +  prop->GetOffset(), unsigned int), CE_VAR(ent,
-acc_offset + prop->GetOffset(), short), CE_VAR(ent, acc_offset +
-prop->GetOffset(), unsigned short)); break; case SendPropType::DPT_String:
-            logging::Info("%s [0x%04x] = %s", prop->GetName(),
-prop->GetOffset(), CE_VAR(ent, prop->GetOffset(), char*)); break; case
-SendPropType::DPT_Vector: logging::Info("%s [0x%04x] = (%f, %f, %f)",
-prop->GetName(), prop->GetOffset(), CE_FLOAT(ent, acc_offset +
-prop->GetOffset()), CE_FLOAT(ent, acc_offset + prop->GetOffset() + 4),
-CE_FLOAT(ent, acc_offset + prop->GetOffset() + 8)); break; case
-SendPropType::DPT_VectorXY: logging::Info("%s [0x%04x] = (%f, %f)",
-prop->GetName(), prop->GetOffset(), CE_FLOAT(ent, acc_offset +
-prop->GetOffset()), CE_FLOAT(ent,acc_offset +  prop->GetOffset() + 4)); break;
-        }
-
-    }
-    if (!ft || !strcmp(ft, table->GetName()))
-        logging::Info("==== END OF TABLE: %s", table->GetName());
-}
-
-void CC_DumpVars(const CCommand& args) {
-    if (args.ArgC() < 1) return;
-    if (!atoi(args[1])) return;
-    int idx = atoi(args[1]);
-    CachedEntity* ent = ENTITY(idx);
-    if (CE_BAD(ent)) return;
-    ClientClass* clz = RAW_ENT(ent)->GetClientClass();
-    logging::Info("Entity %i: %s", ent->m_IDX, clz->GetName());
-    const char* ft = (args.ArgC() > 1 ? args[2] : 0);
-    DumpRecvTable(ent, clz->m_pRecvTable, 0, ft, 0);
-}*/

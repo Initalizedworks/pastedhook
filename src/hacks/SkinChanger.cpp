@@ -13,7 +13,6 @@
 #include <hacks/SkinChanger.hpp>
 #include <settings/Bool.hpp>
 #include <boost/functional/hash.hpp>
-//
 namespace hacks::skinchanger
 {
 static settings::Boolean enable{ "skinchanger.enable", "false" };
@@ -79,21 +78,6 @@ void CAttributeList::SetAttribute(int index, float value)
     static ItemSchemaPtr_t schema   = GetItemSchema();
     AttributeDefinitionPtr_t attrib = GetAttributeDefinitionFn(schema, index);
     SetRuntimeAttributeValueFn(this, attrib, value);
-    // The code below actually is unused now - but I'll keep it just in case!
-    // Let's check if attribute exists already. We don't want dupes.
-    /*for (int i = 0; i < m_Attributes.Count(); i++) {
-        auto& a = m_Attributes[i];
-        if (a.defidx == index) {
-            a.value = value;
-            return;
-        }
-    }
-
-    if (m_Attributes.Count() > 14)
-        return;
-
-    m_Attributes.AddToTail({ index, value });
-    */
 }
 
 static std::array<int, 46> australium_table{ 4, 7, 13, 14, 15, 16, 18, 19, 20, 21, 29, 36, 38, 45, 61, 132, 141, 194, 197, 200, 201, 202, 203, 205, 206, 207, 208, 211, 228, 424, 654, 658, 659, 662, 663, 664, 665, 669, 1000, 1004, 1006, 1007, 1078, 1082, 1085, 1149 };
