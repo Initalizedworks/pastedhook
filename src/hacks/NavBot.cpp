@@ -24,7 +24,6 @@ static settings::Boolean capture_objectives("navbot.capture-objectives", "false"
 static settings::Boolean snipe_sentries("navbot.snipe-sentries", "false");
 static settings::Boolean escape_danger("navbot.escape-danger", "false");
 static settings::Boolean escape_danger_ctf_cap("navbot.escape-danger.ctf-cap", "false");
-static settings::Boolean randomize_cp("navbot.capture-objectives.randomize-cp", "true");
 static settings::Boolean defend_intel("navbot.defend-intel", "true");
 static settings::Boolean enable_slight_danger_when_capping("navbot.escape-danger.slight-danger.capping", "false");
 static settings::Boolean autojump("navbot.autojump.enabled", "false");
@@ -1185,28 +1184,19 @@ std::optional<Vector> getControlPointGoal(int our_team)
     // No points found :(
     if (!position)
         return std::nullopt;
-    if ((*position).DistTo(LOCAL_E->m_vecOrigin()) < 100.0f)
-    {
-        overwrite_capture = true;
-        return std::nullopt;
-    }
-    if (*randomize_cp)
-    {
-        // Randomize where on the point we walk a bit so bots don't just stand there
-        if (previous_position != *position || !navparser::NavEngine::isPathing())
-        {
-            previous_position   = *position;
-            randomized_position = *position;
-            randomized_position.x += RandomFloat(0.0f, 50.0f);
-            randomized_position.y += RandomFloat(0.0f, 50.0f);
-        }
 
-        current_capturetype = controlpoints;
-        // Try to navigate
-        return randomized_position;
+    // Randomize where on the point we walk a bit so bots don't just stand there
+    if (previous_position != *position || !navparser::NavEngine::isPathing())
+    {
+        previous_position   = *position;
+        randomized_position = *position;
+        randomized_position.x += RandomFloat(0.0f, 100.0f);
+        randomized_position.y += RandomFloat(0.0f, 100.0f);
     }
-    else
-        return position;
+
+    current_capturetype = controlpoints;
+    // Try to navigate
+    return randomized_position;
 }
 
 // Try to capture objectives
@@ -1247,7 +1237,7 @@ bool captureObjectives()
     // Overwritten, for example because we are currently on the payload, cancel any sort of pathing and return true
     if (overwrite_capture)
     {
-        navparser::NavEngine::cancelPath();
+//      navparser::NavEngine::cancelPath();
         return true;
     }
     // No target, bail and set on cooldown

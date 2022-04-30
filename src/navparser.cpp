@@ -39,7 +39,7 @@ static settings::Int stuck_time{ "nav.stuck-time", "1000" };
 static settings::Int vischeck_cache_time{ "nav.vischeck-cache.time", "240" };
 static settings::Boolean vischeck_runtime{ "nav.vischeck-runtime.enabled", "true" };
 static settings::Int vischeck_time{ "nav.vischeck-runtime.delay", "2000" };
-static settings::Int stuck_detect_time{ "nav.anti-stuck.detection-time", "5" };
+static settings::Int stuck_detect_time{ "nav.anti-stuck.detection-time", "3" };
 // How long until accumulated "Stuck time" expires
 static settings::Int stuck_expire_time{ "nav.anti-stuck.expire-time", "10" };
 // How long we should blacklist the node after being stuck for too long?
