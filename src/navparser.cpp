@@ -954,16 +954,16 @@ void drawNavArea(CNavArea *area)
 
     // Nw -> Ne
     if (nw_screen && ne_screen)
-        draw::Line(nw.x, nw.y, ne.x - nw.x, ne.y - nw.y, colors::white, 1.0f);
+        draw::Line(nw.x, nw.y, ne.x - nw.x, ne.y - nw.y, colors::green, 1.0f);
     // Nw -> Sw
     if (nw_screen && sw_screen)
-        draw::Line(nw.x, nw.y, sw.x - nw.x, sw.y - nw.y, colors::white, 1.0f);
+        draw::Line(nw.x, nw.y, sw.x - nw.x, sw.y - nw.y, colors::green, 1.0f);
     // Ne -> Se
     if (ne_screen && se_screen)
-        draw::Line(ne.x, ne.y, se.x - ne.x, se.y - ne.y, colors::white, 1.0f);
+        draw::Line(ne.x, ne.y, se.x - ne.x, se.y - ne.y, colors::green, 1.0f);
     // Sw -> Se
     if (sw_screen && se_screen)
-        draw::Line(sw.x, sw.y, se.x - sw.x, se.y - sw.y, colors::white, 1.0f);
+        draw::Line(sw.x, sw.y, se.x - sw.x, se.y - sw.y, colors::green, 1.0f);
 }
 
 void Draw()
