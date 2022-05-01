@@ -18,7 +18,7 @@
 
 static settings::Boolean dispatch_log{ "debug.log-dispatch-user-msg", "false" };
 static settings::Boolean chat_filter_enable{ "chat.censor.enable", "false" };
-static settings::Boolean anti_autobalance{ "cat-bot.anti-autobalance", "false" };
+static settings::Boolean anti_votekick{ "cat-bot.anti-autobalance", "false" };
 // thanks inithook devs
 static settings::Boolean anti_autobalance_aggressive{ "cat-bot.anti-autobalance.aggresive", "false" };
 
@@ -156,7 +156,7 @@ DEFINE_HOOKED_METHOD(DispatchUserMessage, bool, void *this_, int type, bf_read &
         break;
     case 5:
     {
-        if (*anti_autobalance && buf.GetNumBytesLeft() > 35)
+        if (*anti_votekick && buf.GetNumBytesLeft() > 35)
         {
             INetChannel *server = (INetChannel *) g_IEngine->GetNetChannelInfo();
             data                = std::string(buf_data);
