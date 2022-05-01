@@ -25,6 +25,7 @@ static settings::Boolean snipe_sentries("navbot.snipe-sentries", "false");
 static settings::Boolean snipe_sentries_shortrange("navbot.snipe-sentries.shortrange", "false");
 static settings::Boolean escape_danger("navbot.escape-danger", "false");
 static settings::Boolean escape_danger_ctf_cap("navbot.escape-danger.ctf-cap", "false");
+static settings::Boolean defend_intel("navbot.defend-intel", "false");
 static settings::Boolean enable_slight_danger_when_capping("navbot.escape-danger.slight-danger.capping", "false");
 static settings::Boolean autojump("navbot.autojump.enabled", "false");
 static settings::Boolean primary_only("navbot.primary-only", "true");
@@ -825,11 +826,11 @@ bool meleeAttack(int slot, std::pair<CachedEntity *, float> &nearest)
     {
         // Don't constantly path, it's slow.
         // The closer we are, the more we should try to path
-        if (!melee_cooldown.test_and_set(nearest.second < 200 ? 200 : nearest.second < 1000 ? 500 : 2000) && navparser::NavEngine::isPathing())
+        if (!melee_cooldown.test_and_set(nearest.second < 200 ? 200 : nearest.second < 1000 ? 500 : 2000) && navparser::NavEngine::isPathing() && nearest.first->m_bAlivePlayer() && nearest.first->IsVisible())
             return navparser::NavEngine::current_priority == prio_melee;
 
         // Just walk at the enemy l0l
-        if (navparser::NavEngine::navTo(nearest.first->m_vecOrigin(), prio_melee, true, !navparser::NavEngine::isPathing()))
+        if (navparser::NavEngine::navTo(nearest.first->m_vecOrigin(), prio_melee, true, !navparser::NavEngine::isPathing() && nearest.first->m_bAlivePlayer() && nearest.first->IsVisible()))
             return true;
         return false;
     }
@@ -1096,12 +1097,43 @@ std::optional<Vector> getCtfGoal(int our_team, int enemy_team)
     auto position = flagcontroller::getPosition(enemy_team);
     auto carrier  = flagcontroller::getCarrier(enemy_team);
 
-    // No flag :(
-    if (!position)
+    auto status_friendly   = flagcontroller::getStatus(our_team);
+    auto position_friendly = flagcontroller::getPosition(our_team);
+    auto carrier_friendly  = flagcontroller::getCarrier(our_team);
+
+    // No flags :(
+    if (!position || !position_friendly)
         return std::nullopt;
 
     current_capturetype = ctf;
 
+    // Defend our intel and help other bots escort enemy intel, this is priority over capturing
+    if (defend_intel)
+    {
+        // Goto the enemy who took our intel - highest priority
+        if (status_friendly == TF_FLAGINFO_STOLEN)
+        {
+            if (player_tools::shouldTargetSteamId(carrier_friendly->player_info.friendsID))
+                return carrier_friendly->m_vecDormantOrigin();
+        }
+        // Standby a dropped friendly flag - medium priority
+        if (status_friendly == TF_FLAGINFO_DROPPED)
+        {
+            // Dont spam nav if we are already there
+            if ((*position_friendly).DistTo(LOCAL_E->m_vecOrigin()) < 100.0f)
+            {
+                overwrite_capture = true;
+                return std::nullopt;
+            }
+            return position_friendly;
+        }
+        // Assist other bots with capturing - low priority
+        if (status == TF_FLAGINFO_STOLEN && carrier != LOCAL_E)
+        {
+            if (!player_tools::shouldTargetSteamId(carrier->player_info.friendsID))
+                return carrier->m_vecDormantOrigin();
+        }
+    }
     // Flag is taken by us
     if (status == TF_FLAGINFO_STOLEN)
     {
