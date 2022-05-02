@@ -18,22 +18,19 @@
 
 static settings::Boolean dispatch_log{ "debug.log-dispatch-user-msg", "false" };
 static settings::Boolean chat_filter_enable{ "chat.censor.enable", "false" };
-static settings::Boolean anti_votekick{ "cat-bot.anti-autobalance", "false" };
-// thanks inithook devs
-static settings::Boolean anti_autobalance_aggressive{ "cat-bot.anti-autobalance.aggresive", "false" };
+static settings::Boolean anti_autobalance{ "cat-bot.anti-autobalance", "false" };
 
 static bool retrun = false;
 static Timer gitgud{};
 
 // Using repeated char causes crash on some systems. Suboptimal solution.
-const static char *clear = "\e"
-    "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
-    "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
-    "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
-    "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
-    "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
-    "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
-    "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
+const static std::string clear("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+                               "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+                               "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+                               "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+                               "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+                               "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+                               "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
 std::string lastfilter{};
 std::string lastname{};
 
@@ -65,7 +62,7 @@ static int anti_balance_attempts = 0;
 static std::string previous_name = "";
 static Timer reset_it{};
 static Timer wait_timer{};
-static void Paint()
+void Paint()
 {
     if (!wait_timer.test_and_set(1000))
         return;
@@ -78,50 +75,7 @@ static void Paint()
         previous_name         = "";
     }
 }
-
-class PlayerDeathListener : public IGameEventListener2
-{
-public:
-    void FireGameEvent(IGameEvent *event) override
-    {
-        if (!anti_autobalance_aggressive)
-            return;
-
-        // We died :(
-        if (g_IEngine->GetPlayerForUserID(event->GetInt("userid")) == g_IEngine->GetLocalPlayer())
-        {
-            int team_players       = 0;
-            int enemy_team_players = 0;
-
-            for (int i = 1; i < g_GlobalVars->maxClients; ++i)
-            {
-                player_info_s info{};
-                if (!g_IEngine->GetPlayerInfo(i, &info) || !info.friendsID)
-                    continue;
-                if (g_pPlayerResource->GetTeam(i) == g_pLocalPlayer->team)
-                    team_players++;
-                else
-                    enemy_team_players++;
-            }
-
-            // Re-join, we can be randomly moved by gc
-            if (team_players > enemy_team_players || anti_balance_attempts < 2)
-            {
-                ignoredc = true;
-                logging::Info("Rejoin: anti autobalance");
-                g_IEngine->ClientCmd_Unrestricted("killserver;wait 10;cat_mm_join");
-            }
-        }
-    }
-};
-
-static PlayerDeathListener death_listener;
-
-static InitRoutine Autobalance([]() {
-  EC::Register(EC::Paint, Paint, "paint_autobalance", EC::average);
-  g_IEventManager2->AddListener(&death_listener, "player_death", false);
-});
-
+static InitRoutine Autobalance([]() { EC::Register(EC::Paint, Paint, "paint_autobalance", EC::average); });
 DEFINE_HOOKED_METHOD(DispatchUserMessage, bool, void *this_, int type, bf_read &buf)
 {
     if (!isHackActive())
@@ -145,7 +99,22 @@ DEFINE_HOOKED_METHOD(DispatchUserMessage, bool, void *this_, int type, bf_read &
     std::string data;
     switch (type)
     {
+    // Hud message
+    case 26:
+    {
+        // Hud message type
+        auto message_type = buf.ReadByte();
 
+        // Truce activated
+        if (message_type == 26)
+            setTruce(true);
+        // Truce deactivated
+        else if (message_type == 27)
+            setTruce(false);
+
+        buf.Seek(0);
+        break;
+    }
     case 12:
         if (hacks::catbot::anti_motd && hacks::catbot::catbotmode)
         {
@@ -156,7 +125,7 @@ DEFINE_HOOKED_METHOD(DispatchUserMessage, bool, void *this_, int type, bf_read &
         break;
     case 5:
     {
-        if (*anti_votekick && buf.GetNumBytesLeft() > 35)
+        if (*anti_autobalance && buf.GetNumBytesLeft() > 35)
         {
             INetChannel *server = (INetChannel *) g_IEngine->GetNetChannelInfo();
             data                = std::string(buf_data);
@@ -201,11 +170,7 @@ DEFINE_HOOKED_METHOD(DispatchUserMessage, bool, void *this_, int type, bf_read &
          */
         const char *p = data.c_str() + 2;
         std::string event(p), name((p += event.size() + 1)), message(p + name.size() + 1);
-        if (chat_filter_enable && data[0] == LOCAL_E->m_IDX && event == "#TF_Name_Change")
-        {
-            chat_stack::Say(clear, false);
-        }
-        else if (chat_filter_enable && data[0] != LOCAL_E->m_IDX && event.find("TF_Chat") == 0)
+        if (chat_filter_enable && data[0] != LOCAL_E->m_IDX && event.find("TF_Chat") == 0)
         {
             player_info_s info{};
             GetPlayerInfo(LOCAL_E->m_IDX, &info);
@@ -263,7 +228,7 @@ DEFINE_HOOKED_METHOD(DispatchUserMessage, bool, void *this_, int type, bf_read &
             for (auto filter : res)
                 if (boost::contains(message2, filter))
                 {
-                    chat_stack::Say(clear, true);
+                    chat_stack::Say("\e" + clear, true);
                     retrun     = true;
                     lastfilter = message;
                     lastname   = format(name);
@@ -307,6 +272,5 @@ DEFINE_HOOKED_METHOD(DispatchUserMessage, bool, void *this_, int type, bf_read &
     }
     votelogger::dispatchUserMessage(buf, type);
     return original::DispatchUserMessage(this_, type, buf);
-
 }
 } // namespace hooked_methods
