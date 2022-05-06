@@ -99,8 +99,6 @@ Query QueryFromSubstring(const std::string &string)
     {
         if (*it == '%')
             read = false;
-        player_info_s info;
-        auto &pl = playerlist::AccessData(info.friendsID);
         if (read)
         {
             switch (*it)
