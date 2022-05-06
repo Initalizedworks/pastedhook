@@ -44,19 +44,6 @@ enum class QueryFlags
     LOCALPLAYER = (1 << 5)
 };
 
-enum class QueryFlagsClass
-{
-    SCOUT    = (1 << 0),
-    SNIPER   = (1 << 1),
-    SOLDIER  = (1 << 2),
-    DEMOMAN  = (1 << 3),
-    MEDIC    = (1 << 4),
-    HEAVY    = (1 << 5),
-    PYRO     = (1 << 6),
-    SPY      = (1 << 7),
-    ENGINEER = (1 << 8)
-};
-
 struct Query
 {
     int flags{ 0 };
@@ -112,6 +99,8 @@ Query QueryFromSubstring(const std::string &string)
     {
         if (*it == '%')
             read = false;
+        player_info_s info;
+        auto &pl = playerlist::AccessData(info.friendsID);
         if (read)
         {
             switch (*it)
@@ -131,33 +120,6 @@ Query QueryFromSubstring(const std::string &string)
                 break;
             case 'e':
                 result.flags |= static_cast<int>(QueryFlags::ENEMIES);
-                break;
-            case '1':
-                result.flags_class |= static_cast<int>(QueryFlagsClass::SCOUT);
-                break;
-            case '2':
-                result.flags_class |= static_cast<int>(QueryFlagsClass::SOLDIER);
-                break;
-            case '3':
-                result.flags_class |= static_cast<int>(QueryFlagsClass::PYRO);
-                break;
-            case '4':
-                result.flags_class |= static_cast<int>(QueryFlagsClass::DEMOMAN);
-                break;
-            case '5':
-                result.flags_class |= static_cast<int>(QueryFlagsClass::HEAVY);
-                break;
-            case '6':
-                result.flags_class |= static_cast<int>(QueryFlagsClass::ENGINEER);
-                break;
-            case '7':
-                result.flags_class |= static_cast<int>(QueryFlagsClass::MEDIC);
-                break;
-            case '8':
-                result.flags_class |= static_cast<int>(QueryFlagsClass::SNIPER);
-                break;
-            case '9':
-                result.flags_class |= static_cast<int>(QueryFlagsClass::SPY);
                 break;
             }
         }
@@ -194,7 +156,6 @@ int QueryPlayer(Query query)
     {
         current_static_index     = index_result;
         static_query.flags       = query.flags;
-        static_query.flags_class = query.flags_class;
     }
     return index_result;
 }
