@@ -112,7 +112,7 @@ void onKilledBy(unsigned id)
         {
             if (ipc::peer && ipc::peer->connected)
             {
-                std::string command = "cat_pl_add_id %s ABUSE cat_pl_save cat_ipc_sync_all", (id);
+                std::string command = "cat_pl_add_id %s RAGE cat_pl_save cat_ipc_sync_all", id;
                 if (command.length() >= 63)
                     ipc::peer->SendMessage(0, -1, ipc::commands::execute_client_cmd_long, command.c_str(), command.length() + 1);
                 else
@@ -135,8 +135,6 @@ static CatCommand mark_betrayal("pl_mark_betrayal", "Mark a steamid32 as betraya
                                         // Grab steamid
                                         unsigned steamid       = std::stoul(args.Arg(1));
                                         betrayal_list[steamid] = *betrayal_limit;
-                                        if (playerlist::ChangeState(steamid, playerlist::k_EState::ABUSE));
-                                            PrintChat("Sucessfully added this traitor to the list");
                                     }
                                     catch (const std::invalid_argument &)
                                     {

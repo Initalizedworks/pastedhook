@@ -10,7 +10,6 @@
 #include <settings/Bool.hpp>
 #include "CatBot.hpp"
 #include "votelogger.hpp"
-#include "teamroundtimer.hpp"
 
 static settings::Boolean vote_kicky{"votelogger.autovote.yes", "false"};
 static settings::Boolean vote_kickn{"votelogger.autovote.no", "false"};

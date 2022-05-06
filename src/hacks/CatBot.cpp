@@ -11,7 +11,6 @@
 #include "hack.hpp"
 #include "PlayerTools.hpp"
 #include "e8call.hpp"
-#include "NavBot.hpp"
 #include "navparser.hpp"
 #include "SettingCommands.hpp"
 #include "glob.h"
@@ -32,7 +31,6 @@ static settings::Int micspam_off{ "cat-bot.micspam.interval-off", "60" };
 static settings::Boolean random_votekicks{ "cat-bot.votekicks", "false" };
 static settings::Boolean votekick_rage_only{ "cat-bot.votekicks.rage-only", "false" };
 static settings::Boolean votekick_pazer_only{ "cat-bot.votekicks.pazer-only", "false" };
-static settings::Boolean votekick_abuse_only{ "cat-bot.votekicks.abuse-only", "false" };
 static settings::Boolean votekick_cheater_only{ "cat-bot.votekicks.cheater-only", "false" };
 static settings::Boolean autovote_map{ "cat-bot.autovote-map", "false" };
 
@@ -84,8 +82,6 @@ void do_random_votekick()
         if (votekick_rage_only && pl.state != playerlist::k_EState::RAGE)
             continue;
         if (votekick_pazer_only && pl.state != playerlist::k_EState::PAZER)
-            continue;
-        if (votekick_abuse_only && pl.state != playerlist::k_EState::ABUSE)
             continue;
         if (votekick_cheater_only && pl.state != playerlist::k_EState::CHEATER)
             continue;
@@ -261,11 +257,7 @@ void update()
         if (micspam_off && micspam_off_timer.test_and_set(*micspam_off * 1000))
             g_IEngine->ClientCmd_Unrestricted("-voicerecord");
     }
-#if ENABLE_TEXTMODE
     if (random_votekicks && timer_votekicks.test_and_set(5000))
-        do_random_votekick();
-#endif
-    if (random_votekicks && timer_votekicks.test_and_set(10000))
         do_random_votekick();
     if (timer_abandon.test_and_set(2000) && level_init_timer.check(13000))
     {

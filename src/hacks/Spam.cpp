@@ -19,6 +19,7 @@ static settings::String filename{ "spam.filename", "spam.txt" };
 static settings::Int spam_delay{ "spam.delay", "4500" };
 static settings::Int voicecommand_spam{ "spam.voicecommand", "0" };
 static settings::Boolean team_only{ "spam.teamchat", "false" };
+static settings::Boolean query_static{ "spam.query-static", "true" };
 
 static size_t last_index;
 
@@ -116,6 +117,7 @@ Query QueryFromSubstring(const std::string &string)
             switch (*it)
             {
             case 's':
+            if (query_static)
                 result.flags |= static_cast<int>(QueryFlags::STATIC);
                 break;
             case 'a':
@@ -129,9 +131,6 @@ Query QueryFromSubstring(const std::string &string)
                 break;
             case 'e':
                 result.flags |= static_cast<int>(QueryFlags::ENEMIES);
-                break;
-            case 'l':
-                result.flags |= static_cast<int>(QueryFlags::LOCALPLAYER);
                 break;
             case '1':
                 result.flags_class |= static_cast<int>(QueryFlagsClass::SCOUT);
