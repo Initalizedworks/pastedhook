@@ -30,9 +30,6 @@ static TextFile file{};
 
 const std::string teams[] = { "RED", "BLU" };
 
-// FUCK enum class.
-// It doesn't have bitwise operators by default!! WTF!! static_cast<int>(REEE)!
-
 enum class QueryFlags
 {
     ZERO        = 0,

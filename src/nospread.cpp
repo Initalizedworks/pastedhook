@@ -38,7 +38,7 @@ static settings::Boolean projectile("nospread.projectile", "false");
  * 1 Disable if being spectated in first person
  * 2 Disable if being spectated
  */
-static settings::Int specmode("nospread.spectator-mode", "1");
+static settings::Int specmode("nospread.spectator-mode", "0");
 settings::Boolean bullet("nospread.bullet", "false");
 settings::Int debug_nospread("nospread.debug", "0");
 settings::Boolean center_cone{ "nospread.center-cone", "true" };
