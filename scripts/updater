@@ -4,7 +4,6 @@
 # $2 Disable TUI
 # $3 Init
 
-AUTO_UPDATER_ENABLED=${1:-false}
 DISABLE_TUI=${2:-false}
 INIT=${3:-false}
 
@@ -58,34 +57,6 @@ if [ "$exists" == true ]; then
 fi
 if [ "$update_channel" != "developer" ]; then
     ./scripts/migrations $tui $INIT true || exit 1
-fi
-
-# Ask the user if they want to enable the auto updater
-exists=true
-cfg_haskey $configfile autoupdater || exists=false
-if [ "$dialog" == true ] && [ "$exists" == false ]; then
-    value=false
-    response=255
-    while [ "$response" != 0 ] && [ "$response" != 1 ]; do
-        dialog --keep-tite --title "Updater"  --yesno "Do you want to enable the cathook auto updater?" 10 25 || { response=$?; continue; }
-        response=$?
-    done
-    if [ "$response" == 0 ]; then
-        value=true
-    fi
-    cfg_write $configfile autoupdater $value
-fi
-
-# Send notice about auto updater, terminate script if its not enabled
-exists=true
-cfg_haskey $configfile autoupdater || exists=false
-if [ "$AUTO_UPDATER_ENABLED" == "true" ]; then
-    if [ $exists == false ] || [ "$(cfg_read $configfile autoupdater)" == false ]; then
-        exit 0;
-    fi
-    AUTOUPDATER=true
-    tui=false
-    echo -e "\033[1;34m \n \nAuto Updater: Updating cathook in the background\n\033[0m"
 fi
 
 function performupdate() {
@@ -152,8 +123,4 @@ function performupdate() {
     rm -f ${LOCKFILE}
 }
 
-if [ $AUTOUPDATER ]; then
-    performupdate &
-else
-    performupdate
-fi
+performupdate

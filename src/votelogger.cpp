@@ -15,7 +15,7 @@ static settings::Boolean vote_kicky{"votelogger.autovote.yes", "false"};
 static settings::Boolean vote_kickn{"votelogger.autovote.no", "false"};
 static settings::Boolean vote_rage_vote{"votelogger.autovote.no.rage", "false"};
 static settings::Boolean chat{"votelogger.chat", "true"};
-static settings::Boolean chat_results{"votelogger.chat.results", "false"};
+static settings::Boolean chat_partysay_result{"votelogger.chat.partysay.results", "false"};
 static settings::Boolean chat_partysay{"votelogger.chat.partysay", "false"};
 static settings::Boolean chat_casts{"votelogger.chat.casts", "false"};
 static settings::Boolean requeueonkick{"votelogger.requeue-on-kick", "false"};
@@ -157,9 +157,13 @@ void dispatchUserMessage(bf_read &buffer, int type)
     }
     case 47:
     {
-        if (chat_results)
-            PrintChat("Vote passed");
         logging::Info("Vote passed");
+
+        player_info_s info;
+        char formated_string[256];
+        std::snprintf(formated_string, sizeof(formated_string), "Vote against %s passed", info.name);
+        if (*chat_partysay_result)
+                re::CTFPartyClient::GTFPartyClient()->SendPartyChat(formated_string);
 
         if (was_local_player_caller && leave_after_local_vote)
                 tfmm::abandon();
@@ -167,9 +171,13 @@ void dispatchUserMessage(bf_read &buffer, int type)
         break;
     }
     case 48:
-        if (chat_results)
-            PrintChat("Vote failed");
         logging::Info("Vote failed");
+
+        player_info_s info;
+        char formated_string[256];
+        std::snprintf(formated_string, sizeof(formated_string), "Vote against %s failed", info.name);
+        if (*chat_partysay_result)
+                re::CTFPartyClient::GTFPartyClient()->SendPartyChat(formated_string);
 
         if (was_local_player_caller && leave_after_local_vote)
                 tfmm::abandon();

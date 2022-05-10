@@ -44,7 +44,6 @@ enum class QueryFlags
 struct Query
 {
     int flags{ 0 };
-    int flags_class{ 0 };
 };
 
 static int current_static_index{ 0 };
@@ -66,11 +65,6 @@ bool PlayerPassesQuery(Query query, int idx)
     int teammate = !player->m_bEnemy();
     bool alive   = !CE_BYTE(player, netvar.iLifeState);
     int clazzBit = (1 << (CE_INT(player, netvar.iClass) - 1));
-    if (static_cast<int>(query.flags_class))
-    {
-        if (!(clazzBit & static_cast<int>(query.flags_class)))
-            return false;
-    }
     if (query.flags & (static_cast<int>(QueryFlags::TEAMMATES) | static_cast<int>(QueryFlags::ENEMIES)))
     {
         if (!teammate && !(query.flags & static_cast<int>(QueryFlags::ENEMIES)))
@@ -126,7 +120,7 @@ int QueryPlayer(Query query)
 {
     if (query.flags & static_cast<int>(QueryFlags::STATIC))
     {
-        if (current_static_index && (query.flags & static_query.flags) == static_query.flags && (query.flags_class & static_query.flags_class) == static_query.flags_class)
+        if (current_static_index && (query.flags & static_query.flags) == static_query.flags)
         {
             if (PlayerPassesQuery(query, current_static_index))
             {
@@ -334,6 +328,9 @@ void createMove()
     case 7:
         source = &builtin_lithium;
         break;
+    case 8:
+        source = &builtin_pazer;
+        break;
     default:
         return;
     }
@@ -387,6 +384,7 @@ const std::vector<std::string> builtin_blanks     = { "%lines%" };
 const std::vector<std::string> builtin_nonecore = { "NULL CORE - REDUCE YOUR RISK OF BEING OWNED!", "NULL CORE - WAY TO THE TOP!", "NULL CORE - BEST TF2 CHEAT!", "NULL CORE - NOW WITH BLACKJACK AND HOOKERS!", "NULL CORE - BUTTHURT IN 10 SECONDS FLAT!", "NULL CORE - WHOLE SERVER OBSERVING!", "NULL CORE - GET BACK TO PWNING!", "NULL CORE - WHEN PVP IS TOO HARDCORE!", "NULL CORE - CAN CAUSE KIDS TO RAGE!", "NULL CORE - F2P NOOBS WILL BE 100% NERFED!" };
 const std::vector<std::string> builtin_lmaobox  = { "GET GOOD, GET LMAOBOX!", "LMAOBOX - WAY TO THE TOP", "WWW.LMAOBOX.NET - BEST FREE TF2 HACK!" };
 const std::vector<std::string> builtin_lithium  = { "CHECK OUT www.YouTube.com/c/DurRud FOR MORE INFORMATION!", "PWNING AIMBOTS WITH OP ANTI-AIMS SINCE 2015 - LITHIUMCHEAT", "STOP GETTING MAD AND STABILIZE YOUR MOOD WITH LITHIUMCHEAT!", "SAVE YOUR MONEY AND GET LITHIUMCHEAT! IT IS FREE!", "GOT ROLLED BY LITHIUM? HEY, THAT MEANS IT'S TIME TO GET LITHIUMCHEAT!!" };
+const std::vector<std::string> builtin_pazer  = { "Attention! There is a cheater on the other team named '%query:'. Please kick them!" };
 
 static InitRoutine EC(
     []()

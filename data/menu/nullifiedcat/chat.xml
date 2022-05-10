@@ -11,6 +11,7 @@
                     <Option name="Nullcore" value="5"/>
                     <Option name="Lmaobox" value="6"/>
                     <Option name="Lithium" value="7"/>
+                    <Option name="Pazer" value="8"/>
                 </Select>
             </LabeledObject>
             <AutoVariable width="fill" target="spam.filename" label="Custom spam"/>
@@ -94,6 +95,7 @@
         <List width="165">
             <AutoVariable width="fill" target="votelogger.chat" label="Log votes" tooltip="Shows you new votekicks in your personal chat"/>
             <AutoVariable width="fill" target="votelogger.chat.partysay" label="Log votes to party"/>
+            <AutoVariable width="fill" target="votelogger.chat.partysay.results" label="Partysay vote results"/>
         </List>
     </Box>
 </Tab>
