@@ -1,11 +1,3 @@
-paste a lot from inithook
 paste
-paste
-paste
-paste
-paste
-paste more from inithook
-paste
-paste
-why do we need boost wtf (1 gb size !)
-fix abandon if we arent in setup
+remove useless menu close (please help neko) (for reference, GuiInterface.cpp | WindowCloseButton.cpp | WindowHeader.cpp | ZeroKernelUnity.cpp | WindowHeader.hpp WindowCloseButton.hpp )
+inithook removed toolchain-cross-m32.cmake why cant i?
