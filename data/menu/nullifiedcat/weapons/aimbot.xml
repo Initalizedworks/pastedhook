@@ -93,7 +93,6 @@
             </LabeledObject>
             <AutoVariable width="fill" target="aimbot.assistance.only" label="Assistance only" tooltip="Aimbot will only activate if your mouse has moved in the last half second"/>
             <AutoVariable width="fill" target="aimbot.lock-target" label="Lock target" tooltip="Lock onto a target until they die or leave your FOV"/>
-            <AutoVariable width="fill" target="aimbot.target.ignore-non-rage" label="Rage only" tooltip="Only target players set to RAGE"/>
             <AutoVariable width="fill" target="aimbot.target.stickybomb" label="Aim at stickybombs"/>
             <AutoVariable width="fill" target="aimbot.target.sentry" label="Aim at sentry guns"/>
             <AutoVariable width="fill" target="aimbot.target.other-buildings" label="Aim at other buildings"/>
@@ -118,7 +117,6 @@
     </Box>
     <Box padding="12 6 6 6" width="content" height="content" name="Autoshoot" x="340" y="85">
         <List width="150">
-            <!-- shhh pro optimizing11!111 -->
             <AutoVariable width="fill" target="aimbot.autoshoot" label="Enable autoshoot" tooltip="Make the aimbot automatically fire your weapon"/>
             <AutoVariable width="fill" target="aimbot.wait-for-charge" label="Wait for charge" tooltip="Hold fire until a single shot is enough to kill the target"/>
             <LabeledObject width="fill" label="Wait for accuracy" tooltip="Hold fire until your shot doesn't have any additional spread">
