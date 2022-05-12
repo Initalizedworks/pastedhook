@@ -742,7 +742,7 @@ static void followCrumbs()
         if (look_vec)
         {
             Vector aim_ang = GetAimAtAngles(g_pLocalPlayer->v_Eye, *look_vec);
-            hacks::misc_aimbot::DoSlowAim(aim_ang, 20);
+            hacks::misc_aimbot::DoSlowAim(aim_ang, 10);
             current_user_cmd->viewangles = aim_ang;
         }
         else
@@ -765,7 +765,7 @@ static void followCrumbs()
             }
 
             // Pick a new point, we're looking at our current one closely enough
-            if ((current_user_cmd->viewangles - next).IsZero(10.0f))
+            if ((current_user_cmd->viewangles - next).IsZero(5.0f))
             {
                 if (!looked_at_point)
                     choose_new_point.update();
@@ -783,7 +783,6 @@ static void followCrumbs()
 
     WalkTo(crumbs[0].vec);
 }
-
 static Timer vischeck_timer{};
 void vischeckPath()
 {

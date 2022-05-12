@@ -79,6 +79,7 @@ static settings::Boolean buildings_sentry{ "aimbot.target.sentry", "true" };
 static settings::Boolean buildings_other{ "aimbot.target.other-buildings", "true" };
 static settings::Boolean npcs{ "aimbot.target.npcs", "true" };
 static settings::Boolean stickybot{ "aimbot.target.stickybomb", "false" };
+static settings::Boolean rageonly{ "aimbot.target.ignore-non-rage", "false" };
 static settings::Int teammates{ "aimbot.target.teammates", "0" };
 
 /*
@@ -851,6 +852,15 @@ bool IsTargetStateGood(CachedEntity *entity)
             }
         }
 
+        /* Rage only check */
+        /* WHY IS THIS GENDER CHECK NEEDED?!!?!? */
+        if (rageonly)
+        {
+            if (playerlist::AccessData(entity).state != playerlist::k_EState::RAGE)
+            {
+                return false;
+            }
+        }
         // don't aim if holding sapper
         if (g_pLocalPlayer->holding_sapper)
             return false;
@@ -1394,9 +1404,12 @@ int BestHitbox(CachedEntity *target)
         return *hitbox;
         break;
     }
-    default:
-        break;
+    case 3:
+    { // ALL hitboxes
+        return AllHitbox(target);
     }
+     default:
+        break;}
     // Hitbox machine :b:roke
     return -1;
 }
@@ -1421,6 +1434,26 @@ int ClosestHitbox(CachedEntity *target)
         }
     }
     return closest;
+}
+
+// i don't know what i did, but it works
+int AllHitbox(CachedEntity *target)
+{
+    {
+        if (g_pLocalPlayer->holding_sniper_rifle && g_pLocalPlayer->bZoomed)
+        {
+            for (int i = 0; i < target->hitboxes.GetNumHitboxes(); i++)
+            if (i != 8 && i != 11 && target->hitboxes.VisibilityCheck(i))
+                return i;
+        }
+        if (!g_pLocalPlayer->holding_sniper_rifle || !g_pLocalPlayer->bZoomed)
+        {
+            for (int i = 4; i < target->hitboxes.GetNumHitboxes(); i++)
+            if (target->hitboxes.VisibilityCheck(i))
+                return i;
+        }
+    }
+    return false;
 }
 
 // Function to get predicted visual checks

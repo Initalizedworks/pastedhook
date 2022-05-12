@@ -80,7 +80,8 @@ void BeginConVars()
         {
             cfg_autoexec << "// Put your settings in this "
                             "file\n// This script will be executed EACH TIME "
-                            "YOU JOIN A MATCH!\n";
+                            "YOU JOIN A MATCH!\n"
+                            "exec abusers.cfg";
         }
     }
     logging::Info(":b:");
@@ -97,7 +98,7 @@ void EndConVars()
     if (cfg_defaults.good())
     {
         cfg_defaults << "// This file is auto-generated and will be "
-                        "overwritten each time you inject cathook\n// Do not "
+                        "overwritten each time you launch tf2\n// Do not "
                         "make edits to this file\n\n// Every registered "
                         "variable dump\n";
         for (const auto &i : RegisteredVarsList())

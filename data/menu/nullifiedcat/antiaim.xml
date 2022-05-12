@@ -1,13 +1,10 @@
 <Tab name="HvH" padding="4 4 4 4">
-    <Box padding="12 6 6 6" width="content" height="content" name="Anti-aim">
-        <List width="150">
+    <Box padding="12 6 6 6" width="content" height="content" name="Anti-Aim">
+        <List width="166">
             <AutoVariable width="fill" target="antiaim.enable" label="Enable"/>
-            <AutoVariable width="fill" target="antiaim.draw-fakes" label="Draw fakes"/>
             <AutoVariable width="fill" target="antiaim.crouch" label="Fake crouch"/>
-            <AutoVariable width="fill" target="antiaim.no-clamp" label="No clamping" tooltip="Don't clamp angles (keep pitch within ±89° and yaw within ±180°)"/>
-            <AutoVariable width="fill" target="misc.fakelag" label="Fakelag" min="0" max="22"/>
-            <AutoVariable width="fill" target="misc.fakelag-midair-only" label="Fakelag midair only"/>
-            <AutoVariable width="fill" target="antiaim.spin-speed" label="Spin speed" tooltip="Speed for yaw spin" min="-45" max="45" step="0.1"/>
+            <AutoVariable width="fill" target="antiaim.no-clamp" label="No clamping" tooltip="Don't clamp angles (keep pitch within ±89° and yaw within ±180°)."/>
+            <AutoVariable width="fill" target="antiaim.spin-speed" label="Spin speed" tooltip="Speed for yaw spin." min="-45" max="45" step="0.1"/>
             <AutoVariable width="fill" target="antiaim.roll" label="Roll"/>
             <Box padding="12 6 6 6" width="content" height="content" name="Pitch" y="90">
 				<List width="138">
@@ -31,7 +28,7 @@
 							<Option name="Heck" value="7"/>
 						</Select>
 					</LabeledObject>
-					<AutoVariable width="fill" target="antiaim.pitch.static" label="Custom" tooltip="Used when 'Real Pitch' is set to 'Custom'"/>
+					<AutoVariable width="fill" target="antiaim.pitch.static" label="Custom" tooltip="Used when 'Real Pitch' is set to 'Custom'."/>
 				</List>
 			</Box>
 			<Box padding="12 6 6 6" width="content" height="content" name="Yaw" y="120">
@@ -51,6 +48,9 @@
 							<Option name="Omega" value="10"/>
 							<Option name="Random" value="11"/>
 							<Option name="Random Clamped" value="12"/>
+							<Option name="Anger" value="13"/>
+							<Option name="Crackhead" value="14"/>
+							<Option name="Anger Inverse" value="15"/>
 						</Select>
 					</LabeledObject>
 					<LabeledObject width="fill" label="Real Yaw">
@@ -68,31 +68,53 @@
 							<Option name="Omega" value="10"/>
 							<Option name="Random" value="11"/>
 							<Option name="Random Clamped" value="12"/>
+							<Option name="Anger" value="13"/>
+							<Option name="Crackhead" value="14"/>
+							<Option name="Anger Inverse" value="15"/>
 						</Select>
 					</LabeledObject>
-					<AutoVariable width="fill" target="antiaim.yaw.fake.static" label="Custom Fake" tooltip="Used when 'Fake Yaw' is set to 'Custom'"/>
-					<AutoVariable width="fill" target="antiaim.yaw.real.static" label="Custom Real" tooltip="Used when 'Real Yaw' is set to 'Custom'"/>
+					<AutoVariable width="fill" target="antiaim.yaw.fake.static" label="Custom Fake" tooltip="Used when 'Fake Yaw' is set to 'Custom'."/>
+					<AutoVariable width="fill" target="antiaim.yaw.real.static" label="Custom Real" tooltip="Used when 'Real Yaw' is set to 'Custom'."/>
 				</List>
 			</Box>
-        </List>
-    </Box>
-    <Box padding="12 6 6 6" width="content" height="content" name="Resolver" x="170">
-        <List width="150">
-            <AutoVariable width="fill" target="anti-anti-aim.enable" label="Enable" tooltip="Attempt to bruteforce enemy antiaim"/>
-        </List>
-    </Box>
-    <Box padding="12 6 6 6" name="Anti-resolver" width="content" height="content" x="340">
+		</List>
+	</Box>
+	<Box padding="12 6 6 6" width="content" height="content" name="Fakelag" y="245">
+		<List width="166">
+            <AutoVariable width="fill" target="misc.fakelag" label="Fakelag" min="0" max="22"/>
+            <AutoVariable width="fill" target="misc.fakelag-midair-only" label="Fakelag midair only"/>
+		</List>
+	</Box>
+	<Box padding="12 6 6 6" width="content" height="content" name="Resolver" x="182">
+		<List width="180">
+			<Box padding="12 6 6 6" width="fill" height="content" name="Bruteforce-Resolver">
+				<List width="fill">
+					<AutoVariable width="fill" target="anti-anti-aim.enable" label="Enable" tooltip="Attempt to automaticly bruteforce enemy antiaim." />
+					<AutoVariable width="fill" target="anti-anti-aim.bruteforce-amount" label="Miss To Resolve" tooltip="Number of misses after resolver attempts to bruteforce enemy antiaim" min="1" max="4" />
+				</List>
+			</Box>
+			<Box padding="12 6 6 6" width="fill" height="content" name="Manual-Resolver">
+				<List width="fill">
+					<AutoVariable width="fill" target="anti-anti-aim.manual.resolver-enable" label="Enabled" tooltip="Attempt to manually guess enemy's Anti-Aim (Yaw)." />
+					<AutoVariable width="fill" target="anti-anti-aim.manual.resolver.yaw-button" label="Yaw Key" tooltip="Manually Resolve Yaw selected degrees." />
+					<AutoVariable width="fill" target="anti-anti-aim.manual.resolver.yaw-amount" label="Yaw Amount" tooltip="How much degrees Yaw should manual resolver use?" />
+					<AutoVariable width="fill" target="anti-anti-aim.manual.resolver.fov" label="Resolver FOV" tooltip="Set Fov under which manual resolver will search for targets" min="1" max="180" />
+				</List>
+			</Box>
+		</List>
+	</Box>
+	<Box padding="12 6 6 6" name="Anti-resolver" width="content" height="content" x="400">
         <List width="150">
             <AutoVariable width="fill" target="antiaim.aaaa.enable" label="Enable"/>
             <AutoVariable width="fill" target="antiaim.aaaa.flip-key" label="Flip key"/>
             <AutoVariable width="fill" target="antiaim.aaaa.interval.seconds" label="Enable"/>
-            <AutoVariable width="fill" target="antiaim.aaaa.interval.random-low" label="Random low"/>
-            <AutoVariable width="fill" target="antiaim.aaaa.interval.random-high" label="Random high"/>
             <LabeledObject width="fill" label="Mode">
                 <Select target="antiaim.aaaa.mode">
-                    <Option name="(Fake)up" value="0"/>
-                    <Option name="(Fake)down" value="1"/>
-                    <Option name="(Fake)center" value="2"/>
+                    <Option name="Fake up" value="0"/>
+                    <Option name="Fake down" value="1"/>
+                    <Option name="Fake center" value="2"/>
+                    <Option name="Fake center (old)" value="3"/>
+                    <Option name="Fuck" value="4"/>
                 </Select>
             </LabeledObject>
         </List>

@@ -16,6 +16,7 @@
 static settings::Int newlines_msg{ "chat.prefix-newlines", "0" };
 static settings::Boolean log_sent{ "debug.log-sent-chat", "false" };
 static settings::Boolean answerIdentify{ "chat.identify.answer", "true" };
+static settings::Boolean chat_partysay_identify{ "chat.identify.log-party", "true" };
 static Timer identify_timer{};
 constexpr int CAT_IDENTIFY   = 0xCA7;
 constexpr int CAT_REPLY      = 0xCA8;
@@ -148,7 +149,14 @@ void ProcessAchievement(IGameEvent *ach)
             send_achievement_reply = true;
         }
         if (playerlist::ChangeState(info.friendsID, playerlist::k_EState::CAT))
-            PrintChat("Detected \x07%06X%s\x01 as a Cathook user", 0xe1ad01, info.name);
+            PrintChat("\x07%06X%s\x01 (%u) Marked as CAT (Cathook user)", 0xe05938, info.name, info.friendsID);
+            if (chat_partysay_identify && player_idx != g_pLocalPlayer->entity_idx)
+            {
+                char formated_string[256];
+                std::snprintf(formated_string, sizeof(formated_string), "%s [U:1:%u] Marked as CAT (Cathook user)", info.name, info.friendsID);
+                if (chat_partysay_identify)
+                    re::CTFPartyClient::GTFPartyClient()->SendPartyChat(formated_string);
+            }
     }
 }
 
