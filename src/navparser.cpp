@@ -727,7 +727,7 @@ static void followCrumbs()
         }
     }
 
-
+/*
     // Look at path
     if (look && !hacks::aimbot::isAiming())
     {
@@ -765,11 +765,11 @@ static void followCrumbs()
             }
 
             // Pick a new point, we're looking at our current one closely enough
-            if ((current_user_cmd->viewangles - next).IsZero(5.0f))
+            if ((current_user_cmd->viewangles - next).IsZero(10.0f))
             {
                 if (!looked_at_point)
                     choose_new_point.update();
-                looked_at_point = true;
+                looked_at_point = false;
                 wait_time       = 20 + UniformRandomInt(0, 2);
                 aim_speed       = 11 + UniformRandomInt(0, 2); // it was smooth at 13
             }
@@ -782,6 +782,23 @@ static void followCrumbs()
     }
 
     WalkTo(crumbs[0].vec);
+}
+*/
+
+    // Look at path
+    if (look && !hacks::aimbot::isAiming())
+    {
+        Vector next{ crumbs[0].vec.x, crumbs[0].vec.y, g_pLocalPlayer->v_Eye.z };
+        next = GetAimAtAngles(g_pLocalPlayer->v_Eye, next);
+        static int aim_speed = 7;
+        /* 10, 35 (decent), 50, still trying out 7 but i ran out of time lul */
+
+        // Slow aim to smoothen
+        hacks::misc_aimbot::DoSlowAim(next, aim_speed);
+        current_user_cmd->viewangles = next;
+    }
+
+    WalkTo(current_vec);
 }
 static Timer vischeck_timer{};
 void vischeckPath()

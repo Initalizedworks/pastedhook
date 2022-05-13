@@ -28,8 +28,6 @@ static settings::Boolean escape_danger_ctf_cap("navbot.escape-danger.ctf-cap", "
 static settings::Boolean defend_intel("navbot.defend-intel", "false");
 static settings::Boolean enable_slight_danger_when_capping("navbot.escape-danger.slight-danger.capping", "false");
 static settings::Boolean autojump("navbot.autojump.enabled", "false");
-static settings::Boolean autozoom("navbot.autozoom.enabled", "false");
-static settings::Float zoom_distance("navbot.autozoom.trigger-distance", "600");
 static settings::Int zoom_time("navbot.autozoom.unzoom-time", "5000");
 static settings::Boolean primary_only("navbot.primary-only", "true");
 static settings::Int force_slot("navbot.force-slot", "0");
@@ -1366,26 +1364,6 @@ static void autoJump(std::pair<CachedEntity *, float> &nearest)
         current_user_cmd->buttons |= IN_JUMP | IN_DUCK;
 }
 
-static void autoZoom(std::pair<CachedEntity *, float> &nearest)
-{
-    if (!autozoom)
-        return;
-    static Timer last_zoom{};
-    static Timer timeinzoom{};
-    if (!last_zoom.test_and_set(1000) && g_pLocalPlayer->holding_sniper_rifle || CE_BAD(nearest.first))
-        return;
-    // Zoom in and update timeinzoom
-    if (g_pLocalPlayer->holding_sniper_rifle && nearest.second <= *zoom_distance && !g_pLocalPlayer->bZoomed)
-        current_user_cmd->buttons |= IN_ATTACK2;
-    if (nearest.second <= *zoom_distance)
-        timeinzoom.update();
-    // If we've been zoomed in for more than (amount), unzoom.
-    if (g_pLocalPlayer->bZoomed && g_pLocalPlayer->holding_sniper_rifle && timeinzoom.check(*zoom_time) && !nearest.second <= *zoom_distance)
-        current_user_cmd->buttons |= IN_ATTACK2;
-    if (LOCAL_W->m_iClassID() == CL_CLASS(CTFMinigun) && nearest.second <= *zoom_distance)
-        current_user_cmd->buttons |= IN_JUMP | IN_ATTACK2;
-}
-
 static slots getBestSlot(slots active_slot, std::pair<CachedEntity *, float> &nearest)
 {
     if (force_slot)
@@ -1522,7 +1500,6 @@ void CreateMove()
 
     updateSlot(nearest);
     autoJump(nearest);
-    autoZoom(nearest);
     updateEnemyBlacklist(slot);
 
     // Try to escape danger first of all

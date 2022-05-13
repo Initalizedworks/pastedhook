@@ -18,7 +18,7 @@
 
 static settings::Boolean dispatch_log{ "debug.log-dispatch-user-msg", "false" };
 static settings::Boolean chat_filter_enable{ "chat.censor.enable", "false" };
-static settings::Boolean anti_votekick{ "cat-bot.anti-autobalance", "false" };
+static settings::Boolean anti_autobalance{ "cat-bot.anti-autobalance", "false" };
 
 static bool retrun = false;
 static Timer gitgud{};
@@ -146,7 +146,7 @@ DEFINE_HOOKED_METHOD(DispatchUserMessage, bool, void *this_, int type, bf_read &
         break;
     case 5:
     {
-        if (*anti_votekick && buf.GetNumBytesLeft() > 35)
+        if (*anti_autobalance && buf.GetNumBytesLeft() > 35)
         {
             INetChannel *server = (INetChannel *) g_IEngine->GetNetChannelInfo();
             data                = std::string(buf_data);
@@ -191,11 +191,7 @@ DEFINE_HOOKED_METHOD(DispatchUserMessage, bool, void *this_, int type, bf_read &
          */
         const char *p = data.c_str() + 2;
         std::string event(p), name((p += event.size() + 1)), message(p + name.size() + 1);
-        if (chat_filter_enable && data[0] == LOCAL_E->m_IDX && event == "#TF_Name_Change")
-        {
-            chat_stack::Say("\e" + clear, false);
-        }
-        else if (chat_filter_enable && data[0] != LOCAL_E->m_IDX && event.find("TF_Chat") == 0)
+        if (chat_filter_enable && data[0] != LOCAL_E->m_IDX && event.find("TF_Chat") == 0)
         {
             player_info_s info{};
             GetPlayerInfo(LOCAL_E->m_IDX, &info);
@@ -235,7 +231,7 @@ DEFINE_HOOKED_METHOD(DispatchUserMessage, bool, void *this_, int type, bf_read &
                 break;
             }
 
-            std::vector<std::string> res = { "skid", "script", "cheat", "hak", "hac", "f1", "hax", "vac", "ban", "bot", "report", "kick", "hcak", "chaet", "one" };
+            std::vector<std::string> res = { "skid", "script", "cheat", "hak", "hac", "f1", "hax", "vac", "ban", "bot", "report", "kick", "hcak", "chaet", "one", "boat", "f2", "hack" };
             if (claz)
                 res.emplace_back(claz);
 
