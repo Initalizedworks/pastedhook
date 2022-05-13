@@ -851,9 +851,7 @@ bool IsTargetStateGood(CachedEntity *entity)
                     return false;
             }
         }
-
-        /* Rage only check */
-        /* WHY IS THIS GENDER CHECK NEEDED?!!?!? */
+        // Rage only check
         if (rageonly)
         {
             if (playerlist::AccessData(entity).state != playerlist::k_EState::RAGE)
@@ -861,6 +859,7 @@ bool IsTargetStateGood(CachedEntity *entity)
                 return false;
             }
         }
+
         // don't aim if holding sapper
         if (g_pLocalPlayer->holding_sapper)
             return false;
@@ -1404,12 +1403,9 @@ int BestHitbox(CachedEntity *target)
         return *hitbox;
         break;
     }
-    case 3:
-    { // ALL hitboxes
-        return AllHitbox(target);
+    default:
+        break;
     }
-     default:
-        break;}
     // Hitbox machine :b:roke
     return -1;
 }
@@ -1434,26 +1430,6 @@ int ClosestHitbox(CachedEntity *target)
         }
     }
     return closest;
-}
-
-// i don't know what i did, but it works
-int AllHitbox(CachedEntity *target)
-{
-    {
-        if (g_pLocalPlayer->holding_sniper_rifle && g_pLocalPlayer->bZoomed)
-        {
-            for (int i = 0; i < target->hitboxes.GetNumHitboxes(); i++)
-            if (i != 8 && i != 11 && target->hitboxes.VisibilityCheck(i))
-                return i;
-        }
-        if (!g_pLocalPlayer->holding_sniper_rifle || !g_pLocalPlayer->bZoomed)
-        {
-            for (int i = 4; i < target->hitboxes.GetNumHitboxes(); i++)
-            if (target->hitboxes.VisibilityCheck(i))
-                return i;
-        }
-    }
-    return false;
 }
 
 // Function to get predicted visual checks

@@ -18,7 +18,7 @@
 
 static settings::Boolean dispatch_log{ "debug.log-dispatch-user-msg", "false" };
 static settings::Boolean chat_filter_enable{ "chat.censor.enable", "false" };
-static settings::Boolean anti_autobalance{ "cat-bot.anti-autobalance", "false" };
+static settings::Boolean anti_votekick{ "cat-bot.anti-autobalance", "false" };
 
 static bool retrun = false;
 static Timer gitgud{};
@@ -34,6 +34,10 @@ const static std::string clear("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n
 std::string lastfilter{};
 std::string lastname{};
 
+namespace hacks::autoheal
+{
+extern std::vector<int> called_medic;
+}
 namespace hooked_methods
 {
 static Timer sendmsg{};
@@ -99,6 +103,23 @@ DEFINE_HOOKED_METHOD(DispatchUserMessage, bool, void *this_, int type, bf_read &
     std::string data;
     switch (type)
     {
+
+    case 25:
+    {
+        // DATA = [ 01 01 06  ] For "Charge me Doctor!"
+        // First Byte represents entityid
+        int ent_id = buf.ReadByte();
+        // Second Byte represents the voicemenu used for it
+        int voice_menu = buf.ReadByte();
+        // Third Byte represents the command in that voicemenu (starting from 0)
+        int command_id = buf.ReadByte();
+
+        if (voice_menu == 1 && command_id == 6)
+            hacks::autoheal::called_medic.push_back(ent_id);
+        // If we don't .Seek(0) the game will have a bad  time reading
+        buf.Seek(0);
+        break;
+    }
     // Hud message
     case 26:
     {
@@ -125,7 +146,7 @@ DEFINE_HOOKED_METHOD(DispatchUserMessage, bool, void *this_, int type, bf_read &
         break;
     case 5:
     {
-        if (*anti_autobalance && buf.GetNumBytesLeft() > 35)
+        if (*anti_votekick && buf.GetNumBytesLeft() > 35)
         {
             INetChannel *server = (INetChannel *) g_IEngine->GetNetChannelInfo();
             data                = std::string(buf_data);
@@ -170,7 +191,11 @@ DEFINE_HOOKED_METHOD(DispatchUserMessage, bool, void *this_, int type, bf_read &
          */
         const char *p = data.c_str() + 2;
         std::string event(p), name((p += event.size() + 1)), message(p + name.size() + 1);
-        if (chat_filter_enable && data[0] != LOCAL_E->m_IDX && event.find("TF_Chat") == 0)
+        if (chat_filter_enable && data[0] == LOCAL_E->m_IDX && event == "#TF_Name_Change")
+        {
+            chat_stack::Say("\e" + clear, false);
+        }
+        else if (chat_filter_enable && data[0] != LOCAL_E->m_IDX && event.find("TF_Chat") == 0)
         {
             player_info_s info{};
             GetPlayerInfo(LOCAL_E->m_IDX, &info);
@@ -210,7 +235,7 @@ DEFINE_HOOKED_METHOD(DispatchUserMessage, bool, void *this_, int type, bf_read &
                 break;
             }
 
-            std::vector<std::string> res = { "skid", "script", "cheat", "hak", "hac", "f1", "hax", "vac", "ban", "bot", "report", "kick", "hcak", "chaet", "one", "boat", "f2", "hack" };
+            std::vector<std::string> res = { "skid", "script", "cheat", "hak", "hac", "f1", "hax", "vac", "ban", "bot", "report", "kick", "hcak", "chaet", "one" };
             if (claz)
                 res.emplace_back(claz);
 
@@ -219,6 +244,7 @@ DEFINE_HOOKED_METHOD(DispatchUserMessage, bool, void *this_, int type, bf_read &
 
             std::string message2(message);
             boost::to_lower(message2);
+
             const char *toreplace[]   = { " ", "4", "3", "0", "6", "5", "7", "@", ".", ",", "-" };
             const char *replacewith[] = { "", "a", "e", "o", "g", "s", "t", "a", "", "", "" };
 

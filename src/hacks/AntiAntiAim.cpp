@@ -2,320 +2,266 @@
  * Created on 29.07.18.
  */
 
-// 02.12.2021
-// Credits: (Censored due to privacy, this is not my code.)
-// AntiAntiAim.cpp
-
-#include <hacks/ESP.hpp>
 #include "common.hpp"
 #include "hacks/AntiAntiAim.hpp"
 #include "sdk/dt_recv_redef.h"
 
 namespace hacks::anti_anti_aim
 {
-static settings::Boolean enable_auto_resolver{ "anti-anti-aim.enable", "false" };
-#if !ENABLE_TEXTMODE
-static settings::Boolean enable_manual_resolver{ "anti-anti-aim.manual.resolver-enable", "false" };
-static settings::Button manual_resolver_yaw{ "anti-anti-aim.manual.resolver.yaw-button", "" };
-static settings::Int manual_amount_yaw{ "anti-anti-aim.manual.resolver.yaw-amount", "90" };
-static settings::Float manual_resolver_fov{ "anti-anti-aim.manual.resolver.fov", "25.0f" };
-#endif
-static settings::Int miss_to_resolve{ "anti-anti-aim.bruteforce-amount", "1" };
+static settings::Boolean enable{ "anti-anti-aim.enable", "false" };
+static settings::Boolean debug{ "anti-anti-aim.debug.enable", "false" };
 
 std::unordered_map<unsigned, brutedata> resolver_map;
 std::array<CachedEntity *, 32> sniperdot_array;
-bool IsKeyPressed, changeangles;
 
-// Update new resolver data every frame
 static inline void modifyAngles()
 {
     for (int i = 1; i <= g_IEngine->GetMaxClients(); i++)
     {
         auto player = ENTITY(i);
-        if (CE_BAD(player))
+        if (CE_BAD(player) || !player->m_bAlivePlayer() || !player->m_bEnemy() || !player->player_info.friendsID)
             continue;
-        if (!player->m_bAlivePlayer())
-            continue;
-        if (!player->m_bEnemy())
-            continue;
-        if (!player->player_info.friendsID) // Rip first bot on itemtest
-            continue;
-
         auto &data  = resolver_map[player->player_info.friendsID];
         auto &angle = CE_VECTOR(player, netvar.m_angEyeAngles);
-
-        if (angle.y != data.new_angle.y && !changeangles)
-            data.original_angle.y = angle.y;
-        if (angle.x != data.new_angle.x && !changeangles)
-            data.original_angle.x = angle.x;
-
-        while (data.original_angle.y > 180)
-            data.original_angle.y -= 360;
-        while (data.original_angle.y < -180)
-            data.original_angle.y += 360;
-
-        if ((data.missnumber > (int) miss_to_resolve) && (enable_auto_resolver))
-        {
-            while (data.new_angle.y > 180)
-                data.new_angle.y -= 360;
-            while (data.new_angle.y < -180)
-                data.new_angle.y += 360;
-
-            angle.y = data.new_angle.y;
-
-            // If gamer doesn't use fake pitch, there is no point in resolving it
-            if (data.usefakepitch)
-                angle.x = data.new_angle.x;
-
-            changeangles  = false;
-            data.pitchdot = false;
-        }
-#if !ENABLE_TEXTMODE
-        if ((data.usingmanual) && enable_manual_resolver)
-        {
-            while (data.new_angle.y > 180)
-                data.new_angle.y -= 360;
-            while (data.new_angle.y < -180)
-                data.new_angle.y += 360;
-
-            angle.y = data.new_angle.y;
-
-            if (data.usefakepitch)
-                angle.x = data.new_angle.x;
-
-            changeangles  = false;
-            data.pitchdot = false;
-        }
-#endif
+        angle.x     = data.new_angle.x;
+        angle.y     = data.new_angle.y;
+    }
+}
+static inline void CreateMove()
+{
+    // Empty the array
+    sniperdot_array.fill(0);
+    // Find sniper dots
+    for (int i = g_IEngine->GetMaxClients() + 1; i <= HIGHEST_ENTITY; i++)
+    {
+        CachedEntity *dot_ent = ENTITY(i);
+        // Not a sniper dot
+        if (CE_BAD(dot_ent) || dot_ent->m_iClassID() != CL_CLASS(CSniperDot))
+            continue;
+        // Get the player it belongs to
+        auto ent_idx = HandleToIDX(CE_INT(dot_ent, netvar.m_hOwnerEntity));
+        // IDX check
+        if (IDX_BAD(ent_idx) || ent_idx > sniperdot_array.size() || ent_idx <= 0)
+            continue;
+        // Good sniper dot, add to array
+        sniperdot_array.at(ent_idx - 1) = dot_ent;
     }
 }
 
-#if !ENABLE_TEXTMODE
 void frameStageNotify(ClientFrameStage_t stage)
 {
-    if (!g_IEngine->IsInGame())
+#if !ENABLE_TEXTMODE
+    if (!enable || !g_IEngine->IsInGame())
         return;
     if (stage == FRAME_NET_UPDATE_POSTDATAUPDATE_START)
+    {
         modifyAngles();
-}
+    }
 #endif
-
-static std::array<float, 5> yaw_resolves{ -89.0f, 89.0f, -115.0f, 240.0f, 155.0f };
-
-static float resolveAngleYaw(brutedata &data)
-{
-    changeangles = true;
-    float newangle;
-    int entry = RandomInt(0, 4);
-    newangle  = yaw_resolves[entry];
-    data.new_angle.y += newangle;
-    return 0;
 }
 
-// Store pitch possible angles to resolve(we store 2 ups and 1 down cuz using down as real is bad)
-static std::array<float, 3> pitch_resolves{ -89.0f, 89.0f, -89.0f };
+static std::array<float, 5> yaw_resolves{ 0.0f, 180.0f, 65.0f, -65.0f, -180.0f };
 
-static float resolveAnglePitch(brutedata &data, CachedEntity *ent)
+static float resolveAngleYaw(float angle, brutedata &brute)
 {
-    if (data.pitchdot)
-        return 0;
-    int entry        = (int) std::floor(data.brutenum / 1) % pitch_resolves.size();
-    data.new_angle.x = pitch_resolves[entry];
-    return 0;
+    brute.original_angle.y = angle;
+    while (angle > 180)
+        angle -= 360;
+
+    while (angle < -180)
+        angle += 360;
+
+    // Yaw Resolving
+    // Find out which angle we should try
+    int entry = (int) std::floor((brute.brutenum / 2.0f)) % yaw_resolves.size();
+    angle += yaw_resolves[entry];
+
+    while (angle > 180)
+        angle -= 360;
+
+    while (angle < -180)
+        angle += 360;
+    brute.new_angle.y = angle;
+    return angle;
 }
 
-#if !ENABLE_TEXTMODE
-float ManualResolverYaw(brutedata &data, float angle)
+static float resolveAnglePitch(float angle, brutedata &brute, CachedEntity *ent)
 {
-    changeangles     = true;
-    data.usingmanual = true;
-    data.missnumber  = 0;
-    data.new_angle.y += angle;
-}
+    brute.original_angle.x = angle;
 
-void ManualResolver()
-{
-    if (!enable_manual_resolver)
-        return;
+    // Get CSniperDot associated with entity
+    CachedEntity *sniper_dot = nullptr;
 
-    CachedEntity *target = NULL;
-    float oldfov = (float) manual_resolver_fov;
+    // Get Weapon id
+    auto weapon_id = HandleToIDX(CE_INT(ent, netvar.hActiveWeapon));
 
-    for (int i = 1; i < g_IEngine->GetMaxClients(); i++)
+    // Check IDX for validity
+    if (IDX_GOOD(weapon_id))
     {
-        CachedEntity *ent = ENTITY(i);
-        if (CE_BAD(ent))
-            continue;
-        if (!ent->m_bEnemy())
-            continue;
-        if (!ent->m_bAlivePlayer())
-            continue;
-        float fov = GetFov(g_pLocalPlayer->v_OrigViewangles, g_pLocalPlayer->v_Eye, ent->hitboxes.GetHitbox(spine_2)->center);
-
-        if (fov < (float) manual_resolver_fov)
+        auto weapon_ent = ENTITY(weapon_id);
+        // Check weapon for validity
+        if (CE_GOOD(weapon_ent) && (weapon_ent->m_iClassID() == CL_CLASS(CTFSniperRifle) || weapon_ent->m_iClassID() == CL_CLASS(CTFSniperRifleDecap) || weapon_ent->m_iClassID() == CL_CLASS(CTFSniperRifleClassic)))
         {
-            if (fov < oldfov)
-            {
-                target = ent;
-            }
-            oldfov = fov;
+            // Get Sniperdot
+            sniper_dot = sniperdot_array.at(ent->m_IDX - 1);
+            // Check if the dot is still good, if not then set to nullptr
+            if (CE_BAD(sniper_dot) || sniper_dot->m_iClassID() != CL_CLASS(CSniperDot))
+                sniper_dot = nullptr;
         }
     }
-
-    if (target == NULL)
-        return;
-
-    auto &data = resolver_map[target->player_info.friendsID];
-
-    if (!IsKeyPressed)
+    // No sniper dot/not using a sniperrifle.
+    if (sniper_dot == nullptr)
     {
-        if (manual_resolver_yaw.isKeyDown())
+        if (brute.brutenum % 2)
         {
-            IsKeyPressed = true;
-            ManualResolverYaw(data, + *manual_amount_yaw);
+            // Pitch resolver
+            if (angle >= 90)
+                angle = -89;
+            if (angle <= -90)
+                angle = 89;
         }
-    if (!manual_resolver_yaw.isKeyDown())
-        IsKeyPressed = false;
     }
+    // Sniper dot found, use it.
+    else
+    {
+        // Get End and start point
+        auto dot_origin = sniper_dot->m_vecOrigin();
+        auto eye_origin = re::C_BasePlayer::GetEyePosition(RAW_ENT(ent));
+        // Get Angle from eye to dot
+        Vector diff = dot_origin - eye_origin;
+        Vector angles;
+        VectorAngles(diff, angles);
+        // Use the pitch (yaw is not useable because sadly the sniper dot does not represent it with fake yaw)
+        angle = angles.x;
+    }
+
+    brute.new_angle.x = angle;
+    return angle;
 }
-#endif
-// Increase brute num to set other angle instead of same one
+
 void increaseBruteNum(int idx)
 {
     auto ent = ENTITY(idx);
     if (CE_BAD(ent) || !ent->player_info.friendsID)
         return;
-    auto &data = resolver_map[ent->player_info.friendsID];
-
-    data.brutenum++;
-    data.missnumber++;
-    data.hits_in_a_row = 0;
-#if !ENABLE_TEXTMODE
-    // Dont resolve, if we use manual resolver;
-    if (data.missnumber >= (int) miss_to_resolve)
+    auto &data = hacks::anti_anti_aim::resolver_map[ent->player_info.friendsID];
+    if (data.hits_in_a_row >= 4)
+        data.hits_in_a_row = 2;
+    else if (data.hits_in_a_row >= 2)
+        data.hits_in_a_row = 0;
+    else
     {
-        data.usingmanual = false;
-        resolveAnglePitch(data, ent);
-        resolveAngleYaw(data);
+        data.brutenum++;
+        if (debug)
+            logging::Info("AAA: Brutenum for entity %i increased to %i", idx, data.brutenum);
+        data.hits_in_a_row = 0;
+        auto &angle        = CE_VECTOR(ent, netvar.m_angEyeAngles);
+        angle.x            = resolveAnglePitch(data.original_angle.x, data, ent);
+        angle.y            = resolveAngleYaw(data.original_angle.y, data);
+        data.new_angle.x   = angle.x;
+        data.new_angle.y   = angle.y;
     }
-#endif
 }
 
-void UseFakePitch()
+static void pitchHook(const CRecvProxyData *pData, void *pStruct, void *pOut)
 {
-#if !ENABLE_TEXTMODE
-    if (!enable_manual_resolver && !enable_auto_resolver)
+    float flPitch      = pData->m_Value.m_Float;
+    float *flPitch_out = (float *) pOut;
+
+    if (!enable)
+    {
+        *flPitch_out = flPitch;
         return;
-#else
-    if (!enable_auto_resolver)
+    }
+
+    auto client_ent   = (IClientEntity *) (pStruct);
+    CachedEntity *ent = ENTITY(client_ent->entindex());
+    if (CE_GOOD(ent))
+        *flPitch_out = resolveAnglePitch(flPitch, resolver_map[ent->player_info.friendsID], ent);
+}
+
+static void yawHook(const CRecvProxyData *pData, void *pStruct, void *pOut)
+{
+    float flYaw      = pData->m_Value.m_Float;
+    float *flYaw_out = (float *) pOut;
+
+    if (!enable)
+    {
+        *flYaw_out = flYaw;
         return;
-#endif
-    for (int i = 1; i <= g_IEngine->GetMaxClients(); i++)
-    {
-        CachedEntity *player = ENTITY(i);
-        if (CE_BAD(player))
-            continue;
-        if (!player->m_bAlivePlayer())
-            continue;
-        if (!player->m_bEnemy())
-            continue;
-        if (!player->player_info.friendsID)
-            continue;
-
-        auto &data = resolver_map[player->player_info.friendsID];
-
-        // Gamer use fake pitch
-        if (data.original_angle.x < -89.5f || data.original_angle.x > 89.5f)
-            data.usefakepitch = true;
-        else
-            data.usefakepitch = false;
     }
+
+    auto client_ent   = (IClientEntity *) (pStruct);
+    CachedEntity *ent = ENTITY(client_ent->entindex());
+    if (CE_GOOD(ent))
+        *flYaw_out = resolveAngleYaw(flYaw, resolver_map[ent->player_info.friendsID]);
 }
 
-// Dot pitch resolver that works in real time, wow
-void CreateMove()
+// *_ptr points to what we need to modify while *_ProxyFn holds the old value
+static RecvVarProxyFn *original_ptrX;
+static RecvVarProxyFn original_ProxyFnX;
+static RecvVarProxyFn *original_ptrY;
+static RecvVarProxyFn original_ProxyFnY;
+
+static void hook()
 {
-    sniperdot_array.fill(0);
-
-    for (int i = g_IEngine->GetMaxClients(); i <= HIGHEST_ENTITY; i++)
+    auto pClass = g_IBaseClient->GetAllClasses();
+    while (pClass)
     {
-        CachedEntity *sniper_dot = ENTITY(i);
-        if (CE_BAD(sniper_dot) || sniper_dot->m_iClassID() != CL_CLASS(CSniperDot))
-            continue;
-        auto owner_idx = HandleToIDX(CE_INT(sniper_dot, netvar.m_hOwnerEntity));
-        if (IDX_BAD(owner_idx) || owner_idx > sniperdot_array.size() || owner_idx <= 0)
-            continue;
-        sniperdot_array.at(owner_idx) = sniper_dot;
-    }
-
-    for (int i = 1; i <= g_IEngine->GetMaxClients(); i++)
-    {
-        CachedEntity *player = ENTITY(i);
-        if (CE_BAD(player))
-            continue;
-        if (!player->m_bAlivePlayer())
-            continue;
-        if (!player->m_bEnemy())
-            continue;
-        if (g_pPlayerResource->GetClass(player) != tf_sniper)
-            continue;
-
-        CachedEntity *weapon_id  = ENTITY(HandleToIDX(CE_INT(player, netvar.hActiveWeapon)));
-        CachedEntity *sniper_dot = nullptr;
-        auto &data               = resolver_map[player->player_info.friendsID];
-        data.pitchdot            = false;
-
-        if (weapon_id->m_iClassID() == CL_CLASS(CTFSniperRifle) || weapon_id->m_iClassID() == CL_CLASS(CTFSniperRifleDecap) || weapon_id->m_iClassID() == CL_CLASS(CTFSniperRifleClassic))
+        const char *pszName = pClass->m_pRecvTable->m_pNetTableName;
+        // "DT_TFPlayer", "tfnonlocaldata"
+        if (!strcmp(pszName, "DT_TFPlayer"))
         {
-            sniper_dot = sniperdot_array.at(player->m_IDX);
-        }
+            for (int i = 0; i < pClass->m_pRecvTable->m_nProps; i++)
+            {
+                RecvPropRedef *pProp1 = (RecvPropRedef *) &(pClass->m_pRecvTable->m_pProps[i]);
+                if (!pProp1)
+                    continue;
+                const char *pszName2 = pProp1->m_pVarName;
+                if (!strcmp(pszName2, "tfnonlocaldata"))
+                    for (int j = 0; j < pProp1->m_pDataTable->m_nProps; j++)
+                    {
+                        RecvPropRedef *pProp2 = (RecvPropRedef *) &(pProp1->m_pDataTable->m_pProps[j]);
+                        if (!pProp2)
+                            continue;
+                        const char *name = pProp2->m_pVarName;
 
-        // Sniper dot found, use it.
-        if (sniper_dot != nullptr)
-        {
-            // Get End and start point
-            auto dot_origin = sniper_dot->m_vecOrigin();
-            auto eye_origin = re::C_BasePlayer::GetEyePosition(RAW_ENT(player));
-            // Get Angle from eye to dot
-            Vector diff = dot_origin - eye_origin;
-            Vector angles;
-            VectorAngles(diff, angles);
-            // Use the pitch (yaw is not useable because sadly the sniper dot does not represent it with real yaw)
-            data.new_angle.x = angles.x;
-            data.pitchdot    = true;
+                        // Pitch Fix
+                        if (!strcmp(name, "m_angEyeAngles[0]"))
+                        {
+                            original_ptrX     = &pProp2->m_ProxyFn;
+                            original_ProxyFnX = pProp2->m_ProxyFn;
+                            pProp2->m_ProxyFn = pitchHook;
+                        }
+
+                        // Yaw Fix
+                        if (!strcmp(name, "m_angEyeAngles[1]"))
+                        {
+                            original_ptrY = &pProp2->m_ProxyFn;
+                            logging::Info("Yaw Fix Applied");
+                            original_ProxyFnY = pProp2->m_ProxyFn;
+                            pProp2->m_ProxyFn = yawHook;
+                        }
+                    }
+            }
         }
+        pClass = pClass->m_pNext;
     }
-}
-
-// Resolved Angles
-Vector RealAngles(CachedEntity *ent)
-{
-    auto &data = resolver_map[ent->player_info.friendsID];
-    return data.new_angle;
-}
-
-// Fake(Real by view) Angles
-Vector FakeAngles(CachedEntity *ent)
-{
-    auto &data = resolver_map[ent->player_info.friendsID];
-    return data.original_angle;
 }
 
 static void shutdown()
 {
-    resolver_map.clear();
+    *original_ptrX = original_ProxyFnX;
+    *original_ptrY = original_ProxyFnY;
 }
 
 static InitRoutine init(
     []()
     {
+        hook();
         EC::Register(EC::Shutdown, shutdown, "antiantiaim_shutdown");
         EC::Register(EC::CreateMove, CreateMove, "cm_antiantiaim");
-        EC::Register(EC::CreateMove, UseFakePitch, "cm_usefakeptch");
-#if !ENABLE_TEXTMODE
-        EC::Register(EC::CreateMove, ManualResolver, "cm_manualresolver");
-#endif
-        EC::Register(EC::CreateMoveWarp, CreateMove, "cm_antiantiaim");
+        EC::Register(EC::CreateMoveWarp, CreateMove, "cmw_antiantiaim");
 #if ENABLE_TEXTMODE
         EC::Register(EC::CreateMove, modifyAngles, "cm_textmodeantiantiaim");
         EC::Register(EC::CreateMoveWarp, modifyAngles, "cmw_textmodeantiantiaim");

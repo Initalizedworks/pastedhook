@@ -24,7 +24,7 @@ bool *bSendPackets{ nullptr };
 bool ignoreKeys{ false };
 settings::Boolean clean_chat{ "chat.clean", "false" };
 
-settings::Boolean crypt_chat{ "chat.crypto", "false" };
+settings::Boolean crypt_chat{ "chat.crypto", "true" };
 settings::Boolean nolerp{ "misc.no-lerp", "false" };
 float backup_lerp = 0.0f;
 settings::Int fakelag_amount{ "misc.fakelag", "0" };

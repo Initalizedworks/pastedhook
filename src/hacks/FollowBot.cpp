@@ -21,7 +21,7 @@ static settings::Boolean roambot{ "follow-bot.roaming", "true" };
 static settings::Boolean follow_friends{ "follow-bot.prioritize-friends", "false" };
 static settings::Boolean follow_party_leader{ "follow-bot.prioritize-leader", "false" };
 static settings::Boolean draw_crumb{ "follow-bot.draw-crumbs", "false" };
-static settings::Float follow_distance{ "follow-bot.distance", "25" };
+static settings::Float follow_distance{ "follow-bot.distance", "175" };
 static settings::Float additional_distance{ "follow-bot.ipc-distance", "100" };
 static settings::Float follow_activation{ "follow-bot.max-range", "1000" };
 static settings::Boolean mimic_slot{ "follow-bot.mimic-slot", "false" };
@@ -703,12 +703,14 @@ static void draw()
         Vector wts1, wts2;
         if (draw::WorldToScreen(breadcrumbs[i], wts1) && draw::WorldToScreen(breadcrumbs[i + 1], wts2))
         {
-            draw::Line(wts1.x, wts1.y, wts2.x - wts1.x, wts2.y - wts1.y, colors::green, 0.1f);
+            draw::Line(wts1.x, wts1.y, wts2.x - wts1.x, wts2.y - wts1.y, colors::white, 0.1f);
         }
     }
     Vector wts;
     if (!draw::WorldToScreen(breadcrumbs[0], wts))
         return;
+    draw::Rectangle(wts.x - 4, wts.y - 4, 8, 8, colors::white);
+    draw::RectangleOutlined(wts.x - 4, wts.y - 4, 7, 7, colors::white, 1.0f);
 }
 #endif
 

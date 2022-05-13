@@ -228,7 +228,6 @@ CatCommand exec_sync("ipc_sync_all", "Sync's certain variable (on every peer)",
 
                                          if (peer_fid != local_fid)
                                              peer->SendMessage(command.c_str(), i, ipc::commands::execute_client_cmd, 0, 0);
-                                             g_IEngine->ClientCmd_Unrestricted("cat_pl_load");
                                      }
                                  }
                              }

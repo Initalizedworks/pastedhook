@@ -20,7 +20,7 @@ std::unordered_map<unsigned, userdata> data{};
 
 const std::string k_Names[]                                     = { "DEFAULT", "FRIEND", "RAGE", "IPC", "TEXTMODE", "CAT", "PAZER", "CHEATER", "PARTY" };
 const char *const k_pszNames[]                                  = { "DEFAULT", "FRIEND", "RAGE", "IPC", "TEXTMODE", "CAT", "PAZER", "CHEATER", "PARTY" };
-const std::array<std::pair<k_EState, size_t>, 6> k_arrGUIStates = { std::pair(k_EState::DEFAULT, 0), { k_EState::FRIEND, 1 }, { k_EState::RAGE, 2 }, { k_EState::PAZER, 3 }, { k_EState::CHEATER, 4 } };
+const std::array<std::pair<k_EState, size_t>, 5> k_arrGUIStates = { std::pair(k_EState::DEFAULT, 0), { k_EState::FRIEND, 1 }, { k_EState::RAGE, 2 }, { k_EState::PAZER, 3 }, { k_EState::CHEATER, 4 } };
 const userdata null_data{};
 #if ENABLE_VISUALS
 std::array<rgba_t, 8> k_Colors = { colors::empty, colors::FromRGBA8(99, 226, 161, 255), colors::FromRGBA8(226, 204, 99, 255), colors::FromRGBA8(232, 134, 6, 255), colors::FromRGBA8(232, 134, 6, 255), colors::empty, colors::FromRGBA8(150, 75, 0, 255), colors::FromRGBA8(255, 140, 0, 1) };
@@ -28,9 +28,9 @@ std::array<rgba_t, 8> k_Colors = { colors::empty, colors::FromRGBA8(99, 226, 161
 bool ShouldSave(const userdata &data)
 {
 #if ENABLE_VISUALS
-    return data.color || data.state == k_EState::FRIEND || data.state == k_EState::RAGE || data.state == k_EState::PAZER || data.state == k_EState::CHEATER;
+    return data.color || data.state == k_EState::FRIEND || data.state == k_EState::RAGE || data.state == k_EState::PAZER;
 #endif
-    return data.state == k_EState::FRIEND || data.state == k_EState::RAGE || data.state == k_EState::PAZER || data.state == k_EState::CHEATER;
+    return data.state == k_EState::FRIEND || data.state == k_EState::RAGE || data.state == k_EState::PAZER;
 }
 
 void Save()

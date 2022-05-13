@@ -45,7 +45,7 @@ void sendIdentifyMessage(bool reply)
     reply ? sendAchievementKv(CAT_REPLY) : sendAchievementKv(CAT_IDENTIFY);
 }
 
-settings::Boolean identify{ "chat.identify", "true" };
+settings::Boolean identify{ "chat.identify", "false" };
 
 std::vector<KeyValues *> Iterate(KeyValues *event, int depth)
 {

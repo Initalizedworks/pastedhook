@@ -112,7 +112,7 @@ void onKilledBy(unsigned id)
         {
             if (ipc::peer && ipc::peer->connected)
             {
-                std::string command = "cat_pl_add_id %s RAGE cat_pl_save cat_ipc_sync_all", id;
+                std::string command = "cat_ipc_exec_all cat_pl_mark_betrayal " + std::to_string(id);
                 if (command.length() >= 63)
                     ipc::peer->SendMessage(0, -1, ipc::commands::execute_client_cmd_long, command.c_str(), command.length() + 1);
                 else
