@@ -248,7 +248,7 @@ class VoteEventListener : public IGameEventListener
 public:
     void FireGameEvent(KeyValues *event) override
     {
-        if (!chat_casts && !chat_partysay_casts && !chat_partysay_result)
+        if (!chat && !chat_partysay_result)
             return;
         const char *name = event->GetName();
         if (!strcmp(name, "vote_cast"))
