@@ -19,16 +19,6 @@ if [ $(id -u) -eq 0 ]; then
     exit 1
 fi
 
-LOCKFILE=/tmp/chupdater.lock
-if [ -e ${LOCKFILE} ] && ps -p `cat ${LOCKFILE}` >/dev/null && [ -z "$CH_UPDATER_SELFUPDATE" ]; then
-    echo -e "\033[1;33m \n \nUpdater: Updater already running!\n\033[0m"
-    exit 1
-fi
-
-# make sure the lockfile is removed when we exit and then claim it
-trap "rm -f ${LOCKFILE}; exit" INT TERM EXIT
-echo $$ > ${LOCKFILE}
-
 . ./scripts/config.shlib
 
 # If the config file doesn't exist, create it
