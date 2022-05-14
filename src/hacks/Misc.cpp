@@ -28,7 +28,6 @@ static settings::Boolean render_zoomed{ "visual.render-local-zoomed", "true" };
 #endif
 static settings::Boolean anti_afk{ "misc.anti-afk", "false" };
 static settings::Boolean auto_jump{ "misc.auto-jump", "false" };
-static settings::Int auto_jump_chance{ "misc.auto-jump.chance", "100" };
 static settings::Int auto_strafe{ "misc.autostrafe", "0" };
 static settings::Boolean accurate_movement{ "misc.accurate-movement", "false" };
 settings::Boolean tauntslide{ "misc.tauntslide", "false" };
@@ -252,9 +251,6 @@ void CreateMove()
     if (auto_jump && CE_GOOD(LOCAL_E) && !g_pLocalPlayer->life_state)
     {
         static int ticks_last_jump = 0;
-
-        if (UniformRandomInt(0, 99) > *auto_jump_chance)
-            return;
 
         bool ground = CE_INT(LOCAL_E, netvar.iFlags) & FL_ONGROUND;
         bool jump   = current_user_cmd->buttons & IN_JUMP;

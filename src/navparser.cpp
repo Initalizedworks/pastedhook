@@ -32,6 +32,7 @@ namespace navparser
 {
 static settings::Boolean enabled("nav.enabled", "false");
 static settings::Boolean draw("nav.draw", "false");
+static settings::Boolean draw_simple_path("nav.draw-simple-path", "false");
 static settings::Boolean look{ "nav.look-at-path", "false" };
 static settings::Boolean draw_debug_areas("nav.draw.debug-areas", "false");
 static settings::Boolean log_pathing{ "nav.log", "false" };
@@ -726,72 +727,13 @@ static void followCrumbs()
             }
         }
     }
-
-/*
-    // Look at path
-    if (look && !hacks::aimbot::isAiming())
-    {
-        float best_dist                = FLT_MAX;
-        std::optional<Vector> look_vec = std::nullopt;
-        for (int i = 1; i <= g_IEngine->GetMaxClients(); i++)
-        {
-            CachedEntity *ent = ENTITY(i);
-            if (i == g_pLocalPlayer->entity_idx || CE_INVALID(ent) || !ent->m_bEnemy())
-                continue;
-        }
-        if (look_vec)
-        {
-            Vector aim_ang = GetAimAtAngles(g_pLocalPlayer->v_Eye, *look_vec);
-            hacks::misc_aimbot::DoSlowAim(aim_ang, 10);
-            current_user_cmd->viewangles = aim_ang;
-        }
-        else
-        {
-            static Vector next{ crumbs[0].vec.x, crumbs[0].vec.y, g_pLocalPlayer->v_Eye.z };
-            static bool looked_at_point = true;
-            static Timer choose_new_point;
-
-            static int wait_time = 20;
-            static int aim_speed = 20;
-
-            if (looked_at_point && choose_new_point.test_and_set(wait_time))
-            {
-                next = { crumbs[0].vec.x, crumbs[0].vec.y, g_pLocalPlayer->v_Eye.z };
-                next = GetAimAtAngles(g_pLocalPlayer->v_Eye, next);
-                next.x += UniformRandomInt(0, 0);
-                next.y += UniformRandomInt(0, 0);
-                fClampAngle(next);
-                looked_at_point = false;
-            }
-
-            // Pick a new point, we're looking at our current one closely enough
-            if ((current_user_cmd->viewangles - next).IsZero(10.0f))
-            {
-                if (!looked_at_point)
-                    choose_new_point.update();
-                looked_at_point = false;
-                wait_time       = 20 + UniformRandomInt(0, 2);
-                aim_speed       = 11 + UniformRandomInt(0, 2); // it was smooth at 13
-            }
-
-            Vector next_slow = next;
-            // Slow aim to smoothen
-            hacks::misc_aimbot::DoSlowAim(next_slow, aim_speed);
-            current_user_cmd->viewangles = next_slow;
-        }
-    }
-
-    WalkTo(crumbs[0].vec);
-}
-*/
-
     // Look at path
     if (look && !hacks::aimbot::isAiming())
     {
         Vector next{ crumbs[0].vec.x, crumbs[0].vec.y, g_pLocalPlayer->v_Eye.z };
         next = GetAimAtAngles(g_pLocalPlayer->v_Eye, next);
-        static int aim_speed = 7;
-        /* 10, 35 (decent), 50, still trying out 7 but i ran out of time lul */
+        static int aim_speed = 25;
+        /* 10, 35 (decent), 50, still trying out 7 but i ran out of time lul (33 did well) */
 
         // Slow aim to smoothen
         hacks::misc_aimbot::DoSlowAim(next, aim_speed);
@@ -1049,16 +991,18 @@ void Draw()
         Vector start_screen, end_screen;
         if (draw::WorldToScreen(start_pos, start_screen))
         {
+            if (!draw_simple_path) {
             draw::Rectangle(start_screen.x - 5.0f, start_screen.y - 5.0f, 10.0f, 10.0f, colors::green);
-
-            if (i < crumbs.size() - 1)
-            {
-                Vector end_pos = crumbs[i + 1].vec;
-                if (draw::WorldToScreen(end_pos, end_screen))
-                    draw::Line(start_screen.x, start_screen.y, end_screen.x - start_screen.x, end_screen.y - start_screen.y, colors::green, 2.0f);
             }
+
+        if (i < crumbs.size() - 1)
+        {
+            Vector end_pos = crumbs[i + 1].vec;
+            if (draw::WorldToScreen(end_pos, end_screen))
+                draw::Line(start_screen.x, start_screen.y, end_screen.x - start_screen.x, end_screen.y - start_screen.y, colors::green, 2.0f);
         }
     }
+}
 }
 #endif
 }; // namespace NavEngine

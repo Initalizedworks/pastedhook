@@ -25,7 +25,6 @@ static settings::Boolean snipe_sentries("navbot.snipe-sentries", "false");
 static settings::Boolean snipe_sentries_shortrange("navbot.snipe-sentries.shortrange", "false");
 static settings::Boolean escape_danger("navbot.escape-danger", "false");
 static settings::Boolean escape_danger_ctf_cap("navbot.escape-danger.ctf-cap", "false");
-static settings::Boolean defend_intel("navbot.defend-intel", "false");
 static settings::Boolean enable_slight_danger_when_capping("navbot.escape-danger.slight-danger.capping", "false");
 static settings::Boolean autojump("navbot.autojump.enabled", "false");
 static settings::Int zoom_time("navbot.autozoom.unzoom-time", "5000");
@@ -1098,43 +1097,11 @@ std::optional<Vector> getCtfGoal(int our_team, int enemy_team)
     auto position = flagcontroller::getPosition(enemy_team);
     auto carrier  = flagcontroller::getCarrier(enemy_team);
 
-    auto status_friendly   = flagcontroller::getStatus(our_team);
-    auto position_friendly = flagcontroller::getPosition(our_team);
-    auto carrier_friendly  = flagcontroller::getCarrier(our_team);
-
-    // No flags :(
-    if (!position || !position_friendly)
+    // No flag :(
+    if (!position)
         return std::nullopt;
 
     current_capturetype = ctf;
-
-    // Defend our intel and help other bots escort enemy intel, this is priority over capturing
-    if (defend_intel)
-    {
-        // Goto the enemy who took our intel - highest priority
-        if (status_friendly == TF_FLAGINFO_STOLEN)
-        {
-            if (player_tools::shouldTargetSteamId(carrier_friendly->player_info.friendsID))
-                return carrier_friendly->m_vecDormantOrigin();
-        }
-        // Standby a dropped friendly flag - medium priority
-        if (status_friendly == TF_FLAGINFO_DROPPED)
-        {
-            // Dont spam nav if we are already there
-            if ((*position_friendly).DistTo(LOCAL_E->m_vecOrigin()) < 100.0f)
-            {
-                overwrite_capture = true;
-                return std::nullopt;
-            }
-            return position_friendly;
-        }
-        // Assist other bots with capturing - low priority
-        if (status == TF_FLAGINFO_STOLEN && carrier != LOCAL_E)
-        {
-            if (!player_tools::shouldTargetSteamId(carrier->player_info.friendsID))
-                return carrier->m_vecDormantOrigin();
-        }
-    }
 
     // Flag is taken by us
     if (status == TF_FLAGINFO_STOLEN)

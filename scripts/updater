@@ -87,6 +87,7 @@ function performupdate() {
             dialog --keep-tite --title "Updater"  --yesno "Unknown update channel or version. Restore to master update channel and reset version?" 10 25 || value=false
             if [ "$value" == true ]; then
                 # force reinit
+                ./scripts/updater
                 ./scripts/migrations $tui true false || exit 1
             fi
         fi
