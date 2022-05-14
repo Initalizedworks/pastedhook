@@ -18,6 +18,7 @@ static settings::Boolean chat{"votelogger.chat", "true"};
 static settings::Boolean chat_casts{ "votelogger.chat.casts", "false" };
 static settings::Boolean chat_casts_f1_only{ "votelogger.chat.casts.f1-only", "true" };
 static settings::Boolean chat_partysay_result{"votelogger.chat.partysay.results", "false"};
+static settings::Boolean chat_partysay_casts{"votelogger.chat.partysay.casts", "false"};
 static settings::Boolean chat_partysay{"votelogger.chat.partysay", "false"};
 static settings::Boolean requeue_on_kick{"votelogger.requeue-on-kick", "false"};
 static settings::Boolean leave_after_local_vote{"votelogger.leave-after-local-vote", "false"};
@@ -81,6 +82,10 @@ struct CVRNG
 static CVRNG vote_command;
 void dispatchUserMessage(bf_read &buffer, int type)
 {
+    player_info_s info;
+    player_info_s info2{};
+    int caller;
+    char reason[64], formated_string[256];
     switch (type)
     {
     case 45:
@@ -91,8 +96,6 @@ void dispatchUserMessage(bf_read &buffer, int type)
     {
         was_local_player = false;
         int team         = buffer.ReadByte();
-        int caller       = buffer.ReadByte();
-        char reason[64];
         char name[64];
         buffer.ReadString(reason, 64, false, nullptr);
         buffer.ReadString(name, 64, false, nullptr);
@@ -100,7 +103,6 @@ void dispatchUserMessage(bf_read &buffer, int type)
         buffer.Seek(0);
         target >>= 1;
 
-        player_info_s info{}, info2{};
         if (!GetPlayerInfo(target, &info) || !GetPlayerInfo(caller, &info2))
             break;
         if (CE_GOOD(LOCAL_E) && caller == LOCAL_E->m_IDX)
@@ -162,12 +164,11 @@ void dispatchUserMessage(bf_read &buffer, int type)
     }
     case 47:
     {
-        player_info_s info;
         logging::Info("Vote against %s passed with %i F1's and %i F2's", info.name, F1count, F2count);
 
         char formated_string[256];
         std::snprintf(formated_string, sizeof(formated_string), "Vote against %s passed with %i F1's and %i F2's", info.name, F1count, F2count);
-        if (*chat_partysay_result)
+        if (*chat_partysay_result && !was_local_player)
                 re::CTFPartyClient::GTFPartyClient()->SendPartyChat(formated_string);
 
         if (was_local_player_caller && leave_after_local_vote)
@@ -176,18 +177,19 @@ void dispatchUserMessage(bf_read &buffer, int type)
         break;
     }
     case 48:
-        player_info_s info;
+    {
         logging::Info("Vote against %s failed with %i F1's and %i F2's", info.name, F1count, F2count);
 
         char formated_string[256];
         std::snprintf(formated_string, sizeof(formated_string), "Vote against %s failed with %i F1's and %i F2's", info.name, F1count, F2count);
-        if (*chat_partysay_result)
+        if (*chat_partysay_result && !was_local_player)
                 re::CTFPartyClient::GTFPartyClient()->SendPartyChat(formated_string);
 
         if (was_local_player_caller && leave_after_local_vote)
                 tfmm::abandon();
         Reset();
         break;
+    }
     case 49:
         logging::Info("VoteSetup?");
         break;
@@ -247,7 +249,7 @@ class VoteEventListener : public IGameEventListener
 public:
     void FireGameEvent(KeyValues *event) override
     {
-        if (!chat && !chat_partysay_result)
+        if (!chat_casts && !chat_partysay_casts && !chat_partysay_result)
             return;
         const char *name = event->GetName();
         if (!strcmp(name, "vote_cast"))
@@ -264,7 +266,7 @@ public:
             player_info_s info{};
             if (!GetPlayerInfo(eid, &info))
                 return;
-            if (chat_partysay)
+            if (chat_partysay && chat_partysay_casts && !(*chat_casts_f1_only && vote_option))
             {
                 char formated_string[256];
                 std::snprintf(formated_string, sizeof(formated_string), "%s voted %s", info.name, vote_option ? "No" : "Yes");

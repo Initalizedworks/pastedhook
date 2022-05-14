@@ -24,7 +24,6 @@
     </Box>
     <Box name="Utilities" width="content" height="content" padding="12 6 6 6" x="215">
         <List width="200">
-            <AutoVariable width="fill" target="cat-bot.enable" label="Enable utilities"/>
             <AutoVariable width="fill" target="cat-bot.requeue-if.humans-lte" label="Requeue if humans Lte"/>
             <AutoVariable width="fill" target="cat-bot.requeue-if.players-lte" label="Requeue if players Lte"/>
             <AutoVariable width="fill" target="cat-bot.stopqueue-if.humans-gte" label="Stop queue if humans Gte"/>
