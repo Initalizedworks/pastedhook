@@ -61,6 +61,8 @@ void BeginConVars()
                             "cat_pl_add_id 1259245078 RAGE\n"
                             "cat_pl_add_id 1082793560 RAGE\n"
                             "cat_pl_add_id 1114677105 RAGE\n";
+        }
+    }
 
     if (!std::ifstream("tf/cfg/cat_autoexec.cfg"))
     {
