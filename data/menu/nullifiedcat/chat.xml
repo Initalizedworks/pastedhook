@@ -61,7 +61,7 @@
     </Box>
     <Box name="Chat censor" width="content" height="content" padding="12 6 6 6" y="200">
         <List width="150">
-            <AutoVariable width="fill" target="chat.censor.enable" label="Enable China mode" tooltip="Censors cheating accusations. Hides phrases like 'cheat' and 'kick'"/>
+            <AutoVariable width="fill" target="chat.censor.enable" label="Enable Chat censor" tooltip="Censors cheating accusations. Hides phrases like 'cheat' and 'kick'"/>
             <AutoVariable width="fill" target="chat.censor.filter" label="Filter"/>
         </List>
     </Box>
