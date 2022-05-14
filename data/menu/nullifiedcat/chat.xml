@@ -11,15 +11,17 @@
                     <Option name="Nullcore" value="5"/>
                     <Option name="Lmaobox" value="6"/>
                     <Option name="Lithium" value="7"/>
+                    <Option name="Pazer" value="8"/>
                 </Select>
             </LabeledObject>
             <AutoVariable width="fill" target="spam.filename" label="Custom spam"/>
             <AutoVariable width="fill" target="spam.random" label="Randomize"/>
             <AutoVariable width="fill" target="spam.delay" label="Spam delay" tooltip="Delay in milliseconds"/>
             <AutoVariable width="fill" target="spam.teamchat" label="Spam in teamchat" tooltip="Spam in teamchat instead of game chat"/>
+            <AutoVariable width="fill" target="spam.query-static" label="Static Query" tooltip="Should we only stick with one name to spam?"/>
         </List>
     </Box>
-    <Box name="Voice spam" width="content" height="content" padding="12 6 6 6" y="100">
+    <Box name="Voice spam" width="content" height="content" padding="12 6 6 6" y="115">
         <List width="150">
             <LabeledObject width="fill" label="Voice spam" tooltip="Spam character voicelines">
                 <Select target="spam.voicecommand">
@@ -52,14 +54,14 @@
             </LabeledObject>
         </List>
     </Box>
-    <Box padding="12 6 6 6" width="content" height="content" name="Chat log" y="135">
+    <Box padding="12 6 6 6" width="content" height="content" name="Chat log" y="150">
         <List width="150">
             <AutoVariable width="fill" target="chat-log.enable" label="Enable chat log"/>
             <AutoVariable width="fill" target="chat-log.no-ipc" label="Ignore IPC" tooltip="Don't save IPC chat"/>
             <AutoVariable width="fill" target="chat-log.no-spam" label="Anti spam" tooltip="Don't save your chat spam to the log"/>
         </List>
     </Box>
-    <Box name="Chat censor" width="content" height="content" padding="12 6 6 6" y="200">
+    <Box name="Chat censor" width="content" height="content" padding="12 6 6 6" y="220">
         <List width="150">
             <AutoVariable width="fill" target="chat.censor.enable" label="Enable Chat censor" tooltip="Censors cheating accusations. Hides phrases like 'cheat' and 'kick'"/>
             <AutoVariable width="fill" target="chat.censor.filter" label="Filter"/>
@@ -72,7 +74,7 @@
                     <Option name="Disable" value="0"/>
                     <Option name="Custom" value="1"/>
                     <Option name="Default" value="2"/>
-                    <Option name="NCC - MLG" value="4"/>
+                    <Option name="MLG" value="4"/>
                 </Select>
             </LabeledObject>
             <AutoVariable width="fill" target="killsay.file" label="Custom killsay"/>
@@ -96,7 +98,6 @@
             <AutoVariable width="fill" target="chat.log-events.changeclass" label="Log class change events"/>
             <AutoVariable width="fill" target="chat.identify" label="Identify" tooltip="Identify Cathook users"/>
             <AutoVariable width="fill" target="chat.identify.answer" label="Counter identify"/>
-            <AutoVariable width="fill" target="chat.identify.log-party" label="Party Log Identify" tooltip="Will log detected Cathook users"/>
         </List>
     </Box>
     <Box name="Votelogger" width="content" height="content" padding="12 6 6 6" x="170" y="70">
@@ -104,10 +105,13 @@
             <AutoVariable width="fill" target="votelogger.autovote.yes" label="Autovote yes"/>
             <AutoVariable width="fill" target="votelogger.autovote.no" label="Autovote no"/>
             <AutoVariable width="fill" target="votelogger.autovote.no.rage" label="Kick RAGE status"/>
-            <AutoVariable width="fill" target="votelogger.chat" label="Log votes" tooltip="Shows you new votekicks in your personal chat"/>
-            <AutoVariable width="fill" target="votelogger.chat.partysay.results" label="Log results" tooltip="Will log votekick results to the party"/>
             <AutoVariable width="fill" target="votelogger.requeue-on-kick" label="Requeue on kick"/>
+            <AutoVariable width="fill" target="votelogger.chat" label="Log votes" tooltip="Shows you new votekicks in your personal chat"/>
+            <AutoVariable width="fill" target="votelogger.chat.partysay" label="Log votes to party"/>
+            <AutoVariable width="fill" target="votelogger.chat.partysay.results" label="Log vote results" tooltip="Will log vote results to the party"/>
             <AutoVariable width="fill" target="votelogger.leave-after-local-vote" label="Abandon on local vote"/>
+            <AutoVariable width="fill" target="votelogger.chat.casts" label="Log casts" tooltip="Also log individual vote casts (F1/F2)"/>
+            <AutoVariable width="fill" target="votelogger.chat.casts.f1-only" label="Log F1 casts only" tooltip="Log exclusively F1 casts"/>
         </List>
     </Box>
 </Tab>

@@ -27,7 +27,6 @@ static settings::Boolean escape_danger("navbot.escape-danger", "false");
 static settings::Boolean escape_danger_ctf_cap("navbot.escape-danger.ctf-cap", "false");
 static settings::Boolean enable_slight_danger_when_capping("navbot.escape-danger.slight-danger.capping", "false");
 static settings::Boolean autojump("navbot.autojump.enabled", "false");
-static settings::Int zoom_time("navbot.autozoom.unzoom-time", "5000");
 static settings::Boolean primary_only("navbot.primary-only", "true");
 static settings::Int force_slot("navbot.force-slot", "0");
 static settings::Float jump_distance("navbot.autojump.trigger-distance", "300");
@@ -1235,6 +1234,24 @@ bool doRoam()
     // Don't path constantly
     if (!roam_timer.test_and_set(200))
         return false;
+
+    // Defend our objective if possible
+    int enemy_team = g_pLocalPlayer->team == TEAM_BLU ? TEAM_RED : TEAM_BLU;
+
+    std::optional<Vector> target;
+    target = getPayloadGoal(enemy_team);
+    if (!target)
+        target = getControlPointGoal(enemy_team);
+    if (target)
+    {
+        if ((*target).DistTo(g_pLocalPlayer->v_Origin) <= 250.0f)
+        {
+            navparser::NavEngine::cancelPath();
+            return true;
+        }
+        if (navparser::NavEngine::navTo(*target, patrol, true, navparser::NavEngine::current_priority != patrol))
+            return true;
+    }
 
     // No sniper spots :shrug:
     if (sniper_spots.empty())

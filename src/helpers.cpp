@@ -37,15 +37,15 @@ void BeginConVars()
         std::ofstream cfg_autoexec_textmode("tf/cfg/cat_autoexec_textmode.cfg", std::ios::out | std::ios::trunc);
         if (cfg_autoexec_textmode.good())
         {
-            cfg_autoexec_textmode << "// This script will be executed EACH TIME "
-                                     "YOU LAUNCH TF2\n"
+            cfg_autoexec_textmode << "// Put your custom cathook settings in this "
+                                     "file\n// This script will be executed EACH TIME "
+                                     "YOU INJECT TEXTMODE CATHOOK\n"
                                      "\n"
                                      "engine_no_focus_sleep 0\n"
                                      "hud_fastswitch 1\n"
                                      "tf_medigun_autoheal 1\n"
                                      "fps_max 67\n"
-                                     "cat_ipc_connect\n"
-                                     "exec abusers.cfg";
+                                     "cat_ipc_connect";
         }
     }
     if (!std::ifstream("tf/cfg/cat_autoexec.cfg"))
@@ -53,24 +53,9 @@ void BeginConVars()
         std::ofstream cfg_autoexec("tf/cfg/cat_autoexec.cfg", std::ios::out | std::ios::trunc);
         if (cfg_autoexec.good())
         {
-            cfg_autoexec << "// This script will be executed EACH TIME "
-                            "YOU LAUNCH TF2!\n"
-                            "exec abusers.cfg\n";
-        }
-    }
-    if (!std::ifstream("tf/cfg/abusers.cfg"))
-    {
-        std::ofstream cfg_abusers("tf/cfg/abusers.cfg", std::ios::out | std::ios::trunc);
-        if (cfg_abusers.good())
-        { /* this is only temporary lol, too lazy to make a git repo */
-            cfg_abusers <<  "cat_pl_add_id 1235010944 RAGE\n"
-                            "cat_pl_add_id 1235413633 RAGE\n"
-                            "cat_pl_add_id 1235403020 RAGE\n"
-                            "cat_pl_add_id 1228849737 RAGE\n"
-                            "cat_pl_add_id 1228849737 RAGE\n"
-                            "cat_pl_add_id 1259245078 RAGE\n"
-                            "cat_pl_add_id 1082793560 RAGE\n"
-                            "cat_pl_add_id 1114677105 RAGE\n";
+            cfg_autoexec << "// Put your custom cathook settings in this "
+                            "file\n// This script will be executed EACH TIME "
+                            "YOU INJECT CATHOOK\n";
         }
     }
     if (!std::ifstream("tf/cfg/cat_matchexec.cfg"))
@@ -78,10 +63,9 @@ void BeginConVars()
         std::ofstream cfg_autoexec("tf/cfg/cat_matchexec.cfg", std::ios::out | std::ios::trunc);
         if (cfg_autoexec.good())
         {
-            cfg_autoexec << "// Put your settings in this "
+            cfg_autoexec << "// Put your custom cathook settings in this "
                             "file\n// This script will be executed EACH TIME "
-                            "YOU JOIN A MATCH!\n"
-                            "exec abusers.cfg";
+                            "YOU JOIN A MATCH\n";
         }
     }
     logging::Info(":b:");
@@ -98,7 +82,7 @@ void EndConVars()
     if (cfg_defaults.good())
     {
         cfg_defaults << "// This file is auto-generated and will be "
-                        "overwritten each time you launch tf2\n// Do not "
+                        "overwritten each time you inject cathook\n// Do not "
                         "make edits to this file\n\n// Every registered "
                         "variable dump\n";
         for (const auto &i : RegisteredVarsList())

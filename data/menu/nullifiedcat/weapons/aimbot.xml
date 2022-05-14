@@ -118,6 +118,7 @@
     </Box>
     <Box padding="12 6 6 6" width="content" height="content" name="Autoshoot" x="340" y="85">
         <List width="150">
+            <!-- shhh pro optimizing11!111 -->
             <AutoVariable width="fill" target="aimbot.autoshoot" label="Enable autoshoot" tooltip="Make the aimbot automatically fire your weapon"/>
             <AutoVariable width="fill" target="aimbot.wait-for-charge" label="Wait for charge" tooltip="Hold fire until a single shot is enough to kill the target"/>
             <LabeledObject width="fill" label="Wait for accuracy" tooltip="Hold fire until your shot doesn't have any additional spread">

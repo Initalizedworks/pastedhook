@@ -19,7 +19,6 @@ set(files "${CMAKE_CURRENT_LIST_DIR}/AutoJoin.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/KillSay.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/Killstreak.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/Misc.cpp"
-        "${CMAKE_CURRENT_LIST_DIR}/MVMTools.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/NavBot.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/Noisemaker.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/PureBypass.cpp"
@@ -30,6 +29,7 @@ target_sources(cathook PRIVATE ${files})
 
 if (EnableVisuals)
     set(files "${CMAKE_CURRENT_LIST_DIR}/BulletTracers.cpp"
+            "${CMAKE_CURRENT_LIST_DIR}/DominateMark.cpp"
             "${CMAKE_CURRENT_LIST_DIR}/ESP.cpp"
             "${CMAKE_CURRENT_LIST_DIR}/Tracers.cpp"
             "${CMAKE_CURRENT_LIST_DIR}/Radar.cpp"

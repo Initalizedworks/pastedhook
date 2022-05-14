@@ -47,7 +47,6 @@ void Aim(CachedEntity *entity);
 void DoAutoshoot(CachedEntity *target = nullptr);
 int BestHitbox(CachedEntity *target);
 int ClosestHitbox(CachedEntity *target);
-int AllHitbox(CachedEntity *target);
 void DoSlowAim(Vector &inputAngle);
 bool UpdateAimkey();
 float EffectiveTargetingRange();

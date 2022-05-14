@@ -28,9 +28,9 @@ std::array<rgba_t, 8> k_Colors = { colors::empty, colors::FromRGBA8(99, 226, 161
 bool ShouldSave(const userdata &data)
 {
 #if ENABLE_VISUALS
-    return data.color || data.state == k_EState::FRIEND || data.state == k_EState::RAGE || data.state == k_EState::PAZER;
+    return data.color || data.state == k_EState::FRIEND || data.state == k_EState::RAGE || data.state == k_EState::PAZER || data.state == k_EState::CHEATER;
 #endif
-    return data.state == k_EState::FRIEND || data.state == k_EState::RAGE || data.state == k_EState::PAZER;
+    return data.state == k_EState::FRIEND || data.state == k_EState::RAGE || data.state == k_EState::PAZER || data.state == k_EState::CHEATER;
 }
 
 void Save()

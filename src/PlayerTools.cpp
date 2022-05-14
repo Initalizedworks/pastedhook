@@ -14,6 +14,7 @@ namespace player_tools
 {
 
 static settings::Int betrayal_limit{ "player-tools.betrayal-limit", "2" };
+// does this even work? LOL
 static settings::Boolean betrayal_sync{ "player-tools.betrayal-ipc-sync", "true" };
 
 static settings::Boolean taunting{ "player-tools.ignore.taunting", "false" };

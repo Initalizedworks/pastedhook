@@ -24,6 +24,7 @@
     </Box>
     <Box name="Utilities" width="content" height="content" padding="12 6 6 6" x="215">
         <List width="200">
+            <AutoVariable width="fill" target="cat-bot.enable" label="Enable utilities"/>
             <AutoVariable width="fill" target="cat-bot.requeue-if.humans-lte" label="Requeue if humans Lte"/>
             <AutoVariable width="fill" target="cat-bot.requeue-if.players-lte" label="Requeue if players Lte"/>
             <AutoVariable width="fill" target="cat-bot.stopqueue-if.humans-gte" label="Stop queue if humans Gte"/>
@@ -31,7 +32,8 @@
             <AutoVariable width="fill" target="cat-bot.micspam.enable" label="Micspam"/>
             <AutoVariable width="fill" target="cat-bot.micspam.interval-off" label="Micspam interval off"/>
             <AutoVariable width="fill" target="cat-bot.micspam.interval-on" label="Micspam interval on"/>
-            <AutoVariable width="fill" target="cat-bot.votekicks" label="Random Votekicks"/>
+            <AutoVariable width="fill" target="cat-bot.votekicks" label="Random votekicks"/>
+            <AutoVariable width="fill" target="cat-bot.votekicks.rage-only" label="Rage only votekicks"/>
             <AutoVariable width="fill" target="cat-bot.anti-autobalance" label="Anti auto balance"/>
             <AutoVariable width="fill" target="misc.autodisguise" label="Autodisguise"/>
             <AutoVariable width="fill" target="cat-bot.anti-motd" label="Anti MOTD"/>

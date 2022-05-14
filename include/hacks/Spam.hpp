@@ -19,7 +19,6 @@ extern const std::vector<std::string> builtin_blanks;
 extern const std::vector<std::string> builtin_nonecore;
 extern const std::vector<std::string> builtin_lmaobox;
 extern const std::vector<std::string> builtin_lithium;
-extern const std::vector<std::string> builtin_pazer;
 
 bool isActive();
 void init();

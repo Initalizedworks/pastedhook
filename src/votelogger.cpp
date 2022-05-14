@@ -8,7 +8,6 @@
 #include "common.hpp"
 #include <boost/algorithm/string.hpp>
 #include <settings/Bool.hpp>
-#include "CatBot.hpp"
 #include "votelogger.hpp"
 
 static settings::Boolean vote_kicky{"votelogger.autovote.yes", "false"};
@@ -19,7 +18,7 @@ static settings::Boolean chat_casts{ "votelogger.chat.casts", "false" };
 static settings::Boolean chat_casts_f1_only{ "votelogger.chat.casts.f1-only", "true" };
 static settings::Boolean chat_partysay_result{"votelogger.chat.partysay.results", "false"};
 static settings::Boolean chat_partysay{"votelogger.chat.partysay", "false"};
-static settings::Boolean requeueonkick{"votelogger.requeue-on-kick", "false"};
+static settings::Boolean requeue_on_kick{"votelogger.requeue-on-kick", "false"};
 static settings::Boolean leave_after_local_vote{"votelogger.leave-after-local-vote", "false"};
 
 
@@ -84,12 +83,10 @@ void dispatchUserMessage(bf_read &buffer, int type)
     switch (type)
     {
     case 45:
-        // Vote setup Failed, Refresh vote timer for catbot so it can try again
-        hacks::catbot::timer_votekicks.last -= std::chrono::seconds(4);
+        // Call Vote Failed
         break;
     case 46:
     {
-        // TODO: Add always vote no/vote no on friends. Cvar is "vote option2"
         was_local_player = false;
         int team         = buffer.ReadByte();
         int caller       = buffer.ReadByte();
@@ -140,7 +137,7 @@ void dispatchUserMessage(bf_read &buffer, int type)
             }
         }
         {
-        if (was_local_player && *requeueonkick)
+        if (was_local_player && requeue_on_kick)
             tfmm::startQueue();
         }
         if (*chat_partysay)
@@ -163,11 +160,11 @@ void dispatchUserMessage(bf_read &buffer, int type)
     }
     case 47:
     {
-        logging::Info("Vote passed");
-
         player_info_s info;
+        logging::Info("Vote against %s passed with %i F1's and %i F2's", info.name, F1count, F2count);
+
         char formated_string[256];
-        std::snprintf(formated_string, sizeof(formated_string), "Vote against %s passed with %i F1's and %i F2's", info.name, F1count + 1, F2count + 1);
+        std::snprintf(formated_string, sizeof(formated_string), "Vote against %s passed with %i F1's and %i F2's", info.name, F1count, F2count);
         if (*chat_partysay_result)
                 re::CTFPartyClient::GTFPartyClient()->SendPartyChat(formated_string);
 
@@ -177,11 +174,11 @@ void dispatchUserMessage(bf_read &buffer, int type)
         break;
     }
     case 48:
-        logging::Info("Vote failed");
-
         player_info_s info;
+        logging::Info("Vote against %s failed with %i F1's and %i F2's", info.name, F1count, F2count);
+
         char formated_string[256];
-        std::snprintf(formated_string, sizeof(formated_string), "Vote against %s failed with %i F1's and %i F2's", info.name, F1count + 1, F2count + 1);
+        std::snprintf(formated_string, sizeof(formated_string), "Vote against %s failed with %i F1's and %i F2's", info.name, F1count, F2count);
         if (*chat_partysay_result)
                 re::CTFPartyClient::GTFPartyClient()->SendPartyChat(formated_string);
 

@@ -23,6 +23,7 @@
 #include "FollowBot.hpp"
 #include "Trigger.hpp"
 #include "Spam.hpp"
+//#include "NavBot.hpp"
 #include "FollowBot.hpp"
 #include "CatBot.hpp"
 #include "Backtrack.hpp"
