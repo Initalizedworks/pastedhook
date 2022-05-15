@@ -235,7 +235,7 @@ DEFINE_HOOKED_METHOD(DispatchUserMessage, bool, void *this_, int type, bf_read &
                 break;
             }
 
-            std::vector<std::string> res = { "skid", "script", "cheat", "hak", "hac", "f1", "hax", "vac", "ban", "bot", "report", "kick", "hcak", "chaet", "one", "boat", "f2" };
+            std::vector<std::string> res = { "skid", "script", "cheat", "hak", "hac", "f1", "hax", "vac", "ban", "bot", "report", "kick", "hcak", "chaet", "one" };
             if (claz)
                 res.emplace_back(claz);
 

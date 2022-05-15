@@ -21,7 +21,6 @@ static settings::Int voicecommand_spam{ "spam.voicecommand", "0" };
 static settings::Boolean teamname_spam{ "spam.teamname", "0" };
 static settings::String teamname_file{ "spam.teamname.file", "teamspam.txt" };
 static settings::Boolean team_only{ "spam.teamchat", "false" };
-static settings::Boolean query_static{ "spam.static-query", "true" };
 
 static size_t last_index;
 
@@ -119,7 +118,6 @@ Query QueryFromSubstring(const std::string &string)
             switch (*it)
             {
             case 's':
-                if (query_static)
                 result.flags |= static_cast<int>(QueryFlags::STATIC);
                 break;
             case 'a':

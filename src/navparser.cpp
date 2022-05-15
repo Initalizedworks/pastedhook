@@ -489,7 +489,8 @@ Vector last_destination;
 
 bool isReady()
 {
-    return enabled && map && map->state == NavState::Active && g_pGameRules->roundmode > 3;
+    // F you Pipeline
+    return enabled && map && map->state == NavState::Active && (GetLevelName() == "plr_pipeline" || (g_pGameRules->roundmode > 3 && (g_pTeamRoundTimer->GetRoundState() != RT_STATE_SETUP || g_pLocalPlayer->team != TEAM_BLU)));
 }
 
 bool isPathing()
@@ -871,6 +872,14 @@ void CreateMove()
         return;
     }
     round_states round_state = g_pTeamRoundTimer->GetRoundState();
+    // Still in setuptime, if on fitting team, then do not path yet
+    // F you Pipeline
+    if (round_state == RT_STATE_SETUP && GetLevelName() != "plr_pipeline" && g_pLocalPlayer->team == TEAM_BLU)
+    {
+        if (navparser::NavEngine::isPathing())
+            navparser::NavEngine::cancelPath();
+        return;
+    }
 
     if (vischeck_runtime)
         vischeckPath();
@@ -998,13 +1007,13 @@ void Draw()
         Vector start_screen, end_screen;
         if (draw::WorldToScreen(start_pos, start_screen))
         {
-            draw::Rectangle(start_screen.x - 5.0f, start_screen.y - 5.0f, 10.0f, 10.0f, colors::green);
+            draw::Rectangle(start_screen.x - 5.0f, start_screen.y - 5.0f, 10.0f, 10.0f, colors::white);
 
             if (i < crumbs.size() - 1)
             {
                 Vector end_pos = crumbs[i + 1].vec;
                 if (draw::WorldToScreen(end_pos, end_screen))
-                    draw::Line(start_screen.x, start_screen.y, end_screen.x - start_screen.x, end_screen.y - start_screen.y, colors::green, 2.0f);
+                    draw::Line(start_screen.x, start_screen.y, end_screen.x - start_screen.x, end_screen.y - start_screen.y, colors::white, 2.0f);
             }
         }
     }

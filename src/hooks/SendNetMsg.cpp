@@ -44,7 +44,11 @@ void sendIdentifyMessage(bool reply)
     reply ? sendAchievementKv(CAT_REPLY) : sendAchievementKv(CAT_IDENTIFY);
 }
 
+#if ENABLE_TEXTMODE
 settings::Boolean identify{ "chat.identify", "true" };
+#else
+settings::Boolean identify{ "chat.identify", "false" };
+#endif
 
 std::vector<KeyValues *> Iterate(KeyValues *event, int depth)
 {
