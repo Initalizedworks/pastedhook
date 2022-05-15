@@ -1,5 +1,8 @@
 <Prefab id="player-list-row">
     <TRow>
+        <TData height="15" width="25">
+            <Text width="fill" padding="2 0 0 4" id="uid">N/A</Text>
+        </TData>
         <TData height="15" width="70">
             <Text width="fill" padding="2 0 0 4" id="steam">N/A</Text>
         </TData>
@@ -14,6 +17,9 @@
         </TData>
         <TData height="15" width="70">
             <Text width="fill" padding="2 0 0 4" id="state">N/A</Text>
+        </TData>
+        <TData height="15" width="40">
+            <ColorSelector height="fill" width="40" id="color"/>
         </TData>
         <TData height="15" width="60">
             <Text width="fill" padding="2 0 0 4" id="kick">Kick</Text>

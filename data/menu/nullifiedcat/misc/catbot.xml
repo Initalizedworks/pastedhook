@@ -5,6 +5,7 @@
             <AutoVariable width="fill" target="autojoin.auto-queue" label="Auto queue"/>
             <AutoVariable width="fill" target="autojoin.auto-requeue" label="Auto requeue"/>
             <AutoVariable width="fill" target="autoqueue.mode" label="Autoqueue mode" min="0" max="12"/>
+            <AutoVariable width="fill" target="votelogger.requeue-on-kick" label="Requeue on kick" tooltip="I couldn't come up with a better name for this lol"/>
             <LabeledObject width="fill" label="Autojoin class" tooltip="Automatically pick a class">
                 <Select target="autojoin.class">
                     <Option name="None" value="0"/>

@@ -28,7 +28,6 @@ void SendNetMsg(INetMessage &msg);
 namespace hooked_methods
 {
 
-settings::Boolean identify{ "chat.identify", "false" };
 static bool send_achievement_reply{};
 static Timer send_achievement_reply_timer{};
 
@@ -44,6 +43,8 @@ void sendIdentifyMessage(bool reply)
 {
     reply ? sendAchievementKv(CAT_REPLY) : sendAchievementKv(CAT_IDENTIFY);
 }
+
+settings::Boolean identify{ "chat.identify", "true" };
 
 std::vector<KeyValues *> Iterate(KeyValues *event, int depth)
 {

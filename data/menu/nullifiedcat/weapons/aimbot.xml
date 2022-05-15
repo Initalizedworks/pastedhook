@@ -102,23 +102,8 @@
             <AutoVariable width="fill" target="aimbot.target.ignore-deadringer" label="Ignore Dead Ringer"/>
         </List>
     </Box>
-    <Box padding="12 6 6 6" width="content" height="content" name="Spectated mode" x="340">
+    <Box padding="12 6 6 6" width="content" height="content" name="Autoshoot" x="170" y="250">
         <List width="150">
-            <LabeledObject width="fill" label="Spectator mode" tooltip="Never: the settings below will never override main aimbot settings. Firstperson: enable below settings if at least one person is spectating you in first person. Spectated: enable below settings if you are being spectated at all">
-                <Select target="aimbot.spectator-mode">
-                    <Option name="Off" value="0"/>
-                    <Option name="Firstperson" value="1"/>
-                    <Option name="Any" value="2"/>
-                </Select>
-            </LabeledObject>
-            <AutoVariable width="fill" target="aimbot.spectator.enable" label="Aimbot enable" tooltip="Should the aimbot be enabled based on the above?"/>
-            <AutoVariable width="fill" target="aimbot.spectator.fov" label="Spectated FOV" tooltip="FOV for the aimbot when in spectated mode"/>
-            <AutoVariable width="fill" target="aimbot.spectator.slow" label="Spectated slow" tooltip="Controls how quickly the aimbot moves your crosshair while in spectated mode" min="0" max="30"/>
-        </List>
-    </Box>
-    <Box padding="12 6 6 6" width="content" height="content" name="Autoshoot" x="340" y="85">
-        <List width="150">
-            <!-- shhh pro optimizing11!111 -->
             <AutoVariable width="fill" target="aimbot.autoshoot" label="Enable autoshoot" tooltip="Make the aimbot automatically fire your weapon"/>
             <AutoVariable width="fill" target="aimbot.wait-for-charge" label="Wait for charge" tooltip="Hold fire until a single shot is enough to kill the target"/>
             <LabeledObject width="fill" label="Wait for accuracy" tooltip="Hold fire until your shot doesn't have any additional spread">
@@ -134,6 +119,42 @@
             <AutoVariable width="fill" target="aimbot.auto.tapfire" label="Tapfire minigun"/>
             <AutoVariable width="fill" target="aimbot.auto.zoom" label="Auto zoom" tooltip="Intelligently zoom if applicable to current weapon type"/>
             <AutoVariable width="fill" target="aimbot.auto.unzoom" label="Auto unzoom" tooltip="Intelligently unzoom if applicable to current weapon type"/>
+        </List>
+    </Box>
+    <Box padding="12 6 6 6" width="content" height="content" name="Spectated mode" x="340">
+        <List width="150">
+            <LabeledObject width="fill" label="Spectator mode" tooltip="Never: the settings below will never override main aimbot settings. Firstperson: enable below settings if at least one person is spectating you in first person. Spectated: enable below settings if you are being spectated at all">
+                <Select target="aimbot.spectator-mode">
+                    <Option name="Off" value="0"/>
+                    <Option name="Firstperson" value="1"/>
+                    <Option name="Any" value="2"/>
+                </Select>
+            </LabeledObject>
+            <AutoVariable width="fill" target="aimbot.spectator.enable" label="Aimbot enable" tooltip="Should the aimbot be enabled based on the above?"/>
+            <AutoVariable width="fill" target="aimbot.spectator.fov" label="Spectated FOV" tooltip="FOV for the aimbot when in spectated mode"/>
+            <AutoVariable width="fill" target="aimbot.spectator.slow" label="Spectated slow" tooltip="Controls how quickly the aimbot moves your crosshair while in spectated mode" min="0" max="30"/>
+        </List>
+    </Box>
+    <Box padding="12 6 6 6" width="content" height="content" name="Backtracking" x="340" y="85">
+        <List width="150">
+            <AutoVariable width="fill" target="backtrack.enabled" label="Enable backtracking" tooltip="Allow hitting enemies where they were in the past"/>
+            <AutoVariable width="fill" target="aimbot.backtrack" label="Aim at backtracking" tooltip="Aim at backtrack ticks"/>
+            <AutoVariable width="fill" target="aimbot.backtrack.only-last-tick" label="Aim at only the last tick" tooltip="Aim at only the last backtrack tick. !DISABLING THIS MAY CAUSE LAG!"/>
+            <AutoVariable width="fill" target="misc.ping-reducer.enable" label="Ping reducer" tooltip="Try to reduce your ping to the number set below"/>
+            <AutoVariable width="fill" target="misc.ping-reducer.target" label="Target ping"/>
+            <AutoVariable width="fill" target="backtrack.latency" label="Fake latency" tooltip="Amount of fake latency." min="0" max="1000" step="25"/>
+            <AutoVariable width="fill" target="backtrack.draw" label="Draw backtrack" tooltip="Shows an on-screen icon for ticks"/>
+            <LabeledObject width="fill" label="Backtrack slots" tooltip="Which weapon slots should have backtracking enabled?">
+                <Select target="backtrack.slots">
+                    <Option name="All" value="0"/>
+                    <Option name="Primary" value="1"/>
+                    <Option name="Secondary" value="2"/>
+                    <Option name="Melee" value="3"/>
+                    <Option name="Primary + secondary" value="4"/>
+                    <Option name="Primary + melee" value="5"/>
+                    <Option name="Secondary + melee" value="6"/>
+                </Select>
+            </LabeledObject>
         </List>
     </Box>
 </Tab>
