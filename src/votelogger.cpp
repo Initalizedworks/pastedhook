@@ -23,7 +23,6 @@ static settings::Boolean chat_casts{ "votelogger.chat.casts", "false" };
 static settings::Boolean chat_partysay_casts{ "votelogger.chat.partysay.casts", "false" };
 static settings::Boolean chat_casts_f1_only{ "votelogger.chat.casts.f1-only", "false" };
 static settings::Boolean leave_after_local_vote{ "votelogger.leave-after-local-vote", "false" };
-static settings::Boolean uselessthinglol{ "votelogger.uselessshit", "false" };
 namespace votelogger
 {
 
@@ -195,7 +194,7 @@ void dispatchUserMessage(bf_read &buffer, int type)
     }
     case 47:
         logging::Info("Vote passed on %s [U:1:%u] with %i F1s and %i F2s.", kicked_info.name, kicked_info.friendsID, F1count + 1, F2count + 1);
-        if (*chat_partysay_result)
+        if (*chat_partysay_result && !was_local_player)
         {
             std::snprintf(formated_string, sizeof(formated_string), "Vote passed on %s [U:1:%u] with %i F1s and %i F2s.", kicked_info.name, kicked_info.friendsID, F1count + 1, F2count + 1);
             re::CTFPartyClient::GTFPartyClient()->SendPartyChat(formated_string);
@@ -206,7 +205,7 @@ void dispatchUserMessage(bf_read &buffer, int type)
         break;
     case 48:
         logging::Info("Vote failed on %s [U:1:%u] with %i F1s and %i F2s.", kicked_info.name, kicked_info.friendsID, F1count + 1, F2count + 1);
-        if (*chat_partysay_result)
+        if (*chat_partysay_result && !was_local_player)
         {
             std::snprintf(formated_string, sizeof(formated_string), "Vote failed on %s [U:1:%u] with %i F1s and %i F2s.", kicked_info.name, kicked_info.friendsID, F1count + 1, F2count + 1);
             re::CTFPartyClient::GTFPartyClient()->SendPartyChat(formated_string);
