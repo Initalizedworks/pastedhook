@@ -732,11 +732,9 @@ static void followCrumbs()
     {
         Vector next{ crumbs[0].vec.x, crumbs[0].vec.y, g_pLocalPlayer->v_Eye.z };
         next = GetAimAtAngles(g_pLocalPlayer->v_Eye, next);
-        static int aim_speed = 25;
-        /* 10, 35 (decent), 50, still trying out 7 but i ran out of time lul (33 did well) */
 
         // Slow aim to smoothen
-        hacks::misc_aimbot::DoSlowAim(next, aim_speed);
+        hacks::misc_aimbot::DoSlowAim(next);
         current_user_cmd->viewangles = next;
     }
 
