@@ -30,7 +30,7 @@ bool shouldTargetSteamId(unsigned id)
     }
 
     auto &pl = playerlist::AccessData(id);
-    if (playerlist::IsFriendly(pl.state) || (pl.state == playerlist::EState::CAT && *ignoreCathook))
+    if (playerlist::IsFriendly(pl.state) || (pl.state == playerlist::k_EState::CAT && *ignoreCathook))
         return false;
     return true;
 }
@@ -61,7 +61,7 @@ bool shouldAlwaysRenderEspSteamId(unsigned id)
         return false;
 
     auto &pl = playerlist::AccessData(id);
-    if (pl.state != playerlist::EState::DEFAULT)
+    if (pl.state != playerlist::k_EState::DEFAULT)
         return true;
     return false;
 }
