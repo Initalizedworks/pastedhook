@@ -14,7 +14,6 @@ namespace player_tools
 {
 
 static settings::Int betrayal_limit{ "player-tools.betrayal-limit", "2" };
-// does this even work? LOL
 static settings::Boolean betrayal_sync{ "player-tools.betrayal-ipc-sync", "true" };
 
 static settings::Boolean taunting{ "player-tools.ignore.taunting", "false" };
@@ -31,7 +30,7 @@ bool shouldTargetSteamId(unsigned id)
     }
 
     auto &pl = playerlist::AccessData(id);
-    if (playerlist::IsFriendly(pl.state) || (pl.state == playerlist::k_EState::CAT && *ignoreCathook))
+    if (playerlist::IsFriendly(pl.state) || (pl.state == playerlist::EState::CAT && *ignoreCathook))
         return false;
     return true;
 }
@@ -62,7 +61,7 @@ bool shouldAlwaysRenderEspSteamId(unsigned id)
         return false;
 
     auto &pl = playerlist::AccessData(id);
-    if (pl.state != playerlist::k_EState::DEFAULT)
+    if (pl.state != playerlist::EState::DEFAULT)
         return true;
     return false;
 }
@@ -109,39 +108,23 @@ void onKilledBy(unsigned id)
             betrayal_list[id] = 0;
         betrayal_list[id]++;
         // Notify other bots
+        if (betrayal_list[id] == *betrayal_limit) {
+            g_IEngine->ClientCmd_Unrestricted("cat_pl_add_id %s RAGE cat_pl_save"),id;
+        }
         if (id && betrayal_list[id] == *betrayal_limit && betrayal_sync)
         {
             if (ipc::peer && ipc::peer->connected)
             {
-                std::string command = "cat_ipc_exec_all cat_pl_mark_betrayal " + std::to_string(id);
+                std::string command = "cat_pl_load";
                 if (command.length() >= 63)
                     ipc::peer->SendMessage(0, -1, ipc::commands::execute_client_cmd_long, command.c_str(), command.length() + 1);
                 else
                     ipc::peer->SendMessage(command.c_str(), -1, ipc::commands::execute_client_cmd, 0, 0);
             }
         }
+
     }
 }
-
-static CatCommand mark_betrayal("pl_mark_betrayal", "Mark a steamid32 as betrayal",
-                                [](const CCommand &args)
-                                {
-                                    if (args.ArgC() < 2)
-                                    {
-                                        g_ICvar->ConsoleColorPrintf(MENU_COLOR, "Please provide a valid steamid32!");
-                                        return;
-                                    }
-                                    try
-                                    {
-                                        // Grab steamid
-                                        unsigned steamid       = std::stoul(args.Arg(1));
-                                        betrayal_list[steamid] = *betrayal_limit;
-                                    }
-                                    catch (const std::invalid_argument &)
-                                    {
-                                        g_ICvar->ConsoleColorPrintf(MENU_COLOR, "Invalid Steamid32 provided.");
-                                    }
-                                });
 
 void onKilledBy(CachedEntity *entity)
 {
