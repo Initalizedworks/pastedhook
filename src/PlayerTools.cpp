@@ -107,10 +107,12 @@ void onKilledBy(unsigned id)
         if (betrayal_list.find(id) == betrayal_list.end())
             betrayal_list[id] = 0;
         betrayal_list[id]++;
-        // Notify other bots
-        if (betrayal_list[id] == *betrayal_limit) {
-            g_IEngine->ClientCmd_Unrestricted("cat_pl_add_id %s RAGE cat_pl_save"),id;
+      // So putting them in the same line doesnt work but multiple lines does????
+        if (betrayal_list[id] == *betrayal_limit && betrayal_sync) {
+            g_IEngine->ClientCmd_Unrestricted("cat_pl_mark_betrayal %s"),id;
+            g_IEngine->ClientCmd_Unrestricted("cat_pl_save");
         }
+        // Notify other bots
         if (id && betrayal_list[id] == *betrayal_limit && betrayal_sync)
         {
             if (ipc::peer && ipc::peer->connected)
@@ -125,6 +127,26 @@ void onKilledBy(unsigned id)
 
     }
 }
+
+static CatCommand mark_betrayal("pl_mark_betrayal", "Mark a steamid32 as betrayal",
+                                [](const CCommand &args)
+                                {
+                                    if (args.ArgC() < 2)
+                                    {
+                                        g_ICvar->ConsoleColorPrintf(MENU_COLOR, "Please provide a valid steamid32!");
+                                        return;
+                                    }
+                                    try
+                                    {
+                                        // Grab steamid
+                                        unsigned steamid       = std::stoul(args.Arg(1));
+                                        betrayal_list[steamid] = *betrayal_limit;
+                                    }
+                                    catch (const std::invalid_argument &)
+                                    {
+                                        g_ICvar->ConsoleColorPrintf(MENU_COLOR, "Invalid Steamid32 provided.");
+                                    }
+                                });
 
 void onKilledBy(CachedEntity *entity)
 {
