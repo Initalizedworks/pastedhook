@@ -9,18 +9,27 @@
     </Box>
     <Box height="content" width="content" padding="12 6 6 6" name="Fake name" x="215">
         <List width="200">
-            <AutoVariable width="fill" target="name.custom" label="Custom name"/>
-            <AutoVariable width="fill" target="name.custom.ipc" label="IPC name"/>
-            <LabeledObject width="fill" label="Namesteal">
-                <Select target="name.namesteal">
-                    <Option name="Disabled" value="0"/>
-                    <Option name="Passive" value="1"/>
-                    <Option name="Active" value="2"/>
-                </Select>
-            </LabeledObject>
-            <AutoVariable width="fill" target="name.namesteal.reconnect" label="Namesteal reconnect"/>
-            <AutoVariable width="fill" target="name.namesteal.use-newlines" label="Namesteal newlines" tooltip="Use glitchy newlines, will make your name invisible"/>
-            <AutoVariable width="fill" target="misc.random-name" label="Random name"/>
+            <AutoVariable width="fill" target="name.custom" label="Custom Name"/>
+            <AutoVariable width="fill" target="name.ipc" label="IPC Name"/>
+            <AutoVariable width="fill" target="name.random-name" label="Random Name"/>
+            <Box name="Namesteal" width="content" height="content" padding="12 6 6 6">
+                <List width="180">
+                    <LabeledObject width="fill" label="Namesteal">
+                        <Select target="name.namesteal">
+                            <Option name="Disabled" value="0"/>
+                            <Option name="Passive" value="1"/>
+                            <Option name="Active" value="2"/>
+                        </Select>
+                    </LabeledObject>
+                    <AutoVariable width="fill" target="name.namesteal.friendly" label="Teammates only" tooltip="Only steal teammate names"/>
+                    <AutoVariable width="fill" target="name.namesteal.preserve" label="Preserve Name" tooltip="Don't switch to steam name"/>
+                    <AutoVariable width="fill" target="name.namesteal.f2p-priority" label="Prioritize F2P" tooltip="Prioritize F2P over normal targets"/>
+                    <AutoVariable width="fill" target="name.namesteal.preserve.aggressive" label="Rejoin when needed" tooltip="Retry to switch names when needed, only runs in passive mode and on level 0 accs"/>
+                    <AutoVariable width="fill" target="name.namesteal.wait" label="Namesteal timer" tooltip="Time between namesteals (Seconds)"/>
+                    <AutoVariable width="fill" target="name.namesteal.format.random-pos" label="Randomize Location" tooltip="Randomize format char location (200F/202C stable)"/>
+                    <AutoVariable width="fill" target="name.namesteal.format" label="Format char" tooltip="Invisible character to insert"/>
+              </List>
+            </Box>
         </List>
     </Box>
     <Box height="content" width="content" padding="12 6 6 6" name="Extra" y="115">

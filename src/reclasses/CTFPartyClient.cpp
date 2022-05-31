@@ -1,3 +1,4 @@
+
 /*
  * CTFPartyClient.cpp
  *
@@ -8,6 +9,11 @@
 #include "common.hpp"
 #include "core/e8call.hpp"
 
+#define PTR(o) (reinterpret_cast<uintptr_t>(o))
+#define APTR(o) (*reinterpret_cast<uintptr_t *>(o))
+#define AINT(o) (*reinterpret_cast<int *>(o))
+#define ABYTE(o) (*reinterpret_cast<char *>(o))
+
 re::CTFPartyClient *re::CTFPartyClient::GTFPartyClient()
 {
     typedef re::CTFPartyClient *(*GTFPartyClient_t)(void);
@@ -17,6 +23,10 @@ re::CTFPartyClient *re::CTFPartyClient::GTFPartyClient()
     return GTFPartyClient_fn();
 }
 
+uintptr_t re::CTFPartyClient::GetPartyObject()
+{
+    return APTR(PTR(this) + 0x30);
+}
 bool re::CTFPartyClient::BInQueue(re::CTFPartyClient *this_)
 {
     return *(uint8_t *) ((uint8_t *) this_ + 69);
@@ -31,11 +41,37 @@ int re::CTFPartyClient::GetNumOnlineMembers()
 }
 int re::CTFPartyClient::GetNumMembers()
 {
-    typedef int (*GetNumMembers_t)(re::CTFPartyClient *);
-    static uintptr_t addr                   = gSignatures.GetClientSignature("55 89 E5 8B 45 ? 8B 50 ? C6 80") + 0x30;
+    /*typedef int (*GetNumMembers_t)(re::CTFPartyClient *);
+    static uintptr_t addr = gSignatures.GetClientSignature("55 89 E5 8B 45 ? 8B 50 ? C6 80") + 0x30;
     static GetNumMembers_t GetNumMembers_fn = GetNumMembers_t(addr);
+    return GetNumMembers_fn(this);*/
+    auto party = GetPartyObject();
+    if (!party)
+        return 1;
 
-    return GetNumMembers_fn(this);
+    return AINT(PTR(party) + 40);
+}
+const CSteamID *re::CTFPartyClient::GetMembersArray()
+{
+    auto party = GetPartyObject();
+    if (!party)
+        return nullptr;
+
+    return *reinterpret_cast<const CSteamID **>(PTR(party) + 36);
+}
+bool re::CTFPartyClient::GetMemberID(unsigned idx, CSteamID &id)
+{
+    auto party = GetPartyObject();
+    if (!party)
+        return false;
+
+    if (AINT(PTR(party) + 40) <= idx)
+        return false;
+
+    CSteamID *ids = *reinterpret_cast<CSteamID **>(PTR(party) + 36);
+    id = ids[idx];
+
+    return true;
 }
 void re::CTFPartyClient::SendPartyChat(const char *message)
 {
@@ -50,7 +86,7 @@ bool re::CTFPartyClient::BCanQueueForStandby(re::CTFPartyClient *this_)
 {
     typedef bool (*BCanQueueForStandby_t)(re::CTFPartyClient *);
     static uintptr_t addr                               = gSignatures.GetClientSignature("55 89 E5 53 83 EC 24 8B 5D 08 80 7B 46 00 75 40 8B 4B 38 85 C9 74 39 "
-                                                                                                                       "E8 ? ? ? ? 89 04 24 E8 ? ? ? ? 84 C0 75 28");
+                                                           "E8 ? ? ? ? 89 04 24 E8 ? ? ? ? 84 C0 75 28");
     static BCanQueueForStandby_t BCanQueueForStandby_fn = BCanQueueForStandby_t(addr);
 
     return BCanQueueForStandby_fn(this_);
@@ -106,27 +142,27 @@ bool re::CTFPartyClient::BInQueueForStandby()
 char re::CTFPartyClient::RequestLeaveForMatch(int type)
 {
     typedef char (*RequestLeaveForMatch_t)(re::CTFPartyClient *, int);
-    static uintptr_t addr                                 = e8call_direct(gSignatures.GetClientSignature("E8 ? ? ? ? 90 8B 45 E4"));
+    static uintptr_t addr                                 = gSignatures.GetClientSignature("55 89 E5 57 56 53 83 EC ? 8B 45 ? 89 44 24 ? 8B 45 ? 89 04 24 E8 ? ? "
+                                                           "? ? 84 C0 89 C6 75");
     static RequestLeaveForMatch_t RequestLeaveForMatch_fn = RequestLeaveForMatch_t(addr);
 
     return RequestLeaveForMatch_fn(this, type);
 }
-int re::CTFPartyClient::BInvitePlayerToParty(CSteamID steamid)
+int re::CTFPartyClient::BInvitePlayerToParty(const CSteamID &steamid)
 {
     typedef int (*BInvitePlayerToParty_t)(re::CTFPartyClient *, CSteamID, bool);
-    static uintptr_t addr                                 = gSignatures.GetClientSignature("55 89 E5 57 56 53 81 EC ? ? ? ? 8B 45 ? 8B 5D ? 8B 55 ? 89 85"
-                                                                                                                           "65 A1 ? ? ? ? 89 45 ? 31 C0 8B 45");
+    static uintptr_t addr                                 = gSignatures.GetClientSignature("55 89 e5 57 56 53 81 ec ? ? ? ? 65 a1 ? ? ? ? 89 ? ? 31 c0 8b 75 08 8b 45 0c 8b 55 10");
     static BInvitePlayerToParty_t BInvitePlayerToParty_fn = BInvitePlayerToParty_t(addr);
     return BInvitePlayerToParty_fn(this, steamid, false);
 }
-int re::CTFPartyClient::BRequestJoinPlayer(CSteamID steamid)
+int re::CTFPartyClient::BRequestJoinPlayer(const CSteamID &steamid)
 {
     typedef int (*BRequestJoinPlayer_t)(re::CTFPartyClient *, CSteamID, bool);
     static uintptr_t addr                             = gSignatures.GetClientSignature("55 89 E5 57 56 53 81 EC ? ? ? ? 8B 45 14 8B 55 ? 89 45 ? 8B");
     static BRequestJoinPlayer_t BRequestJoinPlayer_fn = BRequestJoinPlayer_t(addr);
     return BRequestJoinPlayer_fn(this, steamid, false);
 }
-int re::CTFPartyClient::PromotePlayerToLeader(CSteamID steamid)
+int re::CTFPartyClient::PromotePlayerToLeader(const CSteamID &steamid)
 {
     typedef int (*PromotePlayerToLeader_t)(re::CTFPartyClient *, CSteamID);
     static uintptr_t addr                                   = gSignatures.GetClientSignature("8B 55 08 8B 8A A0 01 00 00 8B 92 9C 01 00 00 89 04 24 89 4C 24 08 89 54 24 04 E8") + 27;
@@ -150,7 +186,7 @@ std::vector<unsigned> re::CTFPartyClient::GetPartySteamIDs()
     return party_members;
 }
 
-int re::CTFPartyClient::KickPlayer(CSteamID steamid)
+int re::CTFPartyClient::KickPlayer(const CSteamID &steamid)
 {
     typedef int (*KickPlayer_t)(re::CTFPartyClient *, CSteamID);
     static uintptr_t addr             = gSignatures.GetClientSignature("8B 93 9C 01 00 00 8B 8B A0 01 00 00 89 04 24 89 54 24 04 89 4C 24 08 E8") + 24;
@@ -160,12 +196,42 @@ int re::CTFPartyClient::KickPlayer(CSteamID steamid)
 }
 bool re::CTFPartyClient::GetCurrentPartyLeader(CSteamID &id)
 {
-    uintptr_t party = *reinterpret_cast<uintptr_t *>(reinterpret_cast<uintptr_t>(this) + 0x18);
+    auto party = GetPartyObject();
     if (!party)
         return false;
 
-    id = *reinterpret_cast<CSteamID *>(party + 0x1C);
+    id = *reinterpret_cast<CSteamID *>(PTR(party) + 28);
     return true;
+}
+bool re::CTFPartyClient::IsAnybodyBanned(bool competitive)
+{
+    auto party = GetPartyObject();
+    if (!party)
+        return false;
+
+    if (competitive)
+        return AINT(PTR(party) + 104) > std::time(nullptr);
+
+    return AINT(PTR(party) + 92) > std::time(nullptr);
+}
+bool re::CTFPartyClient::IsMemberBanned(bool competitive, unsigned idx)
+{
+    auto party = GetPartyObject();
+    if (!party)
+        return false;
+
+    auto num_members = GetNumMembers();
+    if (idx >= num_members)
+    {
+        logging::Info("%s member index out of bounds (%d, num members %d)",
+            __func__, idx, num_members);
+        return false;
+    }
+    auto prop_array = *reinterpret_cast<bool ***>(PTR(party) + 48);
+    if (competitive)
+        return prop_array[idx][31];
+
+    return prop_array[idx][30];
 }
 re::ITFMatchGroupDescription *re::GetMatchGroupDescription(int &idx)
 {

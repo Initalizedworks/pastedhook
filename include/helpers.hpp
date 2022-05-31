@@ -167,6 +167,7 @@ inline const char *classname(int clazz)
 }
 
 void PrintChat(const char *fmt, ...);
+void TriggerNameChange(const char *name);
 void ChangeName(std::string name);
 
 void WhatIAmLookingAt(int *result_eindex, Vector *result_pos);
@@ -211,7 +212,11 @@ void MakeVector(Vector ang, Vector &out);
 float GetFov(Vector ang, Vector src, Vector dst);
 
 void ReplaceString(std::string &input, const std::string &what, const std::string &with_what);
-void ReplaceSpecials(std::string &input);
+size_t ReplaceString(char *str, size_t str_capacity, const char *what, const char *with_what);
+size_t ReplaceSpecials(char *str);
+void ReplaceSpecials(std::string &str);
+
+char *CStringDuplicate(const char *str);
 
 Vector ComputeMove(const Vector &a, const Vector &b);
 std::pair<float, float> ComputeMovePrecise(const Vector &a, const Vector &b);
@@ -235,6 +240,7 @@ template <typename... Args> std::string format(const Args &...args)
     format_internal(stream, args...);
     return stream.str();
 }
+CSteamID CSteamIDFrom32(uint32_t id32);
 
 extern const std::string classes[10];
 extern const char *powerups[POWERUP_COUNT];

@@ -576,22 +576,9 @@ CatCommand name("name_set", "Immediate name change",
                         logging::Info("Set a name, silly");
                         return;
                     }
-                    if (g_Settings.bInvalid)
-                    {
-                        logging::Info("Only works ingame!");
-                        return;
-                    }
-                    std::string new_name(args.ArgS());
-                    ReplaceSpecials(new_name);
-                    NET_SetConVar setname("name", new_name.c_str());
-                    INetChannel *ch = (INetChannel *) g_IEngine->GetNetChannelInfo();
-                    if (ch)
-                    {
-                        setname.SetNetChannel(ch);
-                        setname.SetReliable(false);
-                        ch->SendNetMsg(setname, false);
-                    }
+                    ChangeName(args.ArgS());
                 });
+
 CatCommand set_value("set", "Set value",
                      [](const CCommand &args)
                      {
