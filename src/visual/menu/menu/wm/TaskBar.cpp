@@ -9,8 +9,7 @@
 
 namespace zerokernel_taskbar
 {
-static settings::RVariable<rgba_t> color_background{ "zk.style.taskbar.color.background", "171717ff" };
-static settings::RVariable<rgba_t> color_border{ "zk.style.taskbar.color.border", "000000ff" };
+
 } // namespace zerokernel_taskbar
 
 void zerokernel::TaskBar::reorderElements()
@@ -37,13 +36,10 @@ bool zerokernel::TaskBar::isHidden()
 
 void zerokernel::TaskBar::addWindowButton(zerokernel::WMWindow &window)
 {
-    addObject(std::make_unique<Task>(window));
+
 }
 
 void zerokernel::TaskBar::render()
 {
-    renderBackground(*zerokernel_taskbar::color_background);
-    renderBorder(*zerokernel_taskbar::color_border);
 
-    Container::render();
 }

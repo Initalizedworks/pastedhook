@@ -11,6 +11,7 @@
 #include "hack.hpp"
 #include "PlayerTools.hpp"
 #include "e8call.hpp"
+#include "NavBot.hpp"
 #include "navparser.hpp"
 #include "SettingCommands.hpp"
 #include "glob.h"
@@ -18,21 +19,16 @@
 namespace hacks::catbot
 {
 
-static settings::Int requeue_if_humans_lte{"cat-bot.requeue-if.humans-lte", "0"};
 static settings::Int requeue_if_players_lte{"cat-bot.requeue-if.players-lte", "0"};
-
-static settings::Int stopqueue_if_humans_gte{"cat-bot.stopqueue-if.humans-gte", "0"};
-static settings::Int stopqueue_if_players_gte{"cat-bot.stopqueue-if.players-gte", "0"};
 
 static settings::Boolean micspam{ "cat-bot.micspam.enable", "false" };
 static settings::Int micspam_on{ "cat-bot.micspam.interval-on", "3" };
 static settings::Int micspam_off{ "cat-bot.micspam.interval-off", "60" };
 
 static settings::Boolean random_votekicks{ "cat-bot.votekicks", "false" };
-static settings::Boolean votekick_rage_only{ "cat-bot.votekicks.rage-only", "false" };
-static settings::Boolean autovote_map{ "cat-bot.autovote-map", "false" };
+static settings::Boolean autovote_map{ "cat-bot.autovote-map", "true" };
 
-settings::Boolean catbotmode{ "cat-bot.enable", "true" };
+settings::Boolean catbotmode{ "cat-bot.enable", "false" };
 settings::Boolean anti_motd{ "cat-bot.anti-motd", "false" };
 
 
@@ -76,10 +72,7 @@ void do_random_votekick()
             continue;
         if (info.friendsID == local_info.friendsID)
             continue;
-        auto &pl = playerlist::AccessData(info.friendsID);
-        if (votekick_rage_only && pl.state != playerlist::k_EState::RAGE)
-            continue;
-        if (pl.state != playerlist::k_EState::RAGE && pl.state != playerlist::k_EState::DEFAULT && pl.state != playerlist::k_EState::CHEATER && pl.state != playerlist::k_EState::PAZER)
+        if (!player_tools::shouldTargetSteamId(info.friendsID))
             continue;
 
         targets.push_back(info.userID);
@@ -251,6 +244,7 @@ void update()
         if (micspam_off && micspam_off_timer.test_and_set(*micspam_off * 1000))
             g_IEngine->ClientCmd_Unrestricted("-voicerecord");
     }
+
     if (random_votekicks && timer_votekicks.test_and_set(5000))
         do_random_votekick();
     if (timer_abandon.test_and_set(2000) && level_init_timer.check(13000))
@@ -278,27 +272,6 @@ void update()
                 ++count_ipc;
             }
         }
-        if (requeue_if_humans_lte)
-        {
-            if (count_total - count_ipc <= int(requeue_if_humans_lte))
-            {
-                logging::Info("Start queue because there are %d non-bots in "
-                              "game, and requeue_if_humans_lte is %d.",
-                              count_total - count_ipc, int(requeue_if_humans_lte));
-                tfmm::startQueue();
-                return;
-            }
-        }
-        if (stopqueue_if_humans_gte)
-        {
-            if (count_total - count_ipc >= int(stopqueue_if_humans_gte))
-            {
-                logging::Info("We are going to stop queue because there are %d non-bots in "
-                              "the game, and stopqueue_if_humans_gte is %d.",
-                              count_total - count_ipc, int(stopqueue_if_humans_gte));
-                tfmm::leaveQueue();
-            }
-        }
         if (requeue_if_players_lte)
         {
             if (count_total <= int(requeue_if_players_lte))
@@ -308,16 +281,6 @@ void update()
                               count_total, int(requeue_if_players_lte));
                 tfmm::startQueue();
                 return;
-            }
-        }
-        if (stopqueue_if_players_gte)
-        {
-            if (count_total >= int(stopqueue_if_players_gte))
-            {
-                logging::Info("Stop queue because there are %d total players "
-                              "in game, and stopqueue_if_players_gte is %d",
-                              count_total, int(requeue_if_players_lte));
-                tfmm::leaveQueue();
             }
         }
     }

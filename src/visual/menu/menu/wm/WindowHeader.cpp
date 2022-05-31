@@ -56,9 +56,6 @@ bool zerokernel::WindowHeader::handleSdlEvent(SDL_Event *event)
 void zerokernel::WindowHeader::render()
 {
     renderBackground(window.isFocused() ? *zerokernel_windowheader::color_background_focused : *zerokernel_windowheader::color_background);
-    // glez::draw::line(bb.getBorderBox().left(), bb.getBorderBox().bottom() -
-    // 1, bb.getBorderBox().width, 0, window.focused ? *color_border_focused :
-    // *color_border, 1);
     renderBorder(window.isFocused() ? *zerokernel_windowheader::color_border_focused : *zerokernel_windowheader::color_border);
 
     Container::render();
@@ -77,14 +74,6 @@ void zerokernel::WindowHeader::update()
 void zerokernel::WindowHeader::handleMessage(zerokernel::Message &msg, bool is_relayed)
 {
     BaseMenuObject::handleMessage(msg, is_relayed);
-
-    if (!is_relayed)
-    {
-        if (msg.name == "LeftClick")
-        {
-            window.requestClose();
-        }
-    }
 }
 
 void zerokernel::WindowHeader::updateTitle()
@@ -95,7 +84,6 @@ void zerokernel::WindowHeader::updateTitle()
 void zerokernel::WindowHeader::reorderElements()
 {
     title->move(0, 0);
-    close->move(bb.getContentBox().width - close->getBoundingBox().getBorderBox().width, 0);
 }
 
 bool zerokernel::WindowHeader::isHidden()

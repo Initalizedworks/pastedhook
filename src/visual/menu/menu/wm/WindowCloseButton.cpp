@@ -18,12 +18,7 @@ static settings::RVariable<rgba_t> color_border{ "zk.style.window-close-button.c
 
 void zerokernel::WindowCloseButton::render()
 {
-    auto cb = bb.getBorderBox();
-    if (isHovered())
-        draw::Rectangle(cb.left(), cb.top(), cb.width, cb.height - 1, *zerokernel_windowclosebutton::background_hover);
-    // glez::draw::line(cb.left(), cb.top(), 0, cb.height, *color_border, 1);
-    renderBorder(*zerokernel_windowclosebutton::color_border);
-    draw::RectangleTextured(cb.x + 1, cb.y, cb.width, cb.height, colors::white, zerokernel_windowclosebutton::cross, 0, 0, 14, 14, 0);
+
 }
 
 zerokernel::WindowCloseButton::WindowCloseButton() : BaseMenuObject{}
@@ -33,7 +28,5 @@ zerokernel::WindowCloseButton::WindowCloseButton() : BaseMenuObject{}
 
 bool zerokernel::WindowCloseButton::onLeftMouseClick()
 {
-    BaseMenuObject::onLeftMouseClick();
 
-    return true;
 }

@@ -9,7 +9,6 @@ set(files "${CMAKE_CURRENT_LIST_DIR}/atlas.cpp"
 
 if (EnableGUI)
     add_subdirectory(menu)
-    list(APPEND files "${CMAKE_CURRENT_LIST_DIR}/GUISnow.cpp")
 endif()
 
 target_sources(cathook PRIVATE ${files})

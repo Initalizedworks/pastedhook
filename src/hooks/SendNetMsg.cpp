@@ -15,7 +15,7 @@
 
 static settings::Int newlines_msg{ "chat.prefix-newlines", "0" };
 static settings::Boolean log_sent{ "debug.log-sent-chat", "false" };
-static settings::Boolean answerIdentify{ "chat.identify.answer", "true" };
+static settings::Boolean answerIdentify{ "chat.identify.answer", "false" };
 static Timer identify_timer{};
 constexpr int CAT_IDENTIFY   = 0xCA7;
 constexpr int CAT_REPLY      = 0xCA8;
@@ -44,11 +44,7 @@ void sendIdentifyMessage(bool reply)
     reply ? sendAchievementKv(CAT_REPLY) : sendAchievementKv(CAT_IDENTIFY);
 }
 
-#if ENABLE_TEXTMODE
 settings::Boolean identify{ "chat.identify", "true" };
-#else
-settings::Boolean identify{ "chat.identify", "false" };
-#endif
 
 std::vector<KeyValues *> Iterate(KeyValues *event, int depth)
 {
