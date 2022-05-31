@@ -46,6 +46,7 @@ CatCommand connect("ipc_connect", "Connect to IPC server",
                            return;
                        }
                        peer = new peer_t(*server_name, false, false);
+                       try
                        {
                            peer->Connect();
                            logging::Info("peer count: %i", peer->memory->peer_count);
@@ -62,6 +63,14 @@ CatCommand connect("ipc_connect", "Connect to IPC server",
                            memcpy(&data.accumulated, &accumulated, sizeof(accumulated));
 
                            StoreClientData();
+                           // Load a config depending on id
+                           hack::command_stack().push("exec cat_autoexec_ipc_" + std::to_string(peer->client_id % std::max(1, *bot_chunks)));
+                       }
+                       catch (std::exception &error)
+                       {
+                           logging::Info("Runtime error: %s", error.what());
+                           delete peer;
+                           peer = nullptr;
                        }
                    });
 CatCommand connect_ghost("ipc_connect_ghost", "Connect to ipc but do not actually receive any commands",
