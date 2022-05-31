@@ -6,7 +6,7 @@
 namespace setupbones_reconst
 {
 #define MAX_OVERLAYS 15
-
+/* remove taunts is literally just non existant XD */
 static settings::Boolean remove_taunts("remove.taunts", "false");
 
 // This is to fix hitboxes while taunting. In most cases. Sometimes these sequences suddenly

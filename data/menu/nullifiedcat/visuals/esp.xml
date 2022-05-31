@@ -20,6 +20,8 @@
             	<AutoVariable width="fill" target="esp.item.enable" label="Enable item ESP" tooltip="Master switch for all below items"/>
             	<AutoVariable width="fill" target="esp.item.health" label="Health packs"/>
             	<AutoVariable width="fill" target="esp.item.ammo" label="Ammo packs"/>
+            	<AutoVariable width="fill" target="esp.item.money" label="MvM money" tooltip="Regular MvM money that needs to be picked up"/>
+            	<AutoVariable width="fill" target="esp.item.money-red" label="MvM red money" tooltip="Red MvM money that is automatically picked up"/>
             	<AutoVariable width="fill" target="esp.item.powerup" label="Mannpower powerups"/>
             	<AutoVariable width="fill" target="esp.item.spellbook" label="Spellbooks"/>
             	<AutoVariable width="fill" target="esp.item.objectives" label="Objectives" tooltip="Intel, carts and mvm bombs"/>
@@ -109,6 +111,7 @@
             </LabeledObject>
             <AutoVariable width="fill" target="esp.hide-invis" label="Hide invisible"/>
         </List>
+    </Box>
     <Box padding="12 6 6 6" width="content" height="content" name="Strings" x="340">
         <List width="150">
             <AutoVariable width="fill" target="esp.info.name" label="Name"/>

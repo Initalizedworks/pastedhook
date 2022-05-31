@@ -1,4 +1,4 @@
-/*#pragma once
+#pragma once
 
 #include <array>
 #include <stdint.h>
@@ -19,27 +19,8 @@ enum task : uint8_t
     dispenser,
     followbot,
     outofbounds,
-    engineer,
     capture
 };
-
-enum engineer_task : uint8_t
-{
-    nothing = 0,
-    // Build a new building
-    goto_build_spot,
-    // Go to an existing building
-    goto_building,
-    build_building,
-    // Originally were going to be added seperately, but we already have autorepair and upgrade seperately
-    // upgrade_building,
-    // repair_building,
-    upgradeorrepair_building,
-    // Well time to just run at people and gun them (Rip old name: YEEEEEEEEEEEEEEHAW)
-    staynear_engineer
-};
-
-extern engineer_task current_engineer_task;
 
 struct Task
 {
@@ -61,7 +42,7 @@ struct Task
     }
 };
 
-constexpr std::array<task, 3> blocking_tasks{ followbot, outofbounds, engineer };
+constexpr std::array<task, 3> blocking_tasks{ followbot, outofbounds };
 extern Task current_task;
 } // namespace task
 struct bot_class_config
@@ -71,4 +52,4 @@ struct bot_class_config
     float max;
 };
 } // namespace hacks::NavBot
-*/
+

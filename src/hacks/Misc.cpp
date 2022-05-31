@@ -28,7 +28,6 @@ static settings::Boolean render_zoomed{ "visual.render-local-zoomed", "true" };
 #endif
 static settings::Boolean anti_afk{ "misc.anti-afk", "false" };
 static settings::Boolean auto_jump{ "misc.auto-jump", "false" };
-static settings::Int auto_jump_chance{ "misc.auto-jump.chance", "100" };
 static settings::Int auto_strafe{ "misc.autostrafe", "0" };
 static settings::Boolean accurate_movement{ "misc.accurate-movement", "false" };
 settings::Boolean tauntslide{ "misc.tauntslide", "false" };
@@ -40,6 +39,14 @@ static settings::Boolean ping_reducer{ "misc.ping-reducer.enable", "false" };
 static settings::Int force_ping{ "misc.ping-reducer.target", "0" };
 static settings::Boolean force_wait{ "misc.force-enable-wait", "true" };
 static settings::Boolean scc{ "misc.scoreboard.match-custom-team-colors", "false" };
+
+#if ENABLE_VISUALS
+/* Allows editing of the rich presence info in steam's friends UI */
+static settings::Boolean rich_presence{ "misc.rich-presence", "false" };
+static settings::String rich_presence_file{ "misc.rich-presence.file-name", "rich_presence.txt" };
+static settings::Int rich_presence_party_size{ "misc.rich-presence.party_size", "1337" };
+static settings::Int rich_presence_change_delay{ "misc.rich-presence.delay", "5000" };
+#endif
 
 #if ENABLE_VISUALS
 static settings::Boolean debug_info{ "misc.debug-info", "false" };
@@ -252,9 +259,6 @@ void CreateMove()
     if (auto_jump && CE_GOOD(LOCAL_E) && !g_pLocalPlayer->life_state)
     {
         static int ticks_last_jump = 0;
-
-        if (UniformRandomInt(0, 99) > *auto_jump_chance)
-            return;
 
         bool ground = CE_INT(LOCAL_E, netvar.iFlags) & FL_ONGROUND;
         bool jump   = current_user_cmd->buttons & IN_JUMP;
@@ -501,81 +505,6 @@ void Draw()
         AddSideString(format("Weapon state: ", CE_INT(LOCAL_W, netvar.iWeaponState)));
         AddSideString(format("ItemDefinitionIndex: ", CE_INT(local, netvar.iItemDefinitionIndex)));
         AddSideString(format("Maxspeed: ", CE_FLOAT(LOCAL_E, netvar.m_flMaxspeed)));
-        /*AddSideString(colors::white, "Weapon: %s [%i]",
-        RAW_ENT(g_pLocalPlayer->weapon())->GetClientClass()->GetName(),
-        g_pLocalPlayer->weapon()->m_iClassID());
-        //AddSideString(colors::white, "flNextPrimaryAttack: %f",
-        CE_FLOAT(g_pLocalPlayer->weapon(), netvar.flNextPrimaryAttack));
-        //AddSideString(colors::white, "nTickBase: %f",
-        (float)(CE_INT(g_pLocalPlayer->entity, netvar.nTickBase)) *
-        gvars->interval_per_tick); AddSideString(colors::white, "CanShoot: %i",
-        CanShoot());
-        //AddSideString(colors::white, "Damage: %f",
-        CE_FLOAT(g_pLocalPlayer->weapon(), netvar.flChargedDamage)); if (TF2)
-        AddSideString(colors::white, "DefIndex: %i",
-        CE_INT(g_pLocalPlayer->weapon(), netvar.iItemDefinitionIndex));
-        //AddSideString(colors::white, "GlobalVars: 0x%08x", gvars);
-        //AddSideString(colors::white, "realtime: %f", gvars->realtime);
-        //AddSideString(colors::white, "interval_per_tick: %f",
-        gvars->interval_per_tick);
-        //if (TF2) AddSideString(colors::white, "ambassador_can_headshot: %i",
-        (gvars->curtime - CE_FLOAT(g_pLocalPlayer->weapon(),
-        netvar.flLastFireTime)) > 0.95); AddSideString(colors::white,
-        "WeaponMode: %i", GetWeaponMode(g_pLocalPlayer->entity));
-        AddSideString(colors::white, "ToGround: %f",
-        DistanceToGround(g_pLocalPlayer->v_Origin));
-        AddSideString(colors::white, "ServerTime: %f",
-        CE_FLOAT(g_pLocalPlayer->entity, netvar.nTickBase) *
-        g_GlobalVars->interval_per_tick); AddSideString(colors::white, "CurTime:
-        %f", g_GlobalVars->curtime); AddSideString(colors::white, "FrameCount:
-        %i", g_GlobalVars->framecount); float speed, gravity;
-        GetProjectileData(g_pLocalPlayer->weapon(), speed, gravity);
-        AddSideString(colors::white, "ALT: %i",
-        g_pLocalPlayer->bAttackLastTick); AddSideString(colors::white, "Speed:
-        %f", speed); AddSideString(colors::white, "Gravity: %f", gravity);
-        AddSideString(colors::white, "CIAC: %i", *(bool*)(RAW_ENT(LOCAL_W) +
-        2380)); if (TF2) AddSideString(colors::white, "Melee: %i",
-        vfunc<bool(*)(IClientEntity*)>(RAW_ENT(LOCAL_W), 1860 / 4,
-        0)(RAW_ENT(LOCAL_W))); if (TF2) AddSideString(colors::white, "Bucket:
-        %.2f", *(float*)((uintptr_t)RAW_ENT(LOCAL_W) + 2612u));
-        //if (TF2C) AddSideString(colors::white, "Seed: %i",
-        *(int*)(sharedobj::client->lmap->l_addr + 0x00D53F68ul));
-        //AddSideString(colors::white, "IsZoomed: %i", g_pLocalPlayer->bZoomed);
-        //AddSideString(colors::white, "CanHeadshot: %i", CanHeadshot());
-        //AddSideString(colors::white, "IsThirdPerson: %i",
-        iinput->CAM_IsThirdPerson());
-        //if (TF2C) AddSideString(colors::white, "Crits: %i", s_bCrits);
-        //if (TF2C) AddSideString(colors::white, "CritMult: %i",
-        RemapValClampedNC( CE_INT(LOCAL_E, netvar.iCritMult), 0, 255, 1.0, 6 ));
-        for (int i = 0; i <= HIGHEST_ENTITY; i++) {
-            CachedEntity* e = ENTITY(i);
-            if (CE_GOOD(e)) {
-                if (e->m_Type() == EntityType::ENTITY_PROJECTILE) {
-                    //logging::Info("Entity %i [%s]: V %.2f (X: %.2f, Y: %.2f,
-        Z: %.2f) ACC %.2f (X: %.2f, Y: %.2f, Z: %.2f)", i,
-        RAW_ENT(e)->GetClientClass()->GetName(), e->m_vecVelocity.Length(),
-        e->m_vecVelocity.x, e->m_vecVelocity.y, e->m_vecVelocity.z,
-        e->m_vecAcceleration.Length(), e->m_vecAcceleration.x,
-        e->m_vecAcceleration.y, e->m_vecAcceleration.z);
-                    AddSideString(colors::white, "Entity %i [%s]: V %.2f (X:
-        %.2f, Y: %.2f, Z: %.2f) ACC %.2f (X: %.2f, Y: %.2f, Z: %.2f)", i,
-        RAW_ENT(e)->GetClientClass()->GetName(), e->m_vecVelocity.Length(),
-        e->m_vecVelocity.x, e->m_vecVelocity.y, e->m_vecVelocity.z,
-        e->m_vecAcceleration.Length(), e->m_vecAcceleration.x,
-        e->m_vecAcceleration.y, e->m_vecAcceleration.z);
-                }
-            }
-        }//AddSideString(draw::white, draw::black, "???: %f",
-        NET_FLOAT(g_pLocalPlayer->entity, netvar.test));
-        //AddSideString(draw::white, draw::black, "VecPunchAngle: %f %f %f",
-        pa.x, pa.y, pa.z);
-        //draw::DrawString(10, y, draw::white, draw::black, false,
-        "VecPunchAngleVel: %f %f %f", pav.x, pav.y, pav.z);
-        //y += 14;
-        //AddCenterString(fonts::font_handle,
-        input->GetAnalogValue(AnalogCode_t::MOUSE_X),
-        input->GetAnalogValue(AnalogCode_t::MOUSE_Y), draw::white,
-        L"S\u0FD5");*/
     }
 }
 
@@ -817,6 +746,48 @@ static CatCommand debug_print_weaponid("debug_weaponid", "Print the weapon IDs o
                                                logging::Info("weapon %i: %i", i, re::C_TFWeaponBase::GetWeaponID(RAW_ENT(weapon)));
                                            }
                                        });
+
+#if ENABLE_VISUALS
+
+static std::vector<std::string> rich_presence_text;
+static size_t current_presence_idx = 0;
+static Timer richPresenceTimer;
+
+void PresenceReload(std::string after)
+{
+    rich_presence_text.clear();
+    current_presence_idx = 0;
+    if (!after.empty())
+    {
+        static TextFile teamspam;
+        if (teamspam.TryLoad(after))
+            rich_presence_text = teamspam.lines;
+    }
+}
+
+static void PresencePaint()
+{
+    if (!rich_presence || !richPresenceTimer.test_and_set(*rich_presence_change_delay))
+        return;
+
+    if (!rich_presence_text.empty())
+    {
+        g_ISteamFriends->SetRichPresence("steam_display", "#TF_RichPresence_Display");
+        g_ISteamFriends->SetRichPresence("state", "PlayingMatchGroup");
+        g_ISteamFriends->SetRichPresence("matchgrouploc", "SpecialEvent");
+
+        if (current_presence_idx >= rich_presence_text.size())
+            current_presence_idx = 0;
+
+        g_ISteamFriends->SetRichPresence("currentmap", rich_presence_text[current_presence_idx].c_str());
+        current_presence_idx++;
+    }
+    g_ISteamFriends->SetRichPresence("steam_player_group_size", std::to_string(*rich_presence_party_size + 1).c_str());
+}
+
+static CatCommand reload_presence("presence_reload", "Reload rich presence file", []() { PresenceReload(*rich_presence_file); });
+
+#endif
 
 #if ENABLE_VISUALS && !ENFORCE_STREAM_SAFETY
 // This makes us able to see enemy class and status in scoreboard and player panel
@@ -1113,6 +1084,10 @@ static InitRoutine init(
         EC::Register(EC::CreateMove_NoEnginePred, CreateMove, "cm_misc_hacks", EC::early);
         EC::Register(EC::CreateMoveWarp, CreateMove, "cmw_misc_hacks", EC::average);
 #if ENABLE_VISUALS
+        rich_presence_file.installChangeCallback([](settings::VariableBase<std::string> &var, std::string after) { PresenceReload(after); });
+        EC::Register(EC::Paint, PresencePaint, "paint_rich_presence");
+#endif
+#if ENABLE_VISUALS
         EC::Register(EC::Draw, Draw, "draw_misc_hacks", EC::average);
 #if !ENFORCE_STREAM_SAFETY
         if (render_zoomed)
@@ -1159,49 +1134,3 @@ static InitRoutine init(
 #endif
     });
 } // namespace hacks::misc
-
-/*void DumpRecvTable(CachedEntity* ent, RecvTable* table, int depth, const char*
-ft, unsigned acc_offset) { bool forcetable = ft && strlen(ft); if (!forcetable
-|| !strcmp(ft, table->GetName())) logging::Info("==== TABLE: %s",
-table->GetName()); for (int i = 0; i < table->GetNumProps(); i++) { RecvProp*
-prop = table->GetProp(i); if (!prop) continue; if (prop->GetDataTable()) {
-            DumpRecvTable(ent, prop->GetDataTable(), depth + 1, ft, acc_offset +
-prop->GetOffset());
-        }
-        if (forcetable && strcmp(ft, table->GetName())) continue;
-        switch (prop->GetType()) {
-        case SendPropType::DPT_Float:
-            logging::Info("%s [0x%04x] = %f", prop->GetName(),
-prop->GetOffset(), CE_FLOAT(ent, acc_offset + prop->GetOffset())); break; case
-SendPropType::DPT_Int: logging::Info("%s [0x%04x] = %i | %u | %hd | %hu",
-prop->GetName(), prop->GetOffset(), CE_INT(ent, acc_offset + prop->GetOffset()),
-CE_VAR(ent, acc_offset +  prop->GetOffset(), unsigned int), CE_VAR(ent,
-acc_offset + prop->GetOffset(), short), CE_VAR(ent, acc_offset +
-prop->GetOffset(), unsigned short)); break; case SendPropType::DPT_String:
-            logging::Info("%s [0x%04x] = %s", prop->GetName(),
-prop->GetOffset(), CE_VAR(ent, prop->GetOffset(), char*)); break; case
-SendPropType::DPT_Vector: logging::Info("%s [0x%04x] = (%f, %f, %f)",
-prop->GetName(), prop->GetOffset(), CE_FLOAT(ent, acc_offset +
-prop->GetOffset()), CE_FLOAT(ent, acc_offset + prop->GetOffset() + 4),
-CE_FLOAT(ent, acc_offset + prop->GetOffset() + 8)); break; case
-SendPropType::DPT_VectorXY: logging::Info("%s [0x%04x] = (%f, %f)",
-prop->GetName(), prop->GetOffset(), CE_FLOAT(ent, acc_offset +
-prop->GetOffset()), CE_FLOAT(ent,acc_offset +  prop->GetOffset() + 4)); break;
-        }
-
-    }
-    if (!ft || !strcmp(ft, table->GetName()))
-        logging::Info("==== END OF TABLE: %s", table->GetName());
-}
-
-void CC_DumpVars(const CCommand& args) {
-    if (args.ArgC() < 1) return;
-    if (!atoi(args[1])) return;
-    int idx = atoi(args[1]);
-    CachedEntity* ent = ENTITY(idx);
-    if (CE_BAD(ent)) return;
-    ClientClass* clz = RAW_ENT(ent)->GetClientClass();
-    logging::Info("Entity %i: %s", ent->m_IDX, clz->GetName());
-    const char* ft = (args.ArgC() > 1 ? args[2] : 0);
-    DumpRecvTable(ent, clz->m_pRecvTable, 0, ft, 0);
-}*/

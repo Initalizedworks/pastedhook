@@ -2,11 +2,6 @@
     <Box height="content" width="content" padding="12 6 6 6" name="Collective">
         <List width="200">
             <AutoVariable width="fill" target="misc.anti-afk" label="Enable antiafk"/>
-            <AutoVariable width="fill" target="misc.auto-abandon" label="Enable auto abandon"/>
-            <AutoVariable width="fill" target="misc.auto-balance-spam" label="Enable auto balance spam"/>
-            <AutoVariable width="fill" target="misc.disconnect-reason" label="Disconnect reason"/>
-            <AutoVariable width="fill" target="misc.engine-prediction" label="Engine prediction"/>
-            <AutoVariable width="fill" target="misc.no-lerp" label="Nolerp"/>
             <AutoVariable width="fill" target="misc.full-auto" label="Fully automated firing"/>
             <AutoVariable width="fill" target="misc.show-spectators" label="Show spectators"/>
             <AutoVariable width="fill" target="misc.tauntslide" label="Tauntslide"/>
@@ -28,15 +23,15 @@
             <AutoVariable width="fill" target="misc.random-name" label="Random name"/>
         </List>
     </Box>
-    <Box height="content" width="content" padding="12 6 6 6" name="Extra" x="215" y="115">
+    <Box height="content" width="content" padding="12 6 6 6" name="Extra" y="115">
         <List width="200">
             <AutoVariable width="fill" target="noisemaker-spam.enable" label="Noisemaker spam"/>
-            <AutoVariable width="fill" target="player-tools.betrayal-limit" label="Betrayal limit"/>
             <AutoVariable width="fill" target="player-tools.ignore.taunting" label="Ignore taunting players"/>
-            <AutoVariable width="fill" target="player-tools.auto-party" label="Automatically add party state"/>
             <AutoVariable width="fill" target="killstreak.enable" label="Enable killstreak"/>
-            <AutoVariable width="fill" target="misc.backpack-expander.enabled" label="Expand backpack"/>
-            <AutoVariable width="fill" target="misc.backpack-expander.slot-count" label="Backpack slots" min="1" max="3000"/>
+            <AutoVariable width="fill" target="misc.rich-presence" label="Enable Rich Presence"/>
+            <AutoVariable width="fill" target="misc.rich-presence.file-name" label="Filename" tooltip="For the message that comes after 'Special Event -'"/>
+            <AutoVariable width="fill" target="misc.rich-presence.party_size" label="Party size"/>
+            <AutoVariable width="fill" target="misc.rich-presence.delay" label="Delay (ms)"/>
         </List>
     </Box>
 </Tab>

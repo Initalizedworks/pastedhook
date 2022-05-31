@@ -117,7 +117,7 @@ bool isEnabled()
     CachedEntity *wep = LOCAL_W;
     if (CE_BAD(wep))
     {
-
+        return false;
     }
     int slot = re::C_BaseCombatWeapon::GetSlot(RAW_ENT(wep));
     switch (*bt_slots)
@@ -252,6 +252,14 @@ void RestoreEntity(int entidx)
 
 void CreateMoveEarly()
 {
+    draw_positions.clear();
+    isBacktrackEnabled = isEnabled();
+    if (!isBacktrackEnabled)
+    {
+        latency_rampup = 0.0f;
+        bt_data.clear();
+        return;
+    }
     if (CE_GOOD(LOCAL_E))
         updateDatagram();
     else

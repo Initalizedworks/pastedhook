@@ -19,12 +19,6 @@
             <AutoVariable width="fill" target="visual.thirdperson.disable-zoomed" label="Disable when zoomed" tooltip="Disables thirdperson when zoomed in"/>
         </List>
     </Box>
-    <Box padding="12 6 6 6" width="content" height="content" name="Zooming" y="190">
-        <List width="180">
-            <AutoVariable width="fill" target="visual.zoom-key" label="Zoom key" tooltip="Hold down this key to override your FOV to the one set below"/>
-            <AutoVariable width="fill" target="visual.zoom-key.fov" label="Zoom FOV"/>
-        </List>
-    </Box>
     <Box padding="12 6 6 6" width="content" height="content" name="Remove" x="195">
         <List width="180">
             <AutoVariable width="fill" target="remove.arms" label="Remove arms"/>
@@ -34,7 +28,7 @@
             <AutoVariable width="fill" target="remove.hats" label="Remove hats"/>
             <AutoVariable width="fill" target="remove.contracker" label="Remove contracker"/>
             <AutoVariable width="fill" target="remove.scope" label="Remove scope"/>
-            <AutoVariable width="fill" target="remove.zoom" label="Remove zoom/keep rifle" tooltip="Disables scope zoom and keeps the sniper rifle. Enabling Remove scope as well will set zoom_sensitivity_ratio to 4 when zooming in"/>
+            <AutoVariable width="fill" target="remove.zoom" label="Remove zoom/keep rifle"/>
         </List>
     </Box>
     <Box padding="12 6 6 6" width="content" height="content" name="Misc" x="195" y="135">

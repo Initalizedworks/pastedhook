@@ -33,14 +33,12 @@ static settings::Int hitbox_mode{ "aimbot.hitbox-mode", "0" };
 static settings::Float normal_fov{ "aimbot.fov", "0" };
 static settings::Int priority_mode{ "aimbot.priority-mode", "0" };
 static settings::Boolean wait_for_charge{ "aimbot.wait-for-charge", "false" };
-static settings::Int wait_for_accuracy{ "aimbot.wait-for-accuracy", "0" };
 
 static settings::Boolean silent{ "aimbot.silent", "true" };
 static settings::Boolean target_lock{ "aimbot.lock-target", "false" };
 #if ENABLE_VISUALS
-static settings::Boolean assistance_only{ "aimbot.assistance.only", "false" };
 static settings::Boolean fov_draw{ "aimbot.fov-circle.enable", "0" };
-static settings::Float fovcircle_opacity{ "aimbot.fov-circle.opacity", "0.7" };
+static settings::Float fovcircle_opacity{ "aimbot.fov-circle.opacity", "1.0" };
 #endif
 static settings::Int hitbox{ "aimbot.hitbox", "0" };
 static settings::Boolean zoomed_only{ "aimbot.zoomed-only", "true" };
@@ -48,7 +46,6 @@ static settings::Boolean only_can_shoot{ "aimbot.can-shoot-only", "true" };
 
 static settings::Boolean extrapolate{ "aimbot.extrapolate", "false" };
 static settings::Int normal_slow_aim{ "aimbot.slow", "0" };
-static settings::Int miss_chance{ "aimbot.miss-chance", "0" };
 
 static settings::Boolean projectile_aimbot{ "aimbot.projectile.enable", "true" };
 static settings::Float proj_gravity{ "aimbot.projectile.gravity", "0" };
@@ -63,6 +60,7 @@ settings::Boolean engine_projpred{ "aimbot.debug.engine-pp", "true" };
 static settings::Boolean auto_spin_up{ "aimbot.auto.spin-up", "false" };
 static settings::Boolean auto_zoom{ "aimbot.auto.zoom", "false" };
 static settings::Boolean auto_unzoom{ "aimbot.auto.unzoom", "false" };
+static settings::Int zoom_time("aimbot.auto.zoom.time", "5000");
 
 static settings::Boolean backtrackAimbot{ "aimbot.backtrack", "false" };
 static settings::Boolean backtrackLastTickOnly("aimbot.backtrack.only-last-tick", "true");
@@ -72,7 +70,6 @@ static settings::Boolean backtrackVischeckAll{ "aimbot.backtrack.vischeck-all", 
 // TODO maybe these should be moved into "Targeting"
 static settings::Float max_range{ "aimbot.target.max-range", "4096" };
 static settings::Boolean ignore_vaccinator{ "aimbot.target.ignore-vaccinator", "true" };
-static settings::Boolean ignore_deadringer{ "aimbot.target.ignore-deadringer", "true" };
 settings::Boolean aim_sentrybuster{ "aimbot.target.sentrybuster", "false" };
 settings::Boolean ignore_cloak{ "aimbot.target.ignore-cloaked-spies", "true" };
 static settings::Boolean buildings_sentry{ "aimbot.target.sentry", "true" };
@@ -98,6 +95,7 @@ bool enable;
 
 static void spectatorUpdate()
 {
+    player_info_s info;
     switch (*specmode)
     {
     // Always on
@@ -106,7 +104,7 @@ static void spectatorUpdate()
         break;
         // Disable if being spectated in first person
     case 1:
-        if (g_pLocalPlayer->spectator_state == g_pLocalPlayer->FIRSTPERSON)
+        if (g_pLocalPlayer->spectator_state == g_pLocalPlayer->FIRSTPERSON && !(!player_tools::shouldTargetSteamId(info.friendsID)))
         {
             enable   = *specenable;
             slow_aim = *specslow;
@@ -115,7 +113,7 @@ static void spectatorUpdate()
         break;
         // Disable if being spectated
     case 2:
-        if (g_pLocalPlayer->spectator_state == g_pLocalPlayer->ANY)
+        if (g_pLocalPlayer->spectator_state == g_pLocalPlayer->ANY && !(!player_tools::shouldTargetSteamId(info.friendsID)))
         {
             enable   = *specenable;
             slow_aim = *specslow;
@@ -231,12 +229,6 @@ static std::optional<Vector> getBestHitpoint(CachedEntity *ent, int hitbox)
     return best_pos;
 }
 
-int PreviousX, PreviousY;
-int CurrentX, CurrentY;
-
-float last_mouse_check = 0;
-float stop_moving_time = 0;
-
 // Used to make rapidfire not knock your enemies out of range
 unsigned last_target_ignore_timer = 0;
 
@@ -340,7 +332,7 @@ static void doAutoZoom(bool target_found)
     {
         // Auto-Unzoom
         if (auto_unzoom)
-            if (g_pLocalPlayer->holding_sniper_rifle && g_pLocalPlayer->bZoomed && zoomTime.check(3000))
+            if (g_pLocalPlayer->holding_sniper_rifle && g_pLocalPlayer->bZoomed && zoomTime.test_and_set(*zoom_time))
                 current_user_cmd->buttons |= IN_ATTACK2;
     }
 }
@@ -545,30 +537,7 @@ static void CreateMove()
     else
     {
         Aim(target_entity);
-        if (!wait_for_accuracy || GetWeaponMode() != weapon_hitscan)
-            DoAutoshoot(target_entity);
-        else
-        {
-            float current_weapon_spread = 0.0f;
-            bool bDo                    = *wait_for_accuracy == 1 ? target_entity->m_flDistance() > 1000.0f : true;
-            if (re::C_TFWeaponBaseGun::GetWeaponSpread(RAW_ENT(LOCAL_W)))
-                current_weapon_spread = re::C_TFWeaponBaseGun::GetWeaponSpread(RAW_ENT(LOCAL_W));
-            if (bDo && current_weapon_spread != 0.0f)
-            {
-                IClientEntity *weapon   = RAW_ENT(LOCAL_W);
-                float time_since_attack = SERVER_TIME - NET_FLOAT(weapon, netvar.flLastFireTime);
-
-                int nBulletsPerShot = GetWeaponData(weapon)->m_nBulletsPerShot;
-                if (nBulletsPerShot >= 1)
-                    nBulletsPerShot = ATTRIB_HOOK_FLOAT(nBulletsPerShot, "mult_bullets_per_shot", weapon, 0x0, true);
-                else
-                    nBulletsPerShot = 1;
-                if ((nBulletsPerShot == 1 && time_since_attack > 1.25f) || (nBulletsPerShot > 1 && time_since_attack > 0.25f))
-                    DoAutoshoot(target_entity);
-            }
-            else
-                DoAutoshoot(target_entity);
-        }
+        DoAutoshoot(target_entity);
     }
 }
 
@@ -585,29 +554,6 @@ static void CreateMoveWarp()
     else if (!hacks::warp::in_rapidfire)
         CreateMove();
 }
-
-#if ENABLE_VISUALS
-bool MouseMoving()
-{
-    if ((SERVER_TIME - last_mouse_check) < 0.02)
-    {
-        SDL_GetMouseState(&PreviousX, &PreviousY);
-    }
-    else
-    {
-        SDL_GetMouseState(&CurrentX, &CurrentY);
-        last_mouse_check = SERVER_TIME;
-    }
-
-    if (PreviousX != CurrentX || PreviousY != CurrentY)
-        stop_moving_time = SERVER_TIME + 0.5;
-
-    if (SERVER_TIME <= stop_moving_time)
-        return true;
-    else
-        return false;
-}
-#endif
 
 // The first check to see if the player should aim in the first place
 bool ShouldAim()
@@ -638,10 +584,6 @@ bool ShouldAim()
     // Is cloaked
     if (IsPlayerInvisible(LOCAL_E))
         return false;
-#if ENABLE_VISUALS
-    if (assistance_only && !MouseMoving())
-        return false;
-#endif
 
     switch (GetWeaponMode())
     {
@@ -910,22 +852,14 @@ bool IsTargetStateGood(CachedEntity *entity)
         if (IsPlayerInvulnerable(entity))
             return false;
         // cloaked/deadringed players
-        if (ignore_cloak || ignore_deadringer)
+        if (ignore_cloak)
         {
             if (IsPlayerInvisible(entity))
-            {
-                // Item id for deadringer is 59 as of time of creation
-                if (HasWeapon(entity, 59))
-                {
-                    if (ignore_deadringer)
-                        return false;
-                }
-                else
-                {
-                    if (ignore_cloak && !(HasCondition<TFCond_OnFire>(entity)) && !(HasCondition<TFCond_CloakFlicker>(entity)))
-                        return false;
-                }
+            {   /* no need to ignore dead ringer if enemy is already cloaked */
+                if (ignore_cloak && !(HasCondition<TFCond_OnFire>(entity)) && !(HasCondition<TFCond_CloakFlicker>(entity)) || HasWeapon(entity, 59))
+                    return false;
             }
+
         }
         // Vaccinator
         if (ignore_vaccinator && IsPlayerResistantToCurrentWeapon(entity))
@@ -1101,9 +1035,6 @@ bool IsTargetStateGood(CachedEntity *entity)
 // A function to aim at a specific entitiy
 void Aim(CachedEntity *entity)
 {
-    if (*miss_chance > 0 && UniformRandomInt(0, 99) < *miss_chance)
-        return;
-
     // Dont aim at a bad entity
     if (CE_BAD(entity))
         return;
@@ -1587,7 +1518,7 @@ static void DrawText()
             // Dont show ring while player is dead
             if (CE_GOOD(LOCAL_E) && LOCAL_E->m_bAlivePlayer())
             {
-                rgba_t color = colors::gui;
+                rgba_t color = LOCAL_E->m_iTeam() == TEAM_BLU ? colors::blu : (LOCAL_E->m_iTeam() == TEAM_RED ? colors::red : colors::white);
                 color.a      = float(fovcircle_opacity);
 
                 int width, height;
