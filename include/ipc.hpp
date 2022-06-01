@@ -46,6 +46,7 @@ struct user_data_s
 
     bool connected;
 
+    time_t heartbeat;
 
     time_t ts_injected;
     time_t ts_connected;
@@ -90,16 +91,6 @@ struct user_data_s
         char server[24];
         char mapname[32];
     } ingame;
-    int party_size;
-    int queue_time;
-    int namesteal_target;
-    /*
-     * 0 - Inactive
-     * 1 - Actively stealing name before fully joined using lobby object
-     * 2 - We are in game (CreateMove)
-     */
-    int namesteal_state;
-    bool has_match_invite;
 };
 
 using peer_t = cat_ipc::Peer<server_data_s, user_data_s>;
@@ -108,6 +99,7 @@ extern peer_t *peer;
 
 void update_mapname();
 
+void Heartbeat();
 void UpdateTemporaryData();
 void UpdateServerAddress(bool shutdown = false);
 void StoreClientData();

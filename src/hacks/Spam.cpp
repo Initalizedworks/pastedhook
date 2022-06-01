@@ -6,12 +6,11 @@
  */
 
 #include <hacks/Spam.hpp>
+#include <settings/Bool.hpp>
 #include "common.hpp"
 #include "MiscTemporary.hpp"
 #include "PlayerTools.hpp"
 
-namespace hacks::spam
-{
 static settings::Int spam_source{ "spam.source", "0" };
 static settings::Boolean random_order{ "spam.random", "0" };
 static settings::String filename{ "spam.filename", "spam.txt" };
@@ -20,14 +19,24 @@ static settings::Int voicecommand_spam{ "spam.voicecommand", "0" };
 static settings::Boolean team_only{ "spam.teamchat", "false" };
 static settings::Boolean query_static{ "spam.query-static", "true" };
 
-static size_t last_index;
+static settings::Boolean ipc_coordination{ "spam.ipc-coordination", "false"};
+static settings::Boolean dynamic_delay{ "spam.ipc-coordination.dynamic-delay", "false" };
+
+namespace hacks::spam
+{
+
+static int last_index;
 
 std::chrono::time_point<std::chrono::system_clock> last_spam_point{};
 
-static size_t current_index{ 0 };
-static TextFile file{};
+static size_t current_index{0};
+static size_t current_ipc_vec_index{0};
+TextFile file{};
 
 const std::string teams[] = { "RED", "BLU" };
+
+// FUCK enum class.
+// It doesn't have bitwise operators by default!! WTF!! static_cast<int>(REEE)!
 
 enum class QueryFlags
 {
@@ -208,6 +217,65 @@ CatCommand say_lines("say_lines", "Say with newlines (\\n)", [](const CCommand &
     chat_stack::Say(message);
 });
 
+CatCommand say_format("say_format", "Say with formatting", [](const CCommand &args) {
+    std::string message = std::string(args.ArgS());
+    FormatSpamMessage(message);
+    chat_stack::Say(message);
+});
+
+#if ENABLE_IPC
+
+static bool isLeader(re::CTFPartyClient *pc)
+{
+    int num_members = pc->GetNumMembers();
+    if (num_members <= 1)
+        return true;
+
+    CSteamID id;
+    pc->GetCurrentPartyLeader(id);
+
+    return id == g_ISteamUser->GetSteamID();
+}
+
+static std::vector<int> ipc_party_vec;
+static void RefreshIPCVector()
+{
+    if (!ipc::peer)
+        return;
+    auto pc = re::CTFPartyClient::GTFPartyClient();
+    if (!pc)
+        return;
+    if (!isLeader(pc))
+        return;
+
+    ipc_party_vec.clear();
+    auto m = ipc::peer->memory;
+    for (auto member_id : pc->GetPartySteamIDs())
+    {
+        for (unsigned i = 0; i < cat_ipc::max_peers; ++i)
+        {
+            /* Not a peer */
+            if (m->peer_data[i].free)
+                continue;
+            /* Not the correct member */
+            if (m->peer_user_data[i].friendid != member_id)
+                continue;
+            ipc_party_vec.emplace_back(i);
+            break;
+        }
+    }
+}
+
+static int getDelayIPC()
+{
+    if (!dynamic_delay || ipc_party_vec.empty())
+        return *spam_delay;
+    /* 8 seconds is enough to spam for a long time without ratelimit */
+    return std::floor(8000 / ipc_party_vec.size());
+}
+
+#endif
+
 void createMove()
 {
     if (voicecommand_spam)
@@ -340,7 +408,65 @@ void createMove()
     }
     if (!source || !source->size())
         return;
-    if (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - last_spam_point).count() > int(spam_delay))
+#if ENABLE_IPC
+    if (ipc_coordination && ipc::peer)
+    {
+        auto pc = re::CTFPartyClient::GTFPartyClient();
+        if (!pc)
+            return;
+        /* Don't do anything in empty party */
+        if (pc->GetNumMembers() <= 1)
+            return;
+
+        /* Make sure we is the leader */
+        if (isLeader(pc))
+        {
+            if (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - last_spam_point).count() > int(getDelayIPC()))
+            {
+                /* We are not ready yet */
+                if (ipc_party_vec.empty())
+                {
+                    logging::Info("Spam.cpp: ipc coordination vector is empty!");
+                    RefreshIPCVector();
+                    return;
+                }
+                /* Reset peer index */
+                if (current_ipc_vec_index > ipc_party_vec.size())
+                    current_ipc_vec_index = 0;
+                /* Reset spam line */
+                if (current_index >= source->size())
+                    current_index = 0;
+                /* Randomization */
+                if (random_order && source->size() > 1)
+                {
+                    current_index = UniformRandomInt(0, source->size() - 1);
+                    while (current_index == last_index)
+                        current_index = UniformRandomInt(0, source->size() - 1);
+                }
+                last_index             = current_index;
+                std::string spamString = source->at(current_index);
+                if (ipc_party_vec[current_ipc_vec_index] == ipc::peer->client_id)
+                {
+                    if (FormatSpamMessage(spamString))
+                        chat_stack::Say(spamString, *team_only);
+                }
+                else
+                {
+                    std::string command = "cat_say_format " + spamString;
+
+                    /* Send it to ipc server */
+                    if (command.length() >= 63)
+                        ipc::peer->SendMessage(0, ipc_party_vec[current_ipc_vec_index], ipc::commands::execute_client_cmd_long, command.c_str(), command.length() + 1);
+                    else
+                        ipc::peer->SendMessage(command.c_str(), ipc_party_vec[current_ipc_vec_index], ipc::commands::execute_client_cmd, 0, 0);
+                }
+                current_ipc_vec_index++;
+                last_spam_point = std::chrono::system_clock::now();
+            }
+        }
+    }
+#endif
+    if (!ipc_coordination && std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - last_spam_point).count() > int(spam_delay))
     {
         if (chat_stack::stack.empty())
         {
@@ -389,11 +515,48 @@ const std::vector<std::string> builtin_nonecore = { "NULL CORE - REDUCE YOUR RIS
 const std::vector<std::string> builtin_lmaobox  = { "GET GOOD, GET LMAOBOX!", "LMAOBOX - WAY TO THE TOP", "WWW.LMAOBOX.NET - BEST FREE TF2 HACK!" };
 const std::vector<std::string> builtin_lithium  = { "CHECK OUT www.YouTube.com/c/DurRud FOR MORE INFORMATION!", "PWNING AIMBOTS WITH OP ANTI-AIMS SINCE 2015 - LITHIUMCHEAT", "STOP GETTING MAD AND STABILIZE YOUR MOOD WITH LITHIUMCHEAT!", "SAVE YOUR MONEY AND GET LITHIUMCHEAT! IT IS FREE!", "GOT ROLLED BY LITHIUM? HEY, THAT MEANS IT'S TIME TO GET LITHIUMCHEAT!!" };
 
+#if ENABLE_IPC
+
+class PartyListener : public IGameEventListener2
+{
+    virtual void FireGameEvent(IGameEvent *event)
+    {
+        if (ipc_coordination && !strcmp(event->GetName(), "party_updated"))
+            RefreshIPCVector();
+    }
+};
+
+static PartyListener party_listener{};
+
+/* IPC coordination is a expensive task, only run when if we need to */
+static void register_ipc_coordination(bool enable)
+{
+    if (enable)
+    {
+        EC::Register(EC::LevelInit, RefreshIPCVector, "spam_ipc_levelinit");
+        EC::Register(EC::LevelShutdown, RefreshIPCVector, "spam_ipc_levelshutdown");
+        EC::Register(EC::Shutdown, RefreshIPCVector, "spam_ipc_shutdown");
+        g_IEventManager2->AddListener(&party_listener, "party_updated", false);
+    }
+    else
+    {
+        EC::Unregister(EC::LevelInit, "spam_ipc_levelinit");
+        EC::Unregister(EC::LevelShutdown, "spam_ipc_levelshutdown");
+        EC::Unregister(EC::Shutdown, "spam_ipc_shutdown");
+        g_IEventManager2->RemoveListener(&party_listener);
+    }
+}
+
+#endif
+
 static InitRoutine EC(
     []()
     {
         EC::Register(EC::CreateMove, createMove, "spam", EC::average);
-        init();
+#if ENABLE_IPC
+        ipc_coordination.installChangeCallback([](settings::VariableBase<bool> &var, bool new_val) { register_ipc_coordination(new_val); });
+#endif
+    init();
     });
 static CatCommand reload_cc("spam_reload", "Reload spam file", hacks::spam::reloadSpamFile);
 } // namespace hacks::spam

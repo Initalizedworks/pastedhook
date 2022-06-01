@@ -33,7 +33,6 @@ constexpr float RADPI = 57.295779513082f;
 #include <vector>
 #include <mutex>
 #include <random>
-#include <set>
 
 #include <core/sdk.hpp>
 #include "sdk/dt_recv_redef.h"
@@ -168,7 +167,6 @@ inline const char *classname(int clazz)
 }
 
 void PrintChat(const char *fmt, ...);
-void TriggerNameChange(const char *name);
 void ChangeName(std::string name);
 
 void WhatIAmLookingAt(int *result_eindex, Vector *result_pos);
@@ -213,11 +211,7 @@ void MakeVector(Vector ang, Vector &out);
 float GetFov(Vector ang, Vector src, Vector dst);
 
 void ReplaceString(std::string &input, const std::string &what, const std::string &with_what);
-size_t ReplaceString(char *str, size_t str_capacity, const char *what, const char *with_what);
-size_t ReplaceSpecials(char *str);
-void ReplaceSpecials(std::string &str);
-
-char *CStringDuplicate(const char *str);
+void ReplaceSpecials(std::string &input);
 
 Vector ComputeMove(const Vector &a, const Vector &b);
 std::pair<float, float> ComputeMovePrecise(const Vector &a, const Vector &b);
@@ -229,7 +223,6 @@ int SharedRandomInt(unsigned iseed, const char *sharedname, int iMinVal, int iMa
 bool HookNetvar(std::vector<std::string> path, ProxyFnHook &hook, RecvVarProxyFn function);
 float ATTRIB_HOOK_FLOAT(float base_value, const char *search_string, IClientEntity *ent, void *buffer, bool is_global_const_string);
 
-std::unique_ptr<char[]> format_cstr(const char *fmt, ...);
 void format_internal(std::stringstream &stream);
 template <typename T, typename... Targs> void format_internal(std::stringstream &stream, T value, Targs... args)
 {
@@ -242,7 +235,6 @@ template <typename... Args> std::string format(const Args &...args)
     format_internal(stream, args...);
     return stream.str();
 }
-CSteamID CSteamIDFrom32(uint32_t id32);
 
 extern const std::string classes[10];
 extern const char *powerups[POWERUP_COUNT];

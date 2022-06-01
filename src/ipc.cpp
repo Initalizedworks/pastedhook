@@ -19,8 +19,6 @@
 #if ENABLE_IPC
 
 static settings::Boolean ipc_update_list{ "ipc.update-player-list", "true" };
-static settings::Boolean ipc_auto_party{ "ipc.auto_party", "false" };
-static settings::Int ipc_auto_party_max{ "ipc.auto_party.max", "6" };
 static settings::Int bot_chunks("ipc.bot-chunks", "1");
 
 namespace ipc
@@ -63,6 +61,7 @@ CatCommand connect("ipc_connect", "Connect to IPC server",
                            memcpy(&data.accumulated, &accumulated, sizeof(accumulated));
 
                            StoreClientData();
+                           Heartbeat();
                            // Load a config depending on id
                            hack::command_stack().push("exec cat_autoexec_ipc_" + std::to_string(peer->client_id % std::max(1, *bot_chunks)));
                        }
@@ -369,8 +368,16 @@ void StoreClientData()
     data.friendid     = g_ISteamUser->GetSteamID().GetAccountID();
     data.ts_injected  = time_injected;
     data.textmode     = ENABLE_TEXTMODE;
-    if (g_ISteamUser && g_ISteamFriends)
-        strncpy(data.name, hooked_methods::methods::GetFriendPersonaName(g_ISteamFriends, g_ISteamUser->GetSteamID()), sizeof(data.name));
+    if (g_ISteamUser)
+    {
+        strncpy(data.name, GetNamestealName(g_ISteamUser->GetSteamID()).c_str(), sizeof(data.name));
+    }
+}
+
+void Heartbeat()
+{
+    user_data_s &data = peer->memory->peer_user_data[peer->client_id];
+    data.heartbeat    = time(nullptr);
 }
 
 void UpdatePlayerlist()
@@ -387,103 +394,71 @@ void UpdatePlayerlist()
     }
 }
 
-bool block_auto_party{ false };
+static std::vector<std::string> sortedVariables{};
 
-static CatCommand unblock_auto_party("auto_party_unblock", "Unblocks autoparty that was blocked by auto_leader.banned_leave", []() { block_auto_party = false; });
-
-static void AutoParty()
+static void getAndSortAllVariables()
 {
-    if (block_auto_party || !*ipc_auto_party || *ipc_auto_party_max <= 1)
-        return;
-
-    auto pc         = re::CTFPartyClient::GTFPartyClient();
-    int party_size  = std::clamp(*ipc_auto_party_max, 1, 6);
-    int num_members = pc->GetNumMembers();
-    /* I am in a party with correct size, don't do anything */
-    if (pc->GetNumMembers() == party_size)
-        return;
-
-    const CSteamID *members = pc->GetMembersArray();
-    const auto isInParty    = [&](const CSteamID &id) -> bool {
-        if (members)
-            for (unsigned i = 0; i < num_members; ++i)
-                if (id == members[i])
-                    return true;
-        return false;
-    };
-    user_data_s *to_join = nullptr;
-    auto m               = peer->memory;
-    unsigned peer_idx    = 0;
-    bool invite_mode     = false;
-    /* Search for somebody to join */
-    for (unsigned i = 0; i < cat_ipc::max_peers; ++i, ++peer_idx)
+    for (auto &v : settings::Manager::instance().registered)
     {
-        if (m->peer_data[i].free)
-        {
-            --peer_idx;
-            continue;
-        }
-        if (peer_idx % party_size == 0)
-        {
-            /* I am potential party leader, wait for other peers to join */
-            if (peer->client_id == i)
-            {
-                if (!invite_mode)
-                {
-                    invite_mode = true;
-                    continue;
-                }
-                break;
-            }
-            to_join = &m->peer_user_data[i];
-        }
-        if (invite_mode)
-        {
-            CSteamID to_join = CSteamIDFrom32(m->peer_user_data[i].friendid);
-            if (!isInParty(to_join))
-                pc->BInvitePlayerToParty(to_join);
-            continue;
-        }
-        if (peer->client_id != i)
-            continue;
-        if (!to_join || to_join->party_size >= party_size)
-            break;
-
-        CSteamID leader, join_id = CSteamIDFrom32(to_join->friendid);
-        pc->GetCurrentPartyLeader(leader);
-        if (leader != join_id && !isInParty(join_id))
-            pc->BRequestJoinPlayer(join_id);
-
-        break;
+        sortedVariables.push_back(v.first);
     }
+
+    std::sort(sortedVariables.begin(), sortedVariables.end());
+
+    logging::Info("Sorted %u variables\n", sortedVariables.size());
 }
 
-static void Paint()
+static int cat_completionCallback(const char *c_partial, char commands[COMMAND_COMPLETION_MAXITEMS][COMMAND_COMPLETION_ITEM_LENGTH])
 {
-    if (!peer)
-        return;
+    std::string partial = c_partial;
+    std::array<std::string, 2> parts{};
+    auto j    = 0u;
+    auto f    = false;
+    int count = 0;
 
-    static Timer long_timer{}, short_timer{};
-    if (long_timer.test_and_set(1000 * 10))
+    for (auto i = 0u; i < partial.size() && j < 3; ++i)
     {
-        StoreClientData();
-        AutoParty();
-    }
-    if (short_timer.test_and_set(1000))
-    {
-        if (ipc::peer && ipc::peer->memory && peer->HasCommands())
-            peer->ProcessCommands();
+        auto space = (bool) isspace(partial.at(i));
+        if (!space)
+        {
+            if (j)
+                parts.at(j - 1).push_back(partial[i]);
+            f = true;
+        }
 
-        UpdateTemporaryData();
-        UpdatePlayerlist();
+        if (i == partial.size() - 1 || (f && space))
+        {
+            if (space)
+                ++j;
+            f = false;
+        }
     }
+
+    for (const auto &s : sortedVariables)
+    {
+        if (s.find(parts.at(0)) == 0)
+        {
+            auto variable = settings::Manager::instance().lookup(s);
+            if (variable)
+            {
+                if (s.compare(parts.at(0)))
+                    snprintf(commands[count++], COMMAND_COMPLETION_ITEM_LENGTH - 1, "cat_ipc_sync_all %s", s.c_str());
+                else
+                    snprintf(commands[count++], COMMAND_COMPLETION_ITEM_LENGTH - 1, "cat_ipc_sync_all %s %s", s.c_str(), variable->toString().c_str());
+                if (count == COMMAND_COMPLETION_MAXITEMS)
+                    break;
+            }
+        }
+    }
+    return count;
 }
 
 static InitRoutine init(
     []()
     {
+        getAndSortAllVariables();
         exec_sync.cmd->m_bHasCompletionCallback = true;
-        EC::Register(EC::Paint, Paint, "ipc_paint", EC::very_early);
+        exec_sync.cmd->m_fnCompletionCallback   = cat_completionCallback;
     });
 } // namespace ipc
 

@@ -9,7 +9,6 @@
 #include "DetourHook.hpp"
 #include <sys/mman.h>
 #include "settings/Bool.hpp"
-#include <forward_list>
 #include "MiscTemporary.hpp"
 #include "PlayerTools.hpp"
 #include "Ragdolls.hpp"
@@ -529,91 +528,10 @@ void ReplaceString(std::string &input, const std::string &what, const std::strin
     }
 }
 
-size_t ReplaceString(char *str, size_t str_capacity, const char *what, const char *with_what)
+void ReplaceSpecials(std::string &str)
 {
-    char *p, *np;
-    size_t dt, dt_total, str_len = std::strlen(str), what_len = std::strlen(what), with_what_len = std::strlen(with_what);
-
-    if (what_len == with_what_len)
-    {
-        /* Simple case: len of what equal to len of with_what */
-        p = str - what_len;
-        while ((p = std::strstr(p + what_len, what)))
-            std::memcpy(p, with_what, what_len);
-
-        return str_len;
-    }
-    else if (what_len > with_what_len)
-    {
-        dt_total = 0;
-        dt       = what_len - with_what_len;
-
-        np = nullptr;
-        p  = str - what_len;
-        /* Find string matches */
-        while ((p = std::strstr(p + what_len, what)))
-        {
-            /* Fill the gap from previous string match */
-            if (np)
-                std::memmove(np - dt_total, np, (size_t) p - (size_t) np);
-
-            std::memcpy(p - dt_total, with_what, with_what_len);
-            /* Increase length of gap to fill */
-            dt_total += dt;
-            np = p + what_len;
-        }
-        /* No string matches, return right now */
-        if (!np)
-            return str_len;
-
-        p = str + str_len;
-        std::memmove(np - dt_total, np, (size_t) p - (size_t) np);
-        str[str_len - dt_total] = 0;
-
-        return str_len - dt_total;
-    }
-    else
-    {
-        std::forward_list<char *> matches;
-        /* Worst case: with_what is longer than what */
-        dt_total = 0;
-        dt       = with_what_len - what_len;
-        p        = str - what_len;
-        while ((p = std::strstr(p + what_len, what)))
-        {
-            if (str_len + dt_total + dt + 1 > str_capacity)
-                break;
-
-            dt_total += dt;
-            matches.push_front(p);
-        }
-        /* No string matches, return right now */
-        if (!dt_total)
-            return str_len;
-
-        auto it = matches.begin();
-        /* Point to future end of string */
-        str_len += dt_total;
-        np        = str + str_len;
-        *(np + 1) = 0;
-        while ((it = matches.begin()) != matches.end())
-        {
-            p = *it;
-            std::memmove(p + dt_total + what_len, p + what_len, (size_t) np - (size_t) p - what_len);
-            dt_total -= dt;
-            std::memcpy(p + dt_total, with_what, with_what_len);
-            np = p;
-            matches.pop_front();
-        }
-        return str_len + 1;
-    }
-}
-
-size_t ReplaceSpecials(char *str)
-{
-    int val, i;
-    size_t c = 0, len = std::strlen(str);
-
+    int val;
+    size_t c = 0, len = str.size();
     for (int i = 0; i + c < len; ++i)
     {
         str[i] = str[i + c];
@@ -669,7 +587,6 @@ size_t ReplaceSpecials(char *str)
             str[i] = val;
             break;
         // Convert from unicode
-        // TO DO: 32bit unicode value with \U
         case 'u':
             if (i + c + 6 > len)
                 continue;
@@ -699,23 +616,7 @@ size_t ReplaceSpecials(char *str)
             break;
         }
     }
-    str[len - c] = 0;
-    return len - c;
-}
-
-void ReplaceSpecials(std::string &str)
-{
-    /* C++17: data() is not const, modification is permited */
-    str.resize(ReplaceSpecials(str.data()));
-}
-
-char *CStringDuplicate(const char *str)
-{
-    std::size_t len = std::strlen(str) + 1;
-    char *p         = new char[len];
-    std::memcpy(p, str, len);
-
-    return p;
+    str.resize(len - c);
 }
 
 powerup_type GetPowerupOnPlayer(CachedEntity *player)
@@ -2036,18 +1937,6 @@ std::unique_ptr<char[]> strfmt(const char *fmt, ...)
     return buf;
 }
 
-void TriggerNameChange(const char *name)
-{
-    NET_SetConVar setname("name", name);
-    INetChannel *ch = (INetChannel *) g_IEngine->GetNetChannelInfo();
-    if (!ch)
-        return;
-
-    setname.SetNetChannel(ch);
-    setname.SetReliable(false);
-    ch->SendNetMsg(setname, false);
-}
-
 void ChangeName(std::string name)
 {
     auto custom_name = settings::Manager::instance().lookup("name.custom");
@@ -2055,14 +1944,15 @@ void ChangeName(std::string name)
         custom_name->fromString(name);
 
     ReplaceSpecials(name);
-    TriggerNameChange(name.c_str());
+    NET_SetConVar setname("name", name.c_str());
+    INetChannel *ch = (INetChannel *) g_IEngine->GetNetChannelInfo();
+    if (ch)
+    {
+        setname.SetNetChannel(ch);
+        setname.SetReliable(false);
+        ch->SendNetMsg(setname, false);
+    }
 }
-
-CSteamID CSteamIDFrom32(uint32_t id32)
-{
-    return { id32, EUniverse::k_EUniversePublic, EAccountType::k_EAccountTypeIndividual };
-}
-
 const char *powerups[] = { "Strength", "Resistance", "Vampire", "Reflect", "Haste", "Regeneration", "Precision", "Agility", "Knockout", "King", "Plague", "Supernova", "Revenge" };
 
 const std::string classes[] = { "Scout", "Sniper", "Soldier", "Demoman", "Medic", "Heavy", "Pyro", "Spy", "Engineer" };
@@ -2088,17 +1978,6 @@ int SharedRandomInt(unsigned iseed, const char *sharedname, int iMinVal, int iMa
     int seed = SeedFileLineHash(iseed, sharedname, additionalSeed);
     g_pUniformStream->SetSeed(seed);
     return g_pUniformStream->RandomInt(iMinVal, iMaxVal);
-}
-
-std::unique_ptr<char[]> format_cstr(const char *fmt, ...)
-{
-    // char *buf = new char[1024];
-    auto buf = std::make_unique<char[]>(1024);
-    va_list list;
-    va_start(list, fmt);
-    vsprintf(buf.get(), fmt, list);
-    va_end(list);
-    return buf;
 }
 
 bool GetPlayerInfo(int idx, player_info_s *info)

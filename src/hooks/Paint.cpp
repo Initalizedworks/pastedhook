@@ -66,6 +66,7 @@ DEFINE_HOOKED_METHOD(Paint, void, IEngineVGui *this_, PaintMode_t mode)
                 {
                     ipc::peer->ProcessCommands();
                 }
+                ipc::Heartbeat();
                 ipc::UpdateTemporaryData();
             }
         }

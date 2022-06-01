@@ -12,6 +12,9 @@
 settings::Boolean die_if_vac{ "misc.die-if-vac", "false" };
 static settings::Boolean autoabandon{ "misc.auto-abandon", "false" };
 static settings::String custom_disconnect_reason{ "misc.disconnect-reason", "" };
+settings::Boolean random_name{ "misc.random-name", "false" };
+extern settings::String force_name;
+extern std::string name_forced;
 
 namespace hooked_methods
 {
@@ -46,5 +49,32 @@ DEFINE_HOOKED_METHOD(Shutdown, void, INetChannel *this_, const char *reason)
         tfmm::disconnectAndAbandon();
     ignoredc = false;
     votelogger::Reset();
+    if (*random_name)
+    {
+        if (randomnames_file.TryLoad("names.txt"))
+        {
+            name_forced = randomnames_file.lines.at(rand() % randomnames_file.lines.size());
+        }
+    }
+    else
+        name_forced = "";
 }
+
+static InitRoutine init(
+    []()
+    {
+        random_name.installChangeCallback(
+            [](settings::VariableBase<bool> &, bool after)
+            {
+                if (after)
+                {
+                    if (randomnames_file.TryLoad("names.txt"))
+                    {
+                        name_forced = randomnames_file.lines.at(rand() % randomnames_file.lines.size());
+                    }
+                }
+                else
+                    name_forced = "";
+            });
+    });
 } // namespace hooked_methods

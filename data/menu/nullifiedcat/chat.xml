@@ -1,7 +1,7 @@
 <Tab name="Chat" padding="4 4 4 4">
-    <Box padding="12 6 6 6" width="content" height="content" name="Chat spam">
+    <Box padding="12 6 6 6" width="content" height="content" name="Chat Spam">
         <List width="150">
-            <LabeledObject width="fill" label="Spam mode">
+            <LabeledObject width="fill" label="Spam Mode">
                 <Select target="spam.source">
                     <Option name="Disable" value="0"/>
                     <Option name="Custom" value="1"/>
@@ -13,15 +13,12 @@
                     <Option name="Lithium" value="7"/>
                 </Select>
             </LabeledObject>
-            <AutoVariable width="fill" target="spam.filename" label="Custom spam"/>
+            <AutoVariable width="fill" target="spam.filename" label="Custom Spam"/>
             <AutoVariable width="fill" target="spam.random" label="Randomize"/>
-            <AutoVariable width="fill" target="spam.delay" label="Spam delay" tooltip="Delay in milliseconds"/>
-            <AutoVariable width="fill" target="spam.teamchat" label="Spam in teamchat" tooltip="Spam in teamchat instead of game chat"/>
-        </List>
-    </Box>
-    <Box name="Voice spam" width="content" height="content" padding="12 6 6 6" y="100">
-        <List width="150">
-            <LabeledObject width="fill" label="Voice spam" tooltip="Spam character voicelines">
+            <AutoVariable width="fill" target="spam.delay" label="Spam Delay"/>
+            <AutoVariable width="fill" target="spam.teamchat" label="Spam in teamchat"/>
+            <AutoVariable width="fill" target="spam.query-static" label="Static query"/>
+            <LabeledObject width="fill" label="Voice spam" tooltip="Spam character voicelines.">
                 <Select target="spam.voicecommand">
                     <Option name="Disable" value="0"/>
                     <Option name="Random" value="1"/>
@@ -50,18 +47,24 @@
                     <Option name="Nice Job" value="24"/>
                 </Select>
             </LabeledObject>
+            <Box name="IPC Coordination" width="content" height="content" padding="12 6 6 6">
+                <List width="140">
+                    <AutoVariable width="fill" target="spam.ipc-coordination" label="Enabled" tooltip="Take turn spamming between ipc peers in your party to avoid rate limit"/>
+                    <AutoVariable width="fill" target="spam.ipc-coordination.dynamic-delay" label="Dynamic delay" tooltip="Delay between spam is determined by party size automatically (8 seconds / size)"/>
+                </List>
+            </Box>
         </List>
     </Box>
-    <Box padding="12 6 6 6" width="content" height="content" name="Chat log" y="135">
+    <Box padding="12 6 6 6" width="content" height="content" name="Chat Log" y="185">
         <List width="150">
-            <AutoVariable width="fill" target="chat-log.enable" label="Enable chat log"/>
-            <AutoVariable width="fill" target="chat-log.no-ipc" label="Ignore IPC" tooltip="Don't save IPC chat"/>
-            <AutoVariable width="fill" target="chat-log.no-spam" label="Anti spam" tooltip="Don't save your chat spam to the log"/>
+            <AutoVariable width="fill" target="chat-log.enable" label="Enable Chat Log"/>
+            <AutoVariable width="fill" target="chat-log.no-ipc" label="Ignore IPC"/>
+            <AutoVariable width="fill" target="chat-log.no-spam" label="Anti Spam"/>
         </List>
     </Box>
-    <Box name="Chat censor" width="content" height="content" padding="12 6 6 6" y="200">
+    <Box name="Chat Censor" width="content" height="content" padding="12 6 6 6" y="250">
         <List width="150">
-            <AutoVariable width="fill" target="chat.censor.enable" label="Enable China mode" tooltip="Censors cheating accusations. Hides phrases like 'cheat' and 'kick'"/>
+            <AutoVariable width="fill" target="chat.censor.enable" label="Enable Chat Censor"/>
         </List>
     </Box>
     <Box name="Killsay" width="177" height="content" padding="12 6 6 6" x="170">
