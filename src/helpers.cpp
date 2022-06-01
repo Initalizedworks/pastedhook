@@ -2090,6 +2090,17 @@ int SharedRandomInt(unsigned iseed, const char *sharedname, int iMinVal, int iMa
     return g_pUniformStream->RandomInt(iMinVal, iMaxVal);
 }
 
+std::unique_ptr<char[]> format_cstr(const char *fmt, ...)
+{
+    // char *buf = new char[1024];
+    auto buf = std::make_unique<char[]>(1024);
+    va_list list;
+    va_start(list, fmt);
+    vsprintf(buf.get(), fmt, list);
+    va_end(list);
+    return buf;
+}
+
 bool GetPlayerInfo(int idx, player_info_s *info)
 {
     bool res = g_IEngine->GetPlayerInfo(idx, info);
