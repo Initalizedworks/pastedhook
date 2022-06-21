@@ -71,3 +71,4 @@ inline EntityHitboxCache &Get(unsigned i)
     return array[i];
 }
 } // namespace hitbox_cache
+

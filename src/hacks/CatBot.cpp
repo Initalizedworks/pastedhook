@@ -11,15 +11,12 @@
 #include "hack.hpp"
 #include "PlayerTools.hpp"
 #include "e8call.hpp"
-#include "NavBot.hpp"
 #include "navparser.hpp"
 #include "SettingCommands.hpp"
 #include "glob.h"
 
 namespace hacks::catbot
 {
-
-static settings::Int requeue_if_players_lte{"cat-bot.requeue-if.players-lte", "0"};
 
 static settings::Boolean micspam{ "cat-bot.micspam.enable", "false" };
 static settings::Int micspam_on{ "cat-bot.micspam.interval-on", "3" };
@@ -28,9 +25,8 @@ static settings::Int micspam_off{ "cat-bot.micspam.interval-off", "60" };
 static settings::Boolean random_votekicks{ "cat-bot.votekicks", "false" };
 static settings::Boolean autovote_map{ "cat-bot.autovote-map", "true" };
 
-settings::Boolean catbotmode{ "cat-bot.enable", "false" };
+settings::Boolean catbotmode{ "cat-bot.enable", "true" };
 settings::Boolean anti_motd{ "cat-bot.anti-motd", "false" };
-
 
 struct catbot_user_state
 {
@@ -44,14 +40,6 @@ int globerr(const char *path, int eerrno)
     logging::Info("%s: %s\n", path, strerror(eerrno));
     // let glob() keep going
     return 0;
-}
-
-bool hasEnding(std::string const &fullString, std::string const &ending)
-{
-    if (fullString.length() >= ending.length())
-        return (0 == fullString.compare(fullString.length() - ending.length(), ending.length(), ending));
-    else
-        return false;
 }
 
 static std::string blacklist;
@@ -103,24 +91,6 @@ struct Posinfo
         lvlname = _lvlname;
     }
     Posinfo(){};
-};
-struct Upgradeinfo
-{
-    int id;
-    int cost;
-    int clazz;
-    // Higher = better
-    int priority;
-    int priority_falloff;
-    Upgradeinfo(){};
-    Upgradeinfo(int _id, int _cost, int _clazz, int _priority, int _priority_falloff)
-    {
-        id               = _id;
-        cost             = _cost;
-        clazz            = _clazz;
-        priority         = _priority;
-        priority_falloff = _priority_falloff;
-    }
 };
 
 void SendNetMsg(INetMessage &msg)
@@ -227,16 +197,6 @@ void update()
         unstuck.update();
         unstucks = 0;
     }
-    if (unstuck.test_and_set(10000))
-    {
-        unstucks++;
-        // Send menuclosed to tell the server that we want to respawn
-        hack::command_stack().push("menuclosed");
-        // If that didnt work, force pick a team and class
-        if (unstucks > 3)
-            hack::command_stack().push("autoteam; join_class sniper");
-    }
-
     if (micspam)
     {
         if (micspam_on && micspam_on_timer.test_and_set(*micspam_on * 1000))
@@ -270,17 +230,6 @@ void update()
             {
                 ipc_list.push_back(info.friendsID);
                 ++count_ipc;
-            }
-        }
-        if (requeue_if_players_lte)
-        {
-            if (count_total <= int(requeue_if_players_lte))
-            {
-                logging::Info("Start queue because there are %d total players "
-                              "in game, and requeue_if_players_lte is %d.",
-                              count_total, int(requeue_if_players_lte));
-                tfmm::startQueue();
-                return;
             }
         }
     }

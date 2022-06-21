@@ -14,7 +14,6 @@ class IClientEntity;
 
 namespace hacks::aimbot
 {
-extern settings::Boolean aim_sentrybuster;
 extern settings::Boolean ignore_cloak;
 extern unsigned last_target_ignore_timer;
 // Used to store aimbot data to prevent calculating it again
@@ -45,6 +44,11 @@ CachedEntity *RetrieveBestTarget(bool aimkey_state);
 bool IsTargetStateGood(CachedEntity *entity);
 void Aim(CachedEntity *entity);
 void DoAutoshoot(CachedEntity *target = nullptr);
+bool small_box_checker(CachedEntity* target_entity);
+int not_visible_hitbox(CachedEntity *target, int preferred);
+int auto_hitbox(CachedEntity* target);
+bool hitscan_special_cases(CachedEntity* target_entity, int weapon_case);
+bool projectile_special_cases(CachedEntity* target_entity, int weapon_case);
 int BestHitbox(CachedEntity *target);
 int ClosestHitbox(CachedEntity *target);
 void DoSlowAim(Vector &inputAngle);

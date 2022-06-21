@@ -32,6 +32,7 @@ extern bool freecam_is_toggled;
 #endif
 extern settings::Boolean clean_chat;
 
+/* BAJA BLAST !!!! */
 extern settings::Boolean clean_screenshots;
 extern settings::Boolean crypt_chat;
 extern settings::Boolean nolerp;

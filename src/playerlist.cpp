@@ -18,19 +18,19 @@ namespace playerlist
 
 std::unordered_map<unsigned, userdata> data{};
 
-const std::string k_Names[]                                     = { "DEFAULT", "FRIEND", "RAGE", "IPC", "TEXTMODE", "CAT", "PAZER", "PARTY" };
-const char *const k_pszNames[]                                  = { "DEFAULT", "FRIEND", "RAGE", "IPC", "TEXTMODE", "CAT", "PAZER", "PARTY" };
+const std::string k_Names[]                                     = { "DEFAULT", "FRIEND", "RAGE", "IPC", "TEXTMODE", "CAT", "PRIVATE", "PAZER", "PARTY" };
+const char *const k_pszNames[]                                  = { "DEFAULT", "FRIEND", "RAGE", "IPC", "TEXTMODE", "CAT", "PRIVATE", "PAZER", "PARTY" };
 const std::array<std::pair<k_EState, size_t>, 4> k_arrGUIStates = { std::pair(k_EState::DEFAULT, 0), { k_EState::FRIEND, 1 }, { k_EState::RAGE, 2 }, { k_EState::PAZER, 3 } };
 const userdata null_data{};
 #if ENABLE_VISUALS
-std::array<rgba_t, 8> k_Colors = { colors::empty, colors::FromRGBA8(99, 226, 161, 255), colors::FromRGBA8(226, 204, 99, 255), colors::FromRGBA8(232, 134, 6, 255), colors::FromRGBA8(232, 134, 6, 255), colors::empty, colors::FromRGBA8(150, 75, 0, 255), colors::FromRGBA8(255, 140, 0, 1) };
+std::array<rgba_t, 8> k_Colors = { colors::empty, colors::FromRGBA8(99, 226, 161, 255), colors::FromRGBA8(226, 204, 99, 255), colors::FromRGBA8(232, 134, 6, 255), colors::FromRGBA8(232, 134, 6, 255), colors::empty, colors::FromRGBA8(150, 75, 0, 255), colors::FromRGBA8(99, 226, 161, 255) };
 #endif
 bool ShouldSave(const userdata &data)
 {
 #if ENABLE_VISUALS
-    return data.color || data.state == k_EState::FRIEND || data.state == k_EState::RAGE || data.state == k_EState::PAZER;
+    return data.color || data.state == k_EState::FRIEND || data.state == k_EState::RAGE || data.state == k_EState::PAZER || data.state == k_EState::PRIVATE;
 #endif
-    return data.state == k_EState::FRIEND || data.state == k_EState::RAGE || data.state == k_EState::PAZER;
+    return data.state == k_EState::FRIEND || data.state == k_EState::RAGE || data.state == k_EState::PAZER || data.state == k_EState::PRIVATE;
 }
 
 void Save()
@@ -168,7 +168,7 @@ bool IsDefault(CachedEntity *entity)
 bool IsFriend(unsigned steamid)
 {
     const userdata &data = AccessData(steamid);
-    return data.state == k_EState::PARTY || data.state == k_EState::FRIEND;
+    return data.state == k_EState::PARTY || data.state == k_EState::FRIEND || data.state == k_EState::PRIVATE;
 }
 
 bool IsFriend(CachedEntity *entity)
@@ -190,8 +190,10 @@ bool ChangeState(unsigned int steamid, k_EState state, bool force)
     {
     case k_EState::FRIEND:
         return false;
+    case k_EState::PRIVATE:
+        return false;
     case k_EState::TEXTMODE:
-        if (state == k_EState::IPC || state == k_EState::FRIEND)
+        if (state != k_EState::PRIVATE || state == k_EState::IPC || state == k_EState::FRIEND)
         {
             ChangeState(steamid, state, true);
             return true;
@@ -199,7 +201,7 @@ bool ChangeState(unsigned int steamid, k_EState state, bool force)
         else
             return false;
     case k_EState::PARTY:
-        if (state == k_EState::FRIEND)
+        if (state == k_EState::FRIEND || state != k_EState::PRIVATE)
         {
             ChangeState(steamid, state, true);
             return true;
@@ -207,7 +209,7 @@ bool ChangeState(unsigned int steamid, k_EState state, bool force)
         else
             return false;
     case k_EState::IPC:
-        if (state == k_EState::FRIEND || state == k_EState::TEXTMODE || state == k_EState::PARTY)
+        if (state != k_EState::PRIVATE || state == k_EState::FRIEND || state == k_EState::TEXTMODE || state == k_EState::PARTY)
         {
             ChangeState(steamid, state, true);
             return true;
@@ -215,7 +217,7 @@ bool ChangeState(unsigned int steamid, k_EState state, bool force)
         else
             return false;
     case k_EState::CAT:
-        if (state == k_EState::FRIEND || state == k_EState::IPC || state == k_EState::TEXTMODE || state == k_EState::PARTY)
+        if (state != k_EState::PRIVATE || state != k_EState::FRIEND) /* additional check to make sure our k_EState doesn't switch over to CAT */
         {
             ChangeState(steamid, state, true);
             return true;

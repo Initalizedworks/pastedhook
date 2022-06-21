@@ -8,18 +8,15 @@
 #include "AntiAim.hpp"
 #include "HookedMethods.hpp"
 #include <MiscTemporary.hpp>
-#include "nullnexus.hpp"
 #include "e8call.hpp"
 #include "Warp.hpp"
 #include "nospread.hpp"
 
 static settings::Int newlines_msg{ "chat.prefix-newlines", "0" };
 static settings::Boolean log_sent{ "debug.log-sent-chat", "false" };
-static settings::Boolean answerIdentify{ "chat.identify.answer", "false" };
+static settings::Boolean chat_partysay{ "chat.identify.log-party", "false" };
 static Timer identify_timer{};
 constexpr int CAT_IDENTIFY   = 0xCA7;
-constexpr int CAT_REPLY      = 0xCA8;
-constexpr float AUTH_MESSAGE = 1234567.0f;
 
 namespace hacks::catbot
 {
@@ -31,7 +28,6 @@ namespace hooked_methods
 static bool send_achievement_reply{};
 static Timer send_achievement_reply_timer{};
 
-// Welcome back Achievement based identify.
 void sendAchievementKv(int value)
 {
     KeyValues *kv = new KeyValues("AchievementEarned");
@@ -41,10 +37,10 @@ void sendAchievementKv(int value)
 
 void sendIdentifyMessage(bool reply)
 {
-    reply ? sendAchievementKv(CAT_REPLY) : sendAchievementKv(CAT_IDENTIFY);
+    sendAchievementKv(CAT_IDENTIFY);
 }
 
-settings::Boolean identify{ "chat.identify", "true" };
+settings::Boolean identify{ "chat.identify", "false" };
 
 std::vector<KeyValues *> Iterate(KeyValues *event, int depth)
 {
@@ -135,20 +131,26 @@ void ProcessAchievement(IGameEvent *ach)
 {
     int player_idx  = ach->GetInt("player", 0xDEAD);
     int achievement = ach->GetInt("achievement", 0xDEAD);
-    if (player_idx != 0xDEAD && (achievement == CAT_IDENTIFY || achievement == CAT_REPLY))
+    if (player_idx != 0xDEAD && (achievement == CAT_IDENTIFY))
     {
         // Always reply and set on CA7 and only set on CA8
         bool reply = achievement == CAT_IDENTIFY;
         player_info_s info;
         if (!g_IEngine->GetPlayerInfo(player_idx, &info))
             return;
-        if (reply && *answerIdentify && player_idx != g_pLocalPlayer->entity_idx)
+        if (reply && *identify && player_idx != g_pLocalPlayer->entity_idx)
         {
             send_achievement_reply_timer.update();
             send_achievement_reply = true;
         }
         if (playerlist::ChangeState(info.friendsID, playerlist::k_EState::CAT))
             PrintChat("Detected \x07%06X%s\x01 as a Cathook user", 0xe1ad01, info.name);
+            if (chat_partysay)
+            {
+                char formated_string[256];
+                std::snprintf(formated_string, sizeof(formated_string), "Detected %s [U:1:%u] as Cathook user", info.name, info.friendsID);
+                re::CTFPartyClient::GTFPartyClient()->SendPartyChat(formated_string);
+            }
     }
 }
 
@@ -202,49 +204,6 @@ DEFINE_HOOKED_METHOD(SendNetMsg, bool, INetChannel *this_, INetMessage &msg, boo
     else
         hacks::warp::SendNetMessage(msg);
 
-    // net_StringCmd
-    if (msg.GetType() == 4 && (newlines_msg || crypt_chat))
-    {
-        std::string str(msg.ToString());
-        say_idx      = str.find("net_StringCmd: \"say \"");
-        say_team_idx = str.find("net_StringCmd: \"say_team \"");
-        if (!say_idx || !say_team_idx)
-        {
-            offset    = say_idx ? 26 : 21;
-            bool crpt = false;
-
-#if ENABLE_NULLNEXUS
-            // Only allow !! and !!! if crypto_chat is on
-            if (crypt_chat)
-            {
-                std::string msg(str.substr(offset));
-                msg = msg.substr(0, msg.length() - 2);
-                if (msg.find("!!!") == 0 || msg.find("!!") == 0)
-                {
-                    int sub_val = 2;
-                    if (msg.find("!!!") == 0)
-                        sub_val = 3;
-                    // Message is sent over Nullnexus.
-                    std::string substrmsg(msg.substr(sub_val));
-                    nullnexus::sendmsg(substrmsg);
-                    // Do not send message over normal chat.
-                    return false;
-                }
-            }
-#endif
-            if (!crpt && *newlines_msg > 0)
-            {
-                // TODO move out? update in a value change callback?
-                newlines = std::string(*newlines_msg, '\n');
-                str.insert(offset, newlines);
-            }
-            str = str.substr(16, str.length() - 17);
-            // if (queue_messages && !chat_stack::CanSend()) {
-            stringcmd.m_szCommand = str.c_str();
-            return original::SendNetMsg(this_, stringcmd, force_reliable, voice);
-            //}
-        }
-    }
     static float lastcmd = 0.0f;
     if (lastcmd > g_GlobalVars->absoluteframetime)
     {
@@ -253,7 +212,6 @@ DEFINE_HOOKED_METHOD(SendNetMsg, bool, INetChannel *this_, INetMessage &msg, boo
     if (!strcmp(msg.GetName(), "clc_CmdKeyValues"))
     {
         hacks::antiaim::SendNetMessage(msg);
-        hacks::catbot::SendNetMsg(msg);
     }
     if (log_sent && msg.GetType() != 3 && msg.GetType() != 9)
     {

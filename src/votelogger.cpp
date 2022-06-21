@@ -21,6 +21,8 @@ static settings::Boolean chat_partysay_result{ "votelogger.chat.partysay.result"
 static settings::Boolean chat_casts{ "votelogger.chat.casts", "false" };
 static settings::Boolean chat_partysay_casts{ "votelogger.chat.partysay.casts", "false" };
 static settings::Boolean chat_casts_f1_only{ "votelogger.chat.casts.f1-only", "false" };
+/* TODO fix abandon on local vote leaving after someone elses vote */
+static settings::Boolean abandon_on_local_vote{ "votelogger.abandon-on-local-vote", "false" };
 
 namespace votelogger
 {
@@ -145,6 +147,9 @@ void dispatchUserMessage(bf_read &buffer, int type)
             case k_EState::FRIEND:
                 state = "FRIEND";
                 break;
+            case k_EState::PRIVATE:
+                state = "PRIVATE";
+                break;
             case k_EState::CAT:
                 state = "CAT";
                 break;
@@ -185,25 +190,31 @@ void dispatchUserMessage(bf_read &buffer, int type)
         break;
     }
     case 47:
-        logging::Info("Vote passed on %s [U:1:%u] with %i F1s and %i F2s.", kicked_info.name, kicked_info.friendsID, F1count, F2count);
+        logging::Info("Vote passed on %s [U:1:%u] with %i F1s and %i F2s.", kicked_info.name, kicked_info.friendsID, F1count + 1, F2count + 1);
+
         if (*chat_partysay_result)
         {
-            std::snprintf(formated_string, sizeof(formated_string), "Vote passed on %s [U:1:%u] with %i F1s and %i F2s.", kicked_info.name, kicked_info.friendsID, F1count, F2count);
+            std::snprintf(formated_string, sizeof(formated_string), "Vote passed on %s [U:1:%u] with %i F1s and %i F2s.", kicked_info.name, kicked_info.friendsID, F1count + 1, F2count + 1);
             re::CTFPartyClient::GTFPartyClient()->SendPartyChat(formated_string);
         }
+        if (abandon_on_local_vote && was_local_player_caller)
+            tfmm::abandon();
         Reset();
         break;
     case 48:
-        logging::Info("Vote failed on %s [U:1:%u] with %i F1s and %i F2s.", kicked_info.name, kicked_info.friendsID, F1count, F2count);
+        logging::Info("Vote failed on %s [U:1:%u] with %i F1s and %i F2s.", kicked_info.name, kicked_info.friendsID, F1count + 1, F2count + 1);
+
         if (*chat_partysay_result)
         {
-            std::snprintf(formated_string, sizeof(formated_string), "Vote failed on %s [U:1:%u] with %i F1s and %i F2s.", kicked_info.name, kicked_info.friendsID, F1count, F2count);
+            std::snprintf(formated_string, sizeof(formated_string), "Vote failed on %s [U:1:%u] with %i F1s and %i F2s.", kicked_info.name, kicked_info.friendsID, F1count + 1, F2count + 1);
             re::CTFPartyClient::GTFPartyClient()->SendPartyChat(formated_string);
         }
+        if (abandon_on_local_vote && was_local_player_caller)
+            tfmm::abandon();
         Reset();
         break;
     case 49:
-        logging::Info("VoteSetup?");
+        logging::Info("VoteSetup");
         break;
     default:
         break;

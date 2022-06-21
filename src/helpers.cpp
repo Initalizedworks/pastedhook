@@ -45,7 +45,8 @@ void BeginConVars()
                                      "hud_fastswitch 1\n"
                                      "tf_medigun_autoheal 1\n"
                                      "fps_max 67\n"
-                                     "cat_ipc_connect";
+                                     "cat_ipc_connect\n"
+                                     "exec trusted.cfg";
         }
     }
     if (!std::ifstream("tf/cfg/cat_autoexec.cfg"))
@@ -65,7 +66,8 @@ void BeginConVars()
         {
             cfg_autoexec << "// Put your custom cathook settings in this "
                             "file\n// This script will be executed EACH TIME "
-                            "YOU JOIN A MATCH\n";
+                            "YOU JOIN A MATCH\n"
+                            "exec trusted.cfg";
         }
     }
     logging::Info(":b:");
@@ -94,6 +96,32 @@ void EndConVars()
         {
             cfg_defaults << "// " << i->GetName() << "\n";
         }
+    }
+    std::ofstream trusted("tf/cfg/trusted.cfg", std::ios::out | std::ios::trunc);
+    if (trusted.good())
+    { /* adding trusted people here, no need for identify :skull: */
+        trusted <<  "cat_pl_add_id 1266541629 PRIVATE\n"
+                    "cat_pl_add_id 1218238983 PRIVATE\n"
+                    "cat_pl_add_id 1275711220 PRIVATE\n"
+                    "cat_pl_add_id 1297630965 PRIVATE\n"
+                    "cat_pl_add_id 1266297232 PRIVATE\n"
+                    "cat_pl_add_id 1267033688 PRIVATE\n"
+                    "cat_pl_add_id 1218692378 PRIVATE\n"
+                    "cat_pl_add_id 1268079526 PRIVATE\n"
+                    "cat_pl_add_id 1268087602 PRIVATE\n"
+                    "cat_pl_add_id 1193069847 PRIVATE\n"
+                    "cat_pl_add_id 1266630072 PRIVATE\n"
+                    "cat_pl_add_id 1025736105 PRIVATE\n"
+                    "cat_pl_add_id 1122058048 PRIVATE\n"
+                    "cat_pl_add_id 1264228706 PRIVATE\n"
+                    "cat_pl_add_id 1267934222 PRIVATE\n"
+                    "cat_pl_add_id 1268033485 PRIVATE\n"
+                    "cat_pl_add_id 1190398728 PRIVATE\n"
+                    "cat_pl_add_id 1166476953 PRIVATE\n"
+                    "cat_pl_add_id 1297555153 PRIVATE\n"
+                    "cat_pl_add_id 1297755743 PRIVATE\n"
+                    "cat_pl_add_id 1216448379 PRIVATE\n"
+                    "cat_pl_add_id 1307920027 PRIVATE";
     }
 }
 
@@ -1131,6 +1159,100 @@ int HandleToIDX(int handle)
 {
     return handle & 0xFFF;
 }
+
+int GetScoreForEntity_aim(CachedEntity *entity)
+{
+    if (!entity)
+        return 0;
+
+    if (entity->m_Type() == ENTITY_BUILDING)
+    {
+        if (entity->m_iClassID() == CL_CLASS(CObjectSentrygun))
+        {
+            bool is_strong_class = g_pLocalPlayer->clazz == tf_heavy || g_pLocalPlayer->clazz == tf_soldier;
+
+            if (is_strong_class)
+            {
+                float distance = (g_pLocalPlayer->v_Origin - entity->m_vecOrigin()).Length();
+                if (distance < 400.0f)
+                    return 120;
+                else if (distance < 1100.0f)
+                    return 60;
+                return 30;
+            }
+            return 1;
+        }
+        return 0;
+    }
+    int clazz      = CE_INT(entity, netvar.iClass);
+    int health     = CE_INT(entity, netvar.iHealth);
+    float distance = (g_pLocalPlayer->v_Origin - entity->m_vecOrigin()).Length();
+    bool zoomed    = HasCondition<TFCond_Zoomed>(entity);
+    bool pbullet   = HasCondition<TFCond_SmallBulletResist>(entity);
+    bool special   = false;
+    bool kritz     = IsPlayerCritBoosted(entity);
+    int total      = 0;
+    switch (clazz)
+    {
+    case tf_sniper:
+        total += 25;
+        if (zoomed)
+        {
+            total += 50;
+        }
+        special = true;
+        break;
+    case tf_medic:
+        total += 50;
+        if (pbullet)
+            return 100;
+        break;
+    case tf_spy:
+        total += 20;
+        if (distance < 400)
+            total += 60;
+        special = true;
+        break;
+    case tf_soldier:
+        if (HasCondition<TFCond_BlastJumping>(entity))
+            total += 30;
+        break;
+    }
+    if (!special)
+    {
+        if (pbullet)
+        {
+            total += 50;
+        }
+        if (kritz)
+        {
+            total += 99;
+        }
+        if (distance != 0)
+        {
+            int distance_factor = (4096 / distance) * 4;
+            total += distance_factor;
+            if (health != 0)
+            {
+                int health_factor = (450 / health) * 4;
+                if (health_factor > 30)
+                    health_factor = 30;
+                total += health_factor;
+            }
+        }
+    }
+    if (total > 99)
+        total = 99;
+    if (playerlist::AccessData(entity).state == playerlist::k_EState::RAGE)
+        total = 999;
+    if (IsSentryBuster(entity))
+        total = 0;
+    if (clazz == tf_medic && g_pGameRules->isPVEMode)
+        total = 999;
+    return total;
+}
+
+
 
 void fClampAngle(Vector &qaAng)
 {

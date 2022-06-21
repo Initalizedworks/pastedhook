@@ -23,6 +23,7 @@ enum class k_EState
     IPC,
     TEXTMODE,
     CAT,
+    PRIVATE,
     PAZER,
     PARTY,
     STATE_LAST = PARTY

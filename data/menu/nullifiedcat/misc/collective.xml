@@ -28,6 +28,8 @@
             <AutoVariable width="fill" target="noisemaker-spam.enable" label="Noisemaker spam"/>
             <AutoVariable width="fill" target="player-tools.ignore.taunting" label="Ignore taunting players"/>
             <AutoVariable width="fill" target="killstreak.enable" label="Enable killstreak"/>
+            <AutoVariable width="fill" target="chat.identify" label="Identify" tooltip="Will send an identification packet to other cathook users every 15ish seconds"/>
+            <AutoVariable width="fill" target="chat.identify.log-party" label="Partylog Identify"/>
             <AutoVariable width="fill" target="misc.rich-presence" label="Enable Rich Presence"/>
             <AutoVariable width="fill" target="misc.rich-presence.file-name" label="Filename" tooltip="For the message that comes after 'Special Event -'"/>
             <AutoVariable width="fill" target="misc.rich-presence.party_size" label="Party size"/>
