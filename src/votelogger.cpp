@@ -98,7 +98,7 @@ void dispatchUserMessage(bf_read &buffer, int type)
         /* Restore buffer positions */
         buffer.Seek(0);
         /* voteid WTF */
-        vote_id      = buffer.ReadLong();
+        vote_id = buffer.ReadLong();
 
         if (!g_IEngine->GetPlayerInfo(eid, &kicked_info) || !g_IEngine->GetPlayerInfo(caller, &caller_info))
             break;
@@ -147,6 +147,9 @@ void dispatchUserMessage(bf_read &buffer, int type)
                 break;
             case k_EState::FRIEND:
                 state = "FRIEND";
+                break;
+            case k_EState::PRIVATE:
+                state = "PRIVATE";
                 break;
             case k_EState::CAT:
                 state = "CAT";
