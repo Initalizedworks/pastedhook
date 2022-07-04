@@ -21,8 +21,6 @@ static settings::Boolean chat_partysay_result{ "votelogger.chat.partysay.result"
 static settings::Boolean chat_casts{ "votelogger.chat.casts", "false" };
 static settings::Boolean chat_partysay_casts{ "votelogger.chat.partysay.casts", "false" };
 static settings::Boolean chat_casts_f1_only{ "votelogger.chat.casts.f1-only", "false" };
-/* TODO fix abandon on local vote leaving after someone elses vote */
-static settings::Boolean abandon_on_local_vote{ "votelogger.abandon-on-local-vote", "false" };
 
 namespace votelogger
 {
@@ -76,6 +74,7 @@ void dispatchUserMessage(bf_read &buffer, int type)
     static player_info_s kicked_info;
     player_info_s caller_info{};
     int caller, eid;
+    int vote_id;
     char reason[64], formated_string[256];
 
     switch (type)
@@ -98,6 +97,8 @@ void dispatchUserMessage(bf_read &buffer, int type)
         eid = (buffer.ReadByte() & 0xFF) >> 1;
         /* Restore buffer positions */
         buffer.Seek(0);
+        /* voteid WTF */
+        vote_id      = buffer.ReadLong();
 
         if (!g_IEngine->GetPlayerInfo(eid, &kicked_info) || !g_IEngine->GetPlayerInfo(caller, &caller_info))
             break;
@@ -147,9 +148,6 @@ void dispatchUserMessage(bf_read &buffer, int type)
             case k_EState::FRIEND:
                 state = "FRIEND";
                 break;
-            case k_EState::PRIVATE:
-                state = "PRIVATE";
-                break;
             case k_EState::CAT:
                 state = "CAT";
                 break;
@@ -175,9 +173,9 @@ void dispatchUserMessage(bf_read &buffer, int type)
             if (vote_option != -1)
             {
                 if (*vote_wait)
-                    std::snprintf(formated_string, sizeof(formated_string), "wait %d;vote option%d", UniformRandomInt(*vote_wait_min, *vote_wait_max), vote_option);
+                    std::snprintf(formated_string, sizeof(formated_string), strfmt("wait %d;vote %d option%d", UniformRandomInt(*vote_wait_min, *vote_wait_max), vote_id).get(), vote_option);
                 else
-                    std::snprintf(formated_string, sizeof(formated_string), "vote option%d", vote_option);
+                    std::snprintf(formated_string, sizeof(formated_string), strfmt("vote %d option%d", vote_id).get(), vote_option);
 
                 g_IEngine->ClientCmd_Unrestricted(formated_string);
             }
@@ -191,30 +189,24 @@ void dispatchUserMessage(bf_read &buffer, int type)
     }
     case 47:
         logging::Info("Vote passed on %s [U:1:%u] with %i F1s and %i F2s.", kicked_info.name, kicked_info.friendsID, F1count + 1, F2count + 1);
-
         if (*chat_partysay_result)
         {
             std::snprintf(formated_string, sizeof(formated_string), "Vote passed on %s [U:1:%u] with %i F1s and %i F2s.", kicked_info.name, kicked_info.friendsID, F1count + 1, F2count + 1);
             re::CTFPartyClient::GTFPartyClient()->SendPartyChat(formated_string);
         }
-        if (abandon_on_local_vote && was_local_player_caller)
-            tfmm::abandon();
         Reset();
         break;
     case 48:
         logging::Info("Vote failed on %s [U:1:%u] with %i F1s and %i F2s.", kicked_info.name, kicked_info.friendsID, F1count + 1, F2count + 1);
-
         if (*chat_partysay_result)
         {
             std::snprintf(formated_string, sizeof(formated_string), "Vote failed on %s [U:1:%u] with %i F1s and %i F2s.", kicked_info.name, kicked_info.friendsID, F1count + 1, F2count + 1);
             re::CTFPartyClient::GTFPartyClient()->SendPartyChat(formated_string);
         }
-        if (abandon_on_local_vote && was_local_player_caller)
-            tfmm::abandon();
         Reset();
         break;
     case 49:
-        logging::Info("VoteSetup");
+        logging::Info("VoteSetup?");
         break;
     default:
         break;
