@@ -78,7 +78,7 @@ void DrawCheatVisuals()
         PROF_SECTION(PT_info_text);
         if (info_text)
         {
-            AddSideString("AngerHook", colors::green);
+            AddSideString("Pastedhook", colors::yellow);
         }
     }
     if (spectator_target)
