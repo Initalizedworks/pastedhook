@@ -319,12 +319,14 @@ static void doAutoZoom(bool target_found)
         if (target_found)
             zoomTime.update();
         if (isIdle || !zoomTime.check(3000))
-        {
+        
             current_user_cmd->buttons |= IN_ATTACK2;
-        }
+        
         return;
     }
 
+  doAutoZoom(false, nullptr);
+        
     if (auto_zoom && g_pLocalPlayer->holding_sniper_rifle && (target_found || isIdle))
     {
         if (target_found)
