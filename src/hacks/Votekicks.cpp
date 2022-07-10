@@ -121,7 +121,7 @@ static CatCommand debugKickScore("debug_kickscore", "Prints kick score for each 
     }
 });
 
-static void register_votekicks(settings::VariableBase<bool> &, bool enable)
+static void register_votekicks(settings::VariableBase<bool> &var, bool new_val)
 {
     if (enable)
         EC::Register(EC::CreateMove, CreateMove, "cm_votekicks");
