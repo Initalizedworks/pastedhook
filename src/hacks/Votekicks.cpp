@@ -109,20 +109,5 @@ static void CreateMove()
     hack::ExecuteCommand("callvote kick \"" + std::to_string(target) + " cheating\"");
 }
 
-static void register_votekicks(bool enable)
-{
-    if (enable)
-        EC::Register(EC::CreateMove, CreateMove, "cm_votekicks");
-    else
-        EC::Unregister(EC::CreateMove, "cm_votekicks");
-}
-
-static InitRoutine init(
-    []()
-    {
-    enabled.installChangeCallback(
-        [](settings::VariableBase<std::string> &var, std::string new_val) { register_votekicks(new_val); });
-    if (*enabled)
-        register_votekicks(true);
-    });
+static InitRoutine init([](){ EC::Register(EC::CreateMove, CreateMove, "cm_votekicks"); });
 } // namespace hacks::votekicks
