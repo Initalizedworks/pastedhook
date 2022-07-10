@@ -7,6 +7,7 @@
 
 #include "common.hpp"
 #include "votelogger.hpp"
+#include "Votekicks.hpp"
 #include "PlayerTools.hpp"
 
 static settings::Int vote_wait_min{ "votelogger.autovote.wait.min", "10" };
@@ -97,7 +98,7 @@ void dispatchUserMessage(bf_read &buffer, int type)
         eid = (buffer.ReadByte() & 0xFF) >> 1;
         /* Restore buffer positions */
         buffer.Seek(0);
-        /* voteid WTF */
+        /* fuck you volvo */
         vote_id = buffer.ReadLong();
 
         if (!g_IEngine->GetPlayerInfo(eid, &kicked_info) || !g_IEngine->GetPlayerInfo(caller, &caller_info))
@@ -197,6 +198,11 @@ void dispatchUserMessage(bf_read &buffer, int type)
             std::snprintf(formated_string, sizeof(formated_string), "Vote passed on %s [U:1:%u] with %i F1s and %i F2s.", kicked_info.name, kicked_info.friendsID, F1count + 1, F2count + 1);
             re::CTFPartyClient::GTFPartyClient()->SendPartyChat(formated_string);
         }
+        if (was_local_player_caller)
+        {
+            if (kicked_info.friendsID)
+                hacks::votekicks::previously_kicked.emplace(kicked_info.friendsID);
+        }
         Reset();
         break;
     case 48:
@@ -207,9 +213,6 @@ void dispatchUserMessage(bf_read &buffer, int type)
             re::CTFPartyClient::GTFPartyClient()->SendPartyChat(formated_string);
         }
         Reset();
-        break;
-    case 49:
-        logging::Info("VoteSetup?");
         break;
     default:
         break;
