@@ -1,6 +1,9 @@
 [submodule "source-sdk-2013-headers"]
 	path = external/source-sdk-2013-headers
 	url = https://github.com/nullworks/source-sdk-2013-headers
+[submodule "libglez"]
+	path = external/libglez
+	url = https://github.com/nullworks/libglez
 [submodule "libxoverlay"]
 	path = external/libxoverlay
 	url = https://github.com/nullworks/libxoverlay
@@ -16,6 +19,9 @@
 [submodule "external/clip"]
 	path = external/clip
 	url = https://github.com/nullworks/clip
+[submodule "external/libnullnexus"]
+	path = external/libnullnexus
+	url = https://github.com/nullworks/libnullnexus
 [submodule "external/boost-cmake"]
 	path = external/boost-cmake
 	url = https://github.com/Orphis/boost-cmake.git
