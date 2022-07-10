@@ -109,19 +109,7 @@ static void CreateMove()
     hack::ExecuteCommand("callvote kick \"" + std::to_string(target) + " cheating\"");
 }
 
-static CatCommand debugKickScore("debug_kickscore", "Prints kick score for each player", []() {
-    player_info_s info{};
-    if (!g_IEngine->IsInGame())
-        return;
-    for (int i = 1; i < g_GlobalVars->maxClients; ++i)
-    {
-        if (!g_IEngine->GetPlayerInfo(i, &info) || !info.friendsID)
-            continue;
-        logging::Info("%d %u %s: %d", i, info.friendsID, info.name, GetKickScore(info.userID));
-    }
-});
-
-static void register_votekicks(settings::VariableBase<bool> &, bool enable)
+static void register_votekicks(bool enable)
 {
     if (enable)
         EC::Register(EC::CreateMove, CreateMove, "cm_votekicks");
@@ -133,8 +121,8 @@ static InitRoutine init(
     []()
     {
     enabled.installChangeCallback(
-        [](settings::VariableBase<bool> &, bool new_val) { register_votekicks(new_val); });
-/*    if (*enabled)
-        register_votekicks(true);*/
+        [](settings::VariableBase<std::string> &var, std::string new_val) { register_votekicks(new_val); });
+    if (*enabled)
+        register_votekicks(true);
     });
 } // namespace hacks::votekicks
