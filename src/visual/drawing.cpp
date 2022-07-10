@@ -117,6 +117,7 @@ std::string ShrinkString(std::string data, int max_x, fonts::font &font)
 int draw::width  = 0;
 int draw::height = 0;
 float draw::fov  = 90.0f;
+bool draw::inited = false;
 
 namespace fonts
 {
@@ -557,7 +558,6 @@ void InitGL()
     im_renderer::init();
 #endif
     xoverlay_draw_end();
-#else
 #if ENABLE_IMGUI_DRAWING
     // glewInit();
     im_renderer::init();
