@@ -120,6 +120,7 @@ std::string ShrinkString(std::string data, int max_x, fonts::font &font)
 int draw::width  = 0;
 int draw::height = 0;
 float draw::fov  = 90.0f;
+bool draw::inited = false;
 
 namespace fonts
 {
@@ -592,6 +593,7 @@ void InitGL()
 #if ENABLE_GUI
     gui::init();
 #endif
+    draw::inited = true;
 }
 
 void BeginGL()
