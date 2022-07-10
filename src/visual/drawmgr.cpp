@@ -118,6 +118,7 @@ void DrawCheatVisuals()
             draw::Line(*info_x - 5, *info_y - 5, w + 10, 0, colors::gui, 2.0f);
             draw::String(*info_x, *info_y, colors::gui, result.c_str(), *fonts::center_screen);
         }
+    }
     if (spectator_target)
     {
         AddCenterString("Press SPACE to stop spectating");
