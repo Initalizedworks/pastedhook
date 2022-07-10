@@ -22,6 +22,7 @@ static settings::Boolean micspam{ "cat-bot.micspam.enable", "false" };
 static settings::Int micspam_on{ "cat-bot.micspam.interval-on", "3" };
 static settings::Int micspam_off{ "cat-bot.micspam.interval-off", "60" };
 
+static settings::Boolean random_votekicks{ "cat-bot.votekicks", "false" };
 static settings::Boolean autovote_map{ "cat-bot.autovote-map", "true" };
 
 settings::Boolean catbotmode{ "cat-bot.enable", "true" };
@@ -42,6 +43,38 @@ int globerr(const char *path, int eerrno)
 }
 
 static std::string blacklist;
+
+void do_random_votekick()
+{
+    std::vector<int> targets;
+    player_info_s local_info;
+
+    if (CE_BAD(LOCAL_E) || !GetPlayerInfo(LOCAL_E->m_IDX, &local_info))
+        return;
+    for (int i = 1; i < g_GlobalVars->maxClients; ++i)
+    {
+        player_info_s info;
+        if (!GetPlayerInfo(i, &info) || !info.friendsID)
+            continue;
+        if (g_pPlayerResource->GetTeam(i) != g_pLocalPlayer->team)
+            continue;
+        if (info.friendsID == local_info.friendsID)
+            continue;
+        if (!player_tools::shouldTargetSteamId(info.friendsID))
+            continue;
+
+        targets.push_back(info.userID);
+    }
+
+    if (targets.empty())
+        return;
+
+    int target = targets[rand() % targets.size()];
+    player_info_s info;
+    if (!GetPlayerInfo(GetPlayerForUserID(target), &info))
+        return;
+    hack::ExecuteCommand("callvote kick \"" + std::to_string(target) + " cheating\"");
+}
 
 // Store information
 struct Posinfo
@@ -172,6 +205,8 @@ void update()
             g_IEngine->ClientCmd_Unrestricted("-voicerecord");
     }
 
+    if (random_votekicks && timer_votekicks.test_and_set(5000))
+        do_random_votekick();
     if (timer_abandon.test_and_set(2000) && level_init_timer.check(13000))
     {
         count_ipc = 0;
