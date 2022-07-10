@@ -224,6 +224,8 @@ int SharedRandomInt(unsigned iseed, const char *sharedname, int iMinVal, int iMa
 bool HookNetvar(std::vector<std::string> path, ProxyFnHook &hook, RecvVarProxyFn function);
 float ATTRIB_HOOK_FLOAT(float base_value, const char *search_string, IClientEntity *ent, void *buffer, bool is_global_const_string);
 
+std::unique_ptr<char[]> format_cstr(const char *fmt, ...);
+
 void format_internal(std::stringstream &stream);
 template <typename T, typename... Targs> void format_internal(std::stringstream &stream, T value, Targs... args)
 {
