@@ -588,11 +588,6 @@ void BeginGL()
         // SDL_GL_MakeCurrent(sdl_hooks::window, context);
     }
 #endif
-    {
-        glActiveTexture(GL_TEXTURE0););
-        glDisable(GL_FRAMEBUFFER_SRGB);
-        PROF_SECTION(DRAWEX_draw_begin);
-    }
 #endif
 }
 
