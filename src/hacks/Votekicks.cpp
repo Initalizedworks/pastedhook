@@ -121,7 +121,7 @@ static CatCommand debugKickScore("debug_kickscore", "Prints kick score for each 
     }
 });
 
-static void register_votekicks(settings::VariableBase<bool> &var, bool new_val)
+static void register_votekicks(settings::VariableBase<bool> &var, bool enable)
 {
     if (enable)
         EC::Register(EC::CreateMove, CreateMove, "cm_votekicks");
@@ -133,7 +133,7 @@ static InitRoutine init(
     []()
     {
     enabled.installChangeCallback(
-        [](settings::VariableBase<bool> &, bool new_val) { register_votekicks(new_val); });
+        [](settings::VariableBase<std::string> &, std::string new_val) { register_votekicks(new_val); });
     if (*enabled)
         register_votekicks(true);
     });
