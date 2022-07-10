@@ -324,9 +324,8 @@ static void doAutoZoom(bool target_found)
         
         return;
     }
-
-  doAutoZoom(false, nullptr);
-        
+    /* autozoom shouldnt be within autozoom lol */
+    
     if (auto_zoom && g_pLocalPlayer->holding_sniper_rifle && (target_found || isIdle))
     {
         if (target_found)
