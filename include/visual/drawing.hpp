@@ -70,6 +70,7 @@ extern VMatrix wts;
 extern int width;
 extern int height;
 extern float fov;
+extern bool inited;
 
 void Initialize();
 
