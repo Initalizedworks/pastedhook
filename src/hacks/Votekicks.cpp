@@ -121,13 +121,20 @@ static CatCommand debugKickScore("debug_kickscore", "Prints kick score for each 
     }
 });
 
-static InitRoutine init(
-    []()
-    {
-    enabled.installChangeCallback([](settings::VariableBase<bool> &var, bool new_val) { register_votekicks(new_val); });
-    if (*enabled)
+static void register_votekicks(settings::VariableBase<bool> &, bool enable)
+{
+    if (enable)
         EC::Register(EC::CreateMove, CreateMove, "cm_votekicks");
     else
         EC::Unregister(EC::CreateMove, "cm_votekicks");
+}
+
+static InitRoutine init(
+    []()
+    {
+    enabled.installChangeCallback(
+        [](settings::VariableBase<bool> &, bool new_val) { register_votekicks(new_val); });
+/*    if (*enabled)
+        register_votekicks(true);*/
     });
 } // namespace hacks::votekicks
