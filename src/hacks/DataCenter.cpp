@@ -140,6 +140,7 @@ static void OnRegionsUpdate(std::string regions)
     regionsSet.clear();
 
     std::vector<std::string> regions_vec;
+    /* Boost here */
     boost::split(regions_vec, regions, boost::is_any_of(","));
     for (auto &region_str : regions_vec)
     {
@@ -195,6 +196,7 @@ void manageRegions(std::vector<std::string> regions_vec, bool add)
 {
     std::set<std::string> regions_split;
     if ((*regions).length())
+        /* Boost here */
         boost::split(regions_split, *regions, boost::is_any_of(","));
 
     std::set<std::string> new_regions = regions_split;
@@ -217,6 +219,7 @@ void manageRegions(std::vector<std::string> regions_vec, bool add)
                 new_regions.erase(position);
         }
     }
+    /* Boost here */
     regions = boost::join(new_regions, ",");
 }
 

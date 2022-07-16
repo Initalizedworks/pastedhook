@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <dlfcn.h>
+/* boost ? */
 #include <boost/stacktrace.hpp>
 #include <cxxabi.h>
 #include <visual/SDLHooks.hpp>
@@ -113,6 +114,7 @@ std::string getFileName(std::string filePath)
 
 void critical_error_handler(int signum)
 {
+    /* Boost here */
     namespace st = boost::stacktrace;
     ::signal(signum, SIG_DFL);
     passwd *pwd = getpwuid(getuid());

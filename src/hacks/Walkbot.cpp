@@ -1208,6 +1208,7 @@ static void cm()
             if (nodes.size() == 0 || g_IEngine->GetLevelName() != prevlvlname)
             {
                 prevlvlname = g_IEngine->GetLevelName();
+                /* Boost here */
                 if (!boost::contains(prevlvlname, "pl_"))
                 {
                     Load("default");
@@ -1220,28 +1221,6 @@ static void cm()
                 }
             }
         }
-        /*prevlvlname = g_IEngine->GetLevelName();
-        std::string prvlvlname(prevlvlname);
-        if (boost::contains(prvlvlname, "pl_") ||
-            boost::contains(prvlvlname, "cp_"))
-        {
-            logging::Info("1");
-            bool ret = false;
-            if (lagexploit::pointarr[0] || lagexploit::pointarr[1] ||
-                lagexploit::pointarr[2] || lagexploit::pointarr[3] ||
-                lagexploit::pointarr[4])
-            {
-                hacks::followbot::followbot  = 1;
-                hacks::followbot::roambot    = 1;
-                hacks::followbot::followcart = true;
-            }
-            else
-            {
-                hacks::followbot::followbot  = 0;
-                hacks::followbot::roambot    = 0;
-                hacks::followbot::followcart = false;
-            }
-        }*/
         if (nodes.size() == 0)
             return;
         if (force_slot)

@@ -1,3 +1,5 @@
-paste
-remove useless menu close (please help neko) (for reference, GuiInterface.cpp | WindowCloseButton.cpp | WindowHeader.cpp | ZeroKernelUnity.cpp | WindowHeader.hpp WindowCloseButton.hpp )
-inithook removed toolchain-cross-m32.cmake why cant i?
+switch from textmode to nullgraphics
+remove libglez
+remove nullnexus
+remove stream safety
+try to remove boost ??? why would we need to download 1 FUCKING GB OF BOOST IF ITS ONLY MENTIONED IN 6 PLACES !?!?!?!

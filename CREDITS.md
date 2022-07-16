@@ -7,10 +7,10 @@
 [Neko - helped with a bunch of bad bad bugs](https://github.com/Neko-a-b)
 
 
-[Bintr - Void Packages](https://github.com/explowz)
+[Bintr - Void Packages (but it still dont work)](https://github.com/explowz)
 
 
-[Steve4Git - Improved aimbot, pasted a lot](https://github.com/STEVE4git)
+[Steve4Git - Improved aimbot](https://github.com/STEVE4git)
 
 
 [Nullworks Project Cathook - Without Nullworks, pastedhook would not have been possible](https://github.com/nullworks/cathook)

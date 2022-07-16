@@ -184,7 +184,9 @@ public:
     NavState state;
     micropather::MicroPather pather{ this, 3000, 6, true };
     std::string mapname;
+    /* Boost here */
     std::unordered_map<std::pair<CNavArea *, CNavArea *>, CachedConnection, boost::hash<std::pair<CNavArea *, CNavArea *>>> vischeck_cache;
+    /* Boost here */
     std::unordered_map<std::pair<CNavArea *, CNavArea *>, CachedStucktime, boost::hash<std::pair<CNavArea *, CNavArea *>>> connection_stuck_time;
     // This is a pure blacklist that does not get cleared and is for free usage internally and externally, e.g. blacklisting where enemies are standing
     // This blacklist only gets cleared on map change, and can be used time independantly.

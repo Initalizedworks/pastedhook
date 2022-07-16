@@ -23,6 +23,7 @@ set(CMAKE_CXX_STANDARD 17)
 add_library(cathook SHARED "")
 
 set(Visuals_DrawType "IMGUI" CACHE STRING "Target drawing api")
+# Glez & Streamproof
 set(DrawTypes "Textmode;No Visuals;Glez;Engine;IMGUI;IMGUI Streamproof" CACHE INTERNAL "Select the drawing api that cathook should use")
 set_property(CACHE Visuals_DrawType PROPERTY STRINGS ${DrawTypes})
 set(Visuals_EnforceStreamSafety 1 CACHE BOOL "If a streamsafe drawing method is used, this will remove features that are not streamsafe.")
@@ -33,6 +34,7 @@ set(EnableEngineDrawing 0)
 set(EnableImGuiDrawing 0)
 set(ExternalDrawing 0)
 set(Textmode 0)
+#set (NullGraphics 0)
 
 if (Visuals_DrawType STREQUAL "Textmode")
     set(EnableVisuals 0)
@@ -59,7 +61,9 @@ set(EnableIPC 1 CACHE BOOL "Enable IPC")
 set(DataPath "/opt/cathook/data" CACHE FILEPATH "Data location")
 set(VACBypass 0 CACHE BOOL "Textmode VAC bypass")
 set(EnableTextmodeStdin 0 CACHE BOOL "Textmode Stdin -> Console bridge (EXPERIMENTAL)")
+# set(EnableNullGraphics 0 CACHE BOOL "Enable experimental textmode hooks (CRASHES)")
 set(EnableWarnings 0 CACHE BOOL "Enable compile warnings")
+#NullNexus
 set(EnableNullNexus 1 CACHE BOOL "Enable NullNexus chat and other features")
 set(EnableLogging 1 CACHE BOOL "Enable logging to /tmp/")
 set(EnableClip 1 CACHE BOOL "Enable anti electron/chromium freezing")
@@ -123,12 +127,14 @@ if (EnableIPC)
     target_link_libraries(cathook SimpleIPC)
 endif()
 
+#NullNexus
 if (EnableNullNexus)
     add_subdirectory(external/libnullnexus)
     target_link_libraries(cathook libnullnexus)
 endif()
 
 if (EnableVisuals)
+    #Glez here
     if (EnableGlezDrawing)
         add_subdirectory(external/libglez)
     endif()
@@ -140,9 +146,11 @@ if (EnableVisuals)
         target_include_directories(cathook PRIVATE external/libxoverlay/include)
     endif()
     target_include_directories(cathook PRIVATE "${SDL2_INCLUDE_DIR}")
+    #anotha Glez
     if (EnableGlezDrawing)
         target_link_libraries(cathook glez)
     endif()
+    #Glez
     if (EnableGlezDrawing)
         find_package(GLEW REQUIRED)
         target_link_libraries(cathook ${GLEW_LIBRARIES})

@@ -23,14 +23,7 @@ static settings::Boolean anti_votekick{ "cat-bot.anti-autobalance", "false" };
 static bool retrun = false;
 static Timer gitgud{};
 
-// Using repeated char causes crash on some systems. Suboptimal solution.
-const static std::string clear("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
-                               "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
-                               "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
-                               "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
-                               "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
-                               "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
-                               "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+const static std::string clear("GO FUCK YOURSELF");
 std::string lastfilter{};
 std::string lastname{};
 
@@ -243,15 +236,18 @@ DEFINE_HOOKED_METHOD(DispatchUserMessage, bool, void *this_, int type, bf_read &
             SplitName(res, name1, 3);
 
             std::string message2(message);
+            /* Boost here */
             boost::to_lower(message2);
 
             const char *toreplace[]   = { " ", "4", "3", "0", "6", "5", "7", "@", ".", ",", "-" };
             const char *replacewith[] = { "", "a", "e", "o", "g", "s", "t", "a", "", "", "" };
 
             for (int i = 0; i < 7; i++)
+                /* Boost here */
                 boost::replace_all(message2, toreplace[i], replacewith[i]);
 
             for (auto filter : res)
+                /* Boost here */
                 if (boost::contains(message2, filter))
                 {
                     chat_stack::Say("\e" + clear, true);
