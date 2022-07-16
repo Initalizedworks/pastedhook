@@ -74,7 +74,7 @@ void dispatchUserMessage(bf_read &buffer, int type)
 {
     static player_info_s kicked_info;
     player_info_s caller_info{};
-    int caller, eid;
+    int caller, eid, vote_id;
     char reason[64], formated_string[256];
 
     switch (type)
@@ -97,6 +97,8 @@ void dispatchUserMessage(bf_read &buffer, int type)
         eid = (buffer.ReadByte() & 0xFF) >> 1;
         /* Restore buffer positions */
         buffer.Seek(0);
+        /* fuck you valve */
+        vote_id = buffer.ReadLong();
 
         if (!g_IEngine->GetPlayerInfo(eid, &kicked_info) || !g_IEngine->GetPlayerInfo(caller, &caller_info))
             break;
@@ -238,7 +240,7 @@ class VoteEventListener : public IGameEventListener
 public:
     void FireGameEvent(KeyValues *event) override
     {
-        if (!chat_casts && !chat_partysay_casts && !chat_partysay_result && !evade_kick)
+        if (!chat_casts && !chat_partysay_casts && !chat_partysay_result)
             return;
         const char *name = event->GetName();
         if (!strcmp(name, "vote_cast"))
