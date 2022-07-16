@@ -164,18 +164,18 @@ void dispatchUserMessage(bf_read &buffer, int type)
                 {
                     pl_caller.state = k_EState::RAGE;
                     if (!was_local_player && g_pPlayerResource->GetTeam(eid) == g_pLocalPlayer->team && !was_local_player && vote_kickn)
-                        logging::Info(", voting F2 because kick target is \"" + state + "\" playerlist state. A counter-kick will be automatically called when we can vote.");
+                        logging::Info(", voting F2 because kick target is a Friendly playerlist state. A counter-kick will be automatically called when we can vote.");
                 }
                 else if (!was_local_player && g_pPlayerResource->GetTeam(eid) == g_pLocalPlayer->team && !was_local_player && vote_kickn)
-                    logging::Info(", voting F2 because kick target is \"" + state + "\" playerlist state.");
+                    logging::Info(", voting F2 because kick target is a Friendly playerlist state.");
             }
             else if (*vote_kicky && !friendly_kicked)
             {
                 vote_option = 1;
                 if (!was_local_player && g_pPlayerResource->GetTeam(eid) == g_pLocalPlayer->team && !was_local_player && vote_kicky)
-                    logging::Info(", voting F1 because kick target is \"" + state + "\" playerlist state.");
+                    logging::Info(", voting F1 because kick target is a Non-Friendly playerlist state.");
             }
-            if (*vote_option != -1)
+            if (vote_option != -1)
             {
                 if (*vote_wait)
                     std::snprintf(formated_string, sizeof(formated_string), strfmt("wait %d;vote %d option%d", UniformRandomInt(*vote_wait_min, *vote_wait_max), vote_id).get(), vote_option);
