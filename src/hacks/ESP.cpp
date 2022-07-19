@@ -16,7 +16,7 @@ namespace hacks::esp
 static settings::Boolean enable{ "esp.enable", "false" };
 static settings::Int max_dist{ "esp.range", "4096" };
 
-static settings::Int box_esp{ "esp.box.mode", "2" };
+static settings::Int box_esp{ "esp.box.mode", "1" };
 static settings::Int box_corner_size_height{ "esp.box.corner-size.height", "10" };
 static settings::Int box_corner_size_width{ "esp.box.corner-size.width", "10" };
 static settings::Boolean box_3d_player{ "esp.box.player-3d", "false" };
