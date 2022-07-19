@@ -7,6 +7,7 @@
 
 #include "common.hpp"
 #include "votelogger.hpp"
+#include "Votekicks.hpp"
 #include "PlayerTools.hpp"
 
 static settings::Int vote_wait_min{ "votelogger.autovote.wait.min", "10" };
@@ -203,6 +204,8 @@ void dispatchUserMessage(bf_read &buffer, int type)
         }
         if (was_local_player_caller)
         {
+            if (kicked_info.friendsID)
+                hacks::votekicks::previously_kicked.emplace(kicked_info.friendsID);
             if (leave_after_local_vote)
                 tfmm::abandon();
         }

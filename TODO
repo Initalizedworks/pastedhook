@@ -1,5 +1,3 @@
 switch from textmode to nullgraphics
-remove libglez
-remove nullnexus
 remove stream safety
 try to remove boost ??? why would we need to download 1 FUCKING GB OF BOOST IF ITS ONLY MENTIONED IN 6 PLACES !?!?!?!

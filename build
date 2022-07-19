@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+SUDO=${CH_SUDO:-sudo}
+
 mkdir -p ./obj
 # Update cathook
 pushd obj && cmake .. && cmake --build . --target cathook -- -j"$(nproc --all)" || {
