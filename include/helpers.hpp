@@ -126,7 +126,7 @@ Vector GetForwardVector(float distance, CachedEntity *punch_entity = nullptr);
 CachedEntity *getClosestEntity(Vector vec);
 CachedEntity *getClosestNonlocalEntity(Vector vec);
 bool IsSentryBuster(CachedEntity *ent);
-std::unique_ptr<char[]> strfmt(const char *fmt, ...);
+std::unique_ptr<char[]> format_cstr(const char *fmt, ...);
 // TODO move that to weaponid.h
 int getWeaponByID(CachedEntity *player, int weaponid);
 bool HasWeapon(CachedEntity *ent, int wantedId);

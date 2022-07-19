@@ -1919,7 +1919,7 @@ void PrintChat(const char *fmt, ...)
         va_start(list, fmt);
         vsprintf(buf.get(), fmt, list);
         va_end(list);
-        std::unique_ptr<char[]> str = std::move(strfmt("\x07%06X[CAT]\x01 %s", 0x1434a4, buf.get()));
+        std::unique_ptr<char[]> str = std::move(format_cstr("\x07%06X[CAT]\x01 %s", 0x1434a4, buf.get()));
         // FIXME DEBUG LOG
         logging::Info("%s", str.get());
         chat->Printf(str.get());
@@ -2046,19 +2046,6 @@ Vector getShootPos(Vector angle)
     return eye;
 }
 
-// You shouldn't delete[] this unique_ptr since it
-// does it on its own
-std::unique_ptr<char[]> strfmt(const char *fmt, ...)
-{
-    // char *buf = new char[1024];
-    auto buf = std::make_unique<char[]>(1024);
-    va_list list;
-    va_start(list, fmt);
-    vsprintf(buf.get(), fmt, list);
-    va_end(list);
-    return buf;
-}
-
 void ChangeName(std::string name)
 {
     auto custom_name = settings::Manager::instance().lookup("name.custom");
@@ -2100,6 +2087,17 @@ int SharedRandomInt(unsigned iseed, const char *sharedname, int iMinVal, int iMa
     int seed = SeedFileLineHash(iseed, sharedname, additionalSeed);
     g_pUniformStream->SetSeed(seed);
     return g_pUniformStream->RandomInt(iMinVal, iMaxVal);
+}
+
+std::unique_ptr<char[]> format_cstr(const char *fmt, ...)
+{
+    // char *buf = new char[1024];
+    auto buf = std::make_unique<char[]>(1024);
+    va_list list;
+    va_start(list, fmt);
+    vsprintf(buf.get(), fmt, list);
+    va_end(list);
+    return buf;
 }
 
 bool GetPlayerInfo(int idx, player_info_s *info)

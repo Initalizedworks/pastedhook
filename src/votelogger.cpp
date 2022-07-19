@@ -66,7 +66,7 @@ static void vote_rage_back()
     if (targets.empty())
         return;
 
-    std::snprintf(cmd, sizeof(cmd), "callvote kick \"%d scamming\"", targets[UniformRandomInt(0, targets.size() - 1)]);
+    std::snprintf(cmd, sizeof(cmd), "callvote kick \"%d cheating\"", targets[UniformRandomInt(0, targets.size() - 1)]);
     g_IEngine->ClientCmd_Unrestricted(cmd);
 }
 
@@ -159,30 +159,32 @@ void dispatchUserMessage(bf_read &buffer, int type)
 
             if (*vote_kickn && friendly_kicked)
             {
-                vote_option = 2;
+                if (*vote_wait)
+                    std::snprintf(formated_string, sizeof(formated_string), format_cstr("wait %d;vote %d option2", UniformRandomInt(*vote_wait_min, *vote_wait_max), vote_id).get());
+                else
+                    std::snprintf(formated_string, sizeof(formated_string), format_cstr("vote %d option2", vote_id).get());
+                g_IEngine->ClientCmd_Unrestricted(formated_string);
+
+                if (!was_local_player && g_pPlayerResource->GetTeam(eid) == g_pLocalPlayer->team && !was_local_player && vote_kickn)
+                    logging::Info(", voting F2 because kick target is %s playerlist state.", state);
+
                 if (*vote_rage_vote && !friendly_caller)
                 {
                     pl_caller.state = k_EState::RAGE;
                     if (!was_local_player && g_pPlayerResource->GetTeam(eid) == g_pLocalPlayer->team && !was_local_player && vote_kickn)
-                        logging::Info(", voting F2 because kick target is a Friendly playerlist state. A counter-kick will be automatically called when we can vote.");
+                        logging::Info(", voting F2 because kick target is %s playerlist state. A counter-kick will be automatically called when we can vote.", state);
                 }
-                else if (!was_local_player && g_pPlayerResource->GetTeam(eid) == g_pLocalPlayer->team && !was_local_player && vote_kickn)
-                    logging::Info(", voting F2 because kick target is a Friendly playerlist state.");
             }
             else if (*vote_kicky && !friendly_kicked)
             {
-                vote_option = 1;
-                if (!was_local_player && g_pPlayerResource->GetTeam(eid) == g_pLocalPlayer->team && !was_local_player && vote_kicky)
-                    logging::Info(", voting F1 because kick target is a Non-Friendly playerlist state.");
-            }
-            if (vote_option != -1)
-            {
                 if (*vote_wait)
-                    std::snprintf(formated_string, sizeof(formated_string), strfmt("wait %d;vote %d option%d", UniformRandomInt(*vote_wait_min, *vote_wait_max), vote_id).get(), vote_option);
+                    std::snprintf(formated_string, sizeof(formated_string), format_cstr("wait %d;vote %d option1", UniformRandomInt(*vote_wait_min, *vote_wait_max), vote_id).get());
                 else
-                    std::snprintf(formated_string, sizeof(formated_string), strfmt("vote %d option%d", vote_id).get(), vote_option);
+                    std::snprintf(formated_string, sizeof(formated_string), format_cstr("vote %d option1", vote_id).get());
 
                 g_IEngine->ClientCmd_Unrestricted(formated_string);
+                if (!was_local_player && g_pPlayerResource->GetTeam(eid) == g_pLocalPlayer->team && !was_local_player && vote_kicky)
+                    logging::Info(", voting F1 because kick target is %s playerlist state.", state);
             }
         }
         if (*chat_partysay)
@@ -216,9 +218,6 @@ void dispatchUserMessage(bf_read &buffer, int type)
         if (leave_after_local_vote && was_local_player_caller)
             tfmm::abandon();
         Reset();
-        break;
-    case 49:
-        logging::Info("who are we kickin gamer (if you just opened the voting menu for non-kicking purposes fuck you) ?");
         break;
     default:
         break;

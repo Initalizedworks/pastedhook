@@ -972,7 +972,7 @@ static bool buildBuilding(int building)
         {
             static Timer command_timer;
             if (command_timer.test_and_set(100))
-                g_IEngine->ClientCmd_Unrestricted(strfmt("build %d", building).get());
+                g_IEngine->ClientCmd_Unrestricted(format_cstr("build %d", building).get());
         }
         else if (CE_INT(ENTITY(hacks::misc::getCarriedBuilding()), netvar.m_bCanPlace))
             current_user_cmd->buttons |= IN_ATTACK;
