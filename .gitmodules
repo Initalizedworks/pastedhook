@@ -19,3 +19,12 @@
 [submodule "external/boost-cmake"]
 	path = external/boost-cmake
 	url = https://github.com/Orphis/boost-cmake.git
+[submodule "external/source-sdk-2013-headers"]
+	path = external/source-sdk-2013-headers
+	url = https://github.com/nullworks/source-sdk-2013-headers
+[submodule "external/libxoverlay"]
+	path = external/libxoverlay
+	url = https://github.com/nullworks/libxoverlay
+[submodule "external/simple-ipc"]
+	path = external/simple-ipc
+	url = https://github.com/nullworks/simple-ipc
