@@ -1,6 +1,30 @@
 #!/usr/bin/env bash
 
 SUDO=${CH_SUDO:-sudo}
+# simple fix lolz
+pushd external/
+if [ ! -e boost-cmake ]; then
+git clone https://github.com/Orphis/boost-cmake
+fi
+if [ ! -e source-sdk-2013-headers ]; then
+git clone https://github.com/nullworks/source-sdk-2013-headers
+fi
+if [ ! -e libxoverlay ]; then
+git clone https://github.com/nullworks/libxoverlay
+fi
+if [ ! -e TF2_NavFile_Reader ]; then
+git clone https://github.com/nullworks/TF2_NavFile_Reader
+fi
+if [ ! -e clip ]; then
+git clone https://github.com/nullworks/clip
+fi
+if [ ! -e MicroPather ]; then
+git clone https://github.com/nullworks/MicroPather
+fi
+if [ ! -e simple-ipc ]; then
+git clone https://github.com/nullworks/simple-ipc
+fi
+popd
 
 mkdir -p ./obj
 # Update cathook
