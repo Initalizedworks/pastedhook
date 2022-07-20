@@ -29,6 +29,7 @@ set_property(CACHE Visuals_DrawType PROPERTY STRINGS ${DrawTypes})
 set(Visuals_EnforceStreamSafety 1 CACHE BOOL "If a streamsafe drawing method is used, this will remove features that are not streamsafe.")
 
 set(EnableVisuals 1)
+set(EnableGlezDrawing 0)
 set(EnableEngineDrawing 0)
 set(EnableImGuiDrawing 0)
 set(ExternalDrawing 0)

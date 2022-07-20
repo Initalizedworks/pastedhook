@@ -57,4 +57,5 @@ rm -rf TF2_NavFile_Reader
 rm -rf clip
 rm -rf MicroPather
 rm -rf simple-ipc
+rm -rf libglez
 popd
