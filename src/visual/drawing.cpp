@@ -13,6 +13,9 @@
 #include "common.hpp"
 #if ENABLE_IMGUI_DRAWING
 #include "imgui/imrenderer.hpp"
+#elif ENABLE_GLEZ_DRAWING
+#include <glez/draw.hpp>
+#include <glez/glez.hpp>
 #elif ENABLE_ENGINE_DRAWING
 #include "picopng.hpp"
 #endif
@@ -170,11 +173,11 @@ static InitRoutine font_size(
             {
                 if (after > 0 && after < 100)
                 {
-#if !ENABLE_ENGINE_DRAWING && !ENABLE_IMGUI_DRAWING
-                fonts::esp_font_size->unload();
-                fonts::esp_font_size.reset(new fonts::font(DATA_PATH "/fonts/verdana.ttf", after));
+#if ENABLE_GLEZ_DRAWING
+                    fonts::esp->unload();
+                    fonts::esp.reset(new fonts::font(paths::getDataPath("/menu/Verdana.ttf"), after));
 #else
-                fonts::esp->changeSize(after);
+                    fonts::esp->changeSize(after);
 #endif
                 }
             });
@@ -183,11 +186,11 @@ static InitRoutine font_size(
             {
                 if (after > 0 && after < 100)
                 {
-#if !ENABLE_ENGINE_DRAWING && !ENABLE_IMGUI_DRAWING
-                fonts::center_screen->unload();
-                fonts::center_screen.reset(new fonts::font(DATA_PATH "/fonts/verdana.ttf", after));
+#if ENABLE_GLEZ_DRAWING
+                    fonts::center_screen->unload();
+                    fonts::center_screen.reset(new fonts::font(paths::getDataPath("/menu/Verdana.ttf"), after));
 #else
-                fonts::center_screen->changeSize(after);
+                    fonts::center_screen->changeSize(after);
 #endif
                 }
             });
@@ -203,9 +206,20 @@ void Initialize()
     {
         g_IEngine->GetScreenSize(draw::width, draw::height);
     }
-    fonts::menu.reset(new fonts::font(paths::getDataPath("/fonts/Verdana.ttf"), 13, true));
-    fonts::esp.reset(new fonts::font(paths::getDataPath("/fonts/Verdana.ttf"), 13, true));
-    fonts::center_screen.reset(new fonts::font(paths::getDataPath("/fonts/Verdana.ttf"), 14, true));
+#if ENABLE_GLEZ_DRAWING
+    glez::preInit();
+    fonts::menu.reset(new fonts::font(paths::getDataPath("/menu/Verdana.ttf"), 10));
+    fonts::esp.reset(new fonts::font(paths::getDataPath("/menu/Verdana.ttf"), 10));
+    fonts::center_screen.reset(new fonts::font(paths::getDataPath("/menu/Verdana.ttf"), 12));
+#elif ENABLE_ENGINE_DRAWING
+    fonts::menu.reset(new fonts::font(paths::getDataPath("/menu/Verdana.ttf"), 10, true));
+    fonts::esp.reset(new fonts::font(paths::getDataPath("/menu/Verdana.ttf"), 10, true));
+    fonts::center_screen.reset(new fonts::font(paths::getDataPath("/menu/Verdana.ttf"), 12, true));
+#elif ENABLE_IMGUI_DRAWING
+    fonts::menu.reset(new fonts::font(paths::getDataPath("/menu/Verdana.ttf"), 13, true));
+    fonts::esp.reset(new fonts::font(paths::getDataPath("/menu/Verdana.ttf"), 13, true));
+    fonts::center_screen.reset(new fonts::font(paths::getDataPath("/menu/Verdana.ttf"), 14, true));
+#endif
 #if ENABLE_ENGINE_DRAWING
     texture_white                = g_ISurface->CreateNewTextureID();
     unsigned char colorBuffer[4] = { 255, 255, 255, 255 };
@@ -255,6 +269,8 @@ void String(int x, int y, rgba_t rgba, const char *text, fonts::font &font)
     std::wstring ws = converter.from_bytes(text);
 
     g_ISurface->DrawPrintText(ws.c_str(), ws.size() + 1);
+#else
+    glez::draw::outlined_string(x, y, text, font, rgba, colors::black, nullptr, nullptr);
 #endif
 }
 
@@ -310,6 +326,8 @@ void Line(float x1, float y1, float x2_offset, float y2_offset, rgba_t color, fl
     {
         g_ISurface->DrawLine(x1, y1, x1 + x2_offset, y1 + y2_offset);
     }
+#elif ENABLE_GLEZ_DRAWING
+    glez::draw::line(x1, y1, x2_offset, y2_offset, color, thickness);
 #endif
 }
 
@@ -329,6 +347,8 @@ void Rectangle(float x, float y, float w, float h, rgba_t color)
     vertices[3].m_Position = { x + w, y };
 
     g_ISurface->DrawTexturedPolygon(4, vertices);
+#elif ENABLE_GLEZ_DRAWING
+    glez::draw::rect(x, y, w, h, color);
 #endif
 }
 
@@ -347,6 +367,8 @@ void Triangle(float x, float y, float x2, float y2, float x3, float y3, rgba_t c
     vertices[1].m_Position = { x3, y3 };
 
     g_ISurface->DrawTexturedPolygon(3, vertices);
+#elif ENABLE_GLEZ_DRAWING
+    glez::draw::triangle(x, y, x2, y2, x3, y3, color);
 #endif
 }
 
@@ -428,6 +450,8 @@ void RectangleTextured(float x, float y, float w, float h, rgba_t color, Texture
     vertices[3].Init(scr_botton_left, tex_botton_left);
 
     g_ISurface->DrawTexturedPolygon(4, vertices);
+#elif ENABLE_GLEZ_DRAWING
+    glez::draw::rect_textured(x, y, w, h, color, texture, tx, ty, tw, th, angle);
 #endif
 }
 
@@ -547,7 +571,9 @@ void InitGL()
     }
     xoverlay_show();
     xoverlay_draw_begin();
-#if ENABLE_IMGUI_DRAWING
+#if ENABLE_GLEZ_DRAWING
+    glez::init(xoverlay_library.width, xoverlay_library.height);
+#elif ENABLE_IMGUI_DRAWING
     im_renderer::init();
 #endif
     xoverlay_draw_end();
@@ -555,10 +581,11 @@ void InitGL()
 #if ENABLE_IMGUI_DRAWING
     // glewInit();
     im_renderer::init();
-#elif ENABLE_IMGUI_DRAWING
+#elif ENABLE_GLEZ_DRAWING || ENABLE_IMGUI_DRAWING
     glClearColor(1.0, 0.0, 0.0, 0.5);
     glewExperimental = GL_TRUE;
     glewInit();
+    glez::init(draw::width, draw::height);
 #endif
 #endif
 
@@ -570,7 +597,26 @@ void InitGL()
 void BeginGL()
 {
 #if ENABLE_IMGUI_DRAWING
+#if EXTERNAL_DRAWING
+    xoverlay_draw_begin();
+#endif
     im_renderer::renderStart();
+#elif ENABLE_GLEZ_DRAWING
+    glColor3f(1, 1, 1);
+#if EXTERNAL_DRAWING
+    xoverlay_draw_begin();
+    {
+        PROF_SECTION(draw_begin__SDL_GL_MakeCurrent);
+        // SDL_GL_MakeCurrent(sdl_hooks::window, context);
+    }
+#endif
+    {
+        glActiveTexture(GL_TEXTURE0);
+        PROF_SECTION(draw_begin__glez_begin);
+        glez::begin();
+        glDisable(GL_FRAMEBUFFER_SRGB);
+        PROF_SECTION(DRAWEX_draw_begin);
+    }
 #endif
 }
 
@@ -578,6 +624,24 @@ void EndGL()
 {
 #if ENABLE_IMGUI_DRAWING
     im_renderer::renderEnd();
+#if EXTERNAL_DRAWING
+    xoverlay_draw_end();
+    SDL_GL_MakeCurrent(sdl_hooks::window, nullptr);
+#endif
+#elif ENABLE_GLEZ_DRAWING
+    PROF_SECTION(DRAWEX_draw_end);
+    {
+        PROF_SECTION(draw_end__glez_end);
+        glEnable(GL_FRAMEBUFFER_SRGB);
+        glez::end();
+    }
+#if EXTERNAL_DRAWING
+    xoverlay_draw_end();
+    {
+        PROF_SECTION(draw_end__SDL_GL_MakeCurrent);
+        SDL_GL_MakeCurrent(sdl_hooks::window, nullptr);
+    }
+#endif
 #endif
 }
 } // namespace draw

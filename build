@@ -24,6 +24,9 @@ fi
 if [ ! -e simple-ipc ]; then
 git clone https://github.com/nullworks/simple-ipc
 fi
+if [ ! -e libglez ]; then
+git clone https://github.com/nullworks/libglez
+fi
 popd
 
 mkdir -p ./obj
