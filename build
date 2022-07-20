@@ -43,3 +43,15 @@ $SUDO bash -c "cd \"$cwd\"; cmake --build . --target data" || {
 }
 popd
 echo -e "\n\033[1;34mCathook updated successfully\n\033[0m"
+
+sleep 5;
+
+pushd external/
+rm -rf boost-cmake
+rm -rf source-sdk-2013-headers
+rm -rf libxoverlay
+rm -rf TF2_NavFile_Reader
+rm -rf clip
+rm -rf MicroPather
+rm -rf simple-ipc
+popd

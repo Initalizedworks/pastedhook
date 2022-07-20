@@ -117,7 +117,6 @@ std::string ShrinkString(std::string data, int max_x, fonts::font &font)
 int draw::width  = 0;
 int draw::height = 0;
 float draw::fov  = 90.0f;
-bool draw::inited = false;
 
 namespace fonts
 {
@@ -172,10 +171,10 @@ static InitRoutine font_size(
                 if (after > 0 && after < 100)
                 {
 #if !ENABLE_ENGINE_DRAWING && !ENABLE_IMGUI_DRAWING
-                    fonts::esp->unload();
-                    fonts::esp.reset(new fonts::font(paths::getDataPath("/fonts/verdana.ttf"), after));
+                fonts::esp_font_size->unload();
+                fonts::esp_font_size.reset(new fonts::font(DATA_PATH "/fonts/verdana.ttf", after));
 #else
-                    fonts::esp->changeSize(after);
+                fonts::esp->changeSize(after);
 #endif
                 }
             });
@@ -185,10 +184,10 @@ static InitRoutine font_size(
                 if (after > 0 && after < 100)
                 {
 #if !ENABLE_ENGINE_DRAWING && !ENABLE_IMGUI_DRAWING
-                    fonts::center_screen->unload();
-                    fonts::center_screen.reset(new fonts::font(paths::getDataPath("/fonts/verdana.ttf"), after));
+                fonts::center_screen->unload();
+                fonts::center_screen.reset(new fonts::font(DATA_PATH "/fonts/verdana.ttf", after));
 #else
-                    fonts::center_screen->changeSize(after);
+                fonts::center_screen->changeSize(after);
 #endif
                 }
             });
@@ -204,6 +203,9 @@ void Initialize()
     {
         g_IEngine->GetScreenSize(draw::width, draw::height);
     }
+    fonts::menu.reset(new fonts::font(paths::getDataPath("/fonts/Verdana.ttf"), 13, true));
+    fonts::esp.reset(new fonts::font(paths::getDataPath("/fonts/Verdana.ttf"), 13, true));
+    fonts::center_screen.reset(new fonts::font(paths::getDataPath("/fonts/Verdana.ttf"), 14, true));
 #if ENABLE_ENGINE_DRAWING
     texture_white                = g_ISurface->CreateNewTextureID();
     unsigned char colorBuffer[4] = { 255, 255, 255, 255 };
@@ -345,8 +347,6 @@ void Triangle(float x, float y, float x2, float y2, float x3, float y3, rgba_t c
     vertices[1].m_Position = { x3, y3 };
 
     g_ISurface->DrawTexturedPolygon(3, vertices);
-#elif ENABLE_GLEZ_DRAWING
-    glez::draw::triangle(x, y, x2, y2, x3, y3, color);
 #endif
 }
 
@@ -565,23 +565,12 @@ void InitGL()
 #if ENABLE_GUI
     gui::init();
 #endif
-    draw::inited = true;
 }
 
 void BeginGL()
 {
 #if ENABLE_IMGUI_DRAWING
-#if EXTERNAL_DRAWING
-    xoverlay_draw_begin();
-#endif
     im_renderer::renderStart();
-#if EXTERNAL_DRAWING
-    xoverlay_draw_begin();
-    {
-        PROF_SECTION(draw_begin__SDL_GL_MakeCurrent);
-        // SDL_GL_MakeCurrent(sdl_hooks::window, context);
-    }
-#endif
 #endif
 }
 
@@ -589,17 +578,6 @@ void EndGL()
 {
 #if ENABLE_IMGUI_DRAWING
     im_renderer::renderEnd();
-#if EXTERNAL_DRAWING
-    xoverlay_draw_end();
-    SDL_GL_MakeCurrent(sdl_hooks::window, nullptr);
-#endif
-#if EXTERNAL_DRAWING
-    xoverlay_draw_end();
-    {
-        PROF_SECTION(draw_end__SDL_GL_MakeCurrent);
-        SDL_GL_MakeCurrent(sdl_hooks::window, nullptr);
-    }
-#endif
 #endif
 }
 } // namespace draw
