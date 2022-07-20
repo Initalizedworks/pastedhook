@@ -7,7 +7,6 @@
                     <Option name="Custom" value="1"/>
                     <Option name="Default" value="2"/>
                     <Option name="Lennyfaces" value="3"/>
-                    <!-- farewell newlines -->
                     <Option name="Nullcore" value="4"/>
                     <Option name="Lmaobox" value="5"/>
                     <Option name="Lithium" value="6"/>
@@ -71,7 +70,7 @@
                     <Option name="Disable" value="0"/>
                     <Option name="Custom" value="1"/>
                     <Option name="Default" value="2"/>
-                    <Option name="NCC - MLG" value="4"/>
+                    <Option name="NCC - MLG" value="3"/>
                 </Select>
             </LabeledObject>
             <AutoVariable width="fill" target="killsay.file" label="Custom killsay"/>
