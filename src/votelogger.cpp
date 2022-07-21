@@ -6,6 +6,8 @@
  */
 
 #include "common.hpp"
+#include <boost/algorithm/string.hpp>
+#include <settings/Bool.hpp>
 #include "votelogger.hpp"
 #include "Votekicks.hpp"
 #include "PlayerTools.hpp"
@@ -18,11 +20,8 @@ static settings::Boolean vote_kickn{ "votelogger.autovote.no", "false" };
 static settings::Boolean vote_rage_vote{ "votelogger.autovote.no.rage", "false" };
 static settings::Boolean chat{ "votelogger.chat", "true" };
 static settings::Boolean chat_partysay{ "votelogger.chat.partysay", "false" };
-static settings::Boolean chat_partysay_result{ "votelogger.chat.partysay.result", "false" };
 static settings::Boolean chat_casts{ "votelogger.chat.casts", "false" };
-static settings::Boolean chat_partysay_casts{ "votelogger.chat.partysay.casts", "false" };
-static settings::Boolean chat_casts_f1_only{ "votelogger.chat.casts.f1-only", "false" };
-static settings::Boolean leave_after_local_vote{ "votelogger.leave-after-local-vote", "false" };
+static settings::Boolean requeue_on_kick{ "votelogger.requeue-on-kick", "false" };
 
 namespace votelogger
 {
