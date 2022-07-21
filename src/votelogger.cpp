@@ -68,6 +68,9 @@ struct CVRNG
 static CVRNG vote_command;
 void dispatchUserMessage(bf_read &buffer, int type)
 {
+    /* info is the person getting kicked,*/
+    /* info2 is the person calling the kick.*/
+    player_info_s info{}, info2{};
     switch (type)
     {
     case 45:
@@ -89,9 +92,6 @@ void dispatchUserMessage(bf_read &buffer, int type)
         buffer.Seek(0);
         target >>= 1;
 
-        // info is the person getting kicked,
-        // info2 is the person calling the kick.
-        player_info_s info{}, info2{};
         if (!GetPlayerInfo(target, &info) || !GetPlayerInfo(caller, &info2))
             break;
 
