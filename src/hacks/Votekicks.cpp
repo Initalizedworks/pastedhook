@@ -36,8 +36,13 @@ static int GetKickScore(int uid)
         return 0;
 
     uid = 0;
+    /* lowest priority */
+    if (enabled && pl.state != playerlist::k_EState::DEFAULT)
+        uid += 200;
+    /* they know who we are second priority */
     if (prioritize_previously_kicked && previously_kicked.find(i.friendsID) != previously_kicked.end())
         uid += 500;
+    /* FUCK YOU PAZER */
     if (prioritize_rage)
     {
         auto &pl = playerlist::AccessData(i.friendsID);
@@ -99,9 +104,9 @@ static void CreateMove()
 
         if (info.friendsID == local_info.friendsID)
             continue;
-        auto &pl = playerlist::AccessData(info.friendsID);
-        if (pl.state != playerlist::k_EState::DEFAULT)
+        if (!player_tools::shouldTargetSteamId(info.friendsID))
             continue;
+        auto &pl = playerlist::AccessData(info.friendsID);
         if (rage_only && (pl.state != playerlist::k_EState::RAGE && pl.state != playerlist::k_EState::PAZER))
             continue;
 
