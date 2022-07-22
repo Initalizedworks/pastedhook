@@ -11,13 +11,9 @@ namespace hacks::votekicks
 static settings::Boolean enabled{ "votekicks.enabled", "false" };
 /* 0 - Smart, 1 - Random, 2 - Sequential */
 static settings::Int mode{ "votekicks.mode", "0" };
-/* Should we only vote to maintain majority ? */
-static settings::Boolean maintain_majority_only{ "votekicks.maintain-majority-only", "false" };
 /* Time between calling a vote in milliseconds */
 static settings::Int timer{ "votekicks.timer", "1000" };
-/* Minimum amount of team members to start a vote */
-static settings::Int min_team_size{ "votekicks.min-team-size", "4" };
-/* Only kick rage or pazer playerlist states */
+/* Only kick rage or antibot playerlist states */
 static settings::Boolean rage_only{ "votekicks.rage-only", "false" };
 
 /* Priority settings */
@@ -36,12 +32,11 @@ static int GetKickScore(int uid)
         return 0;
 
     uid = 0;
-    auto &pl = playerlist::AccessData(i.friendsID);
-    if (prioritize_previously_kicked && previously_kicked.find(i.friendsID) != previously_kicked.end() || pl.state == playerlist::k_EState::DEFAULT)
+    if (prioritize_previously_kicked && previously_kicked.find(i.friendsID) != previously_kicked.end())
         uid += 500;
-    /* FUCK YOU PAZER */
     if (prioritize_rage)
     {
+        auto &pl = playerlist::AccessData(i.friendsID);
         if (pl.state == playerlist::k_EState::RAGE || pl.state == playerlist::k_EState::PAZER)
             uid += 1000;
     }
@@ -50,42 +45,15 @@ static int GetKickScore(int uid)
     return uid;
 }
 
-static bool NeedToVote()
-{
-    player_info_s local_info{};
-    int friends = 0;
-    int foes    = 0;
-
-    /* https://www.youtube.com/watch?v=TIEO20NVIBM */
-    if (CE_BAD(LOCAL_E) || !g_IEngine->GetPlayerInfo(LOCAL_E->m_IDX, &local_info))
-        return false;
-    for (int i = 1; i < g_GlobalVars->maxClients; ++i)
-    {
-        player_info_s info{};
-        if (!g_IEngine->GetPlayerInfo(i, &info) || !info.friendsID)
-            continue;
-        if (g_pPlayerResource->GetTeam(i) != g_pLocalPlayer->team)
-            continue;
-        if (!player_tools::shouldTargetSteamId(info.friendsID))
-            friends++;
-        else
-            foes++;
-    }
-    return foes >= friends;
-}
-
 static void CreateMove()
 {
     static Timer votekicks_timer;
     if (!votekicks_timer.test_and_set(*timer))
         return;
-    if (maintain_majority_only && !NeedToVote())
-        return;
 
     player_info_s local_info{};
     std::vector<int> targets;
     std::vector<int> scores;
-    int teamSize = 0;
 
     if (CE_BAD(LOCAL_E) || !g_IEngine->GetPlayerInfo(LOCAL_E->m_IDX, &local_info))
         return;
@@ -96,7 +64,6 @@ static void CreateMove()
             continue;
         if (g_pPlayerResource->GetTeam(i) != g_pLocalPlayer->team)
             continue;
-        teamSize++;
 
         if (info.friendsID == local_info.friendsID)
             continue;
@@ -109,7 +76,7 @@ static void CreateMove()
         targets.push_back(info.userID);
         scores.push_back(g_pPlayerResource->GetScore(g_IEngine->GetPlayerForUserID(info.userID)));
     }
-    if (targets.empty() || scores.empty() || teamSize <= *min_team_size)
+    if (targets.empty() || scores.empty())
         return;
 
     int target;
