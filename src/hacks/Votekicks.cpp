@@ -37,11 +37,7 @@ static int GetKickScore(int uid)
 
     uid = 0;
     auto &pl = playerlist::AccessData(i.friendsID);
-    /* lowest priority */
-    if (pl.state == playerlist::k_EState::DEFAULT)
-        uid += 200;
-    /* they know who we are second priority */
-    if (prioritize_previously_kicked && previously_kicked.find(i.friendsID) != previously_kicked.end())
+    if (prioritize_previously_kicked && previously_kicked.find(i.friendsID) != previously_kicked.end() || pl.state == playerlist::k_EState::DEFAULT)
         uid += 500;
     /* FUCK YOU PAZER */
     if (prioritize_rage)
