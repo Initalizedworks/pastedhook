@@ -99,9 +99,9 @@ static void CreateMove()
 
         if (info.friendsID == local_info.friendsID)
             continue;
-        if (!player_tools::shouldTargetSteamId(info.friendsID))
-            continue;
         auto &pl = playerlist::AccessData(info.friendsID);
+        if (pl.state != playerlist::k_EState::DEFAULT)
+            continue;
         if (rage_only && (pl.state != playerlist::k_EState::RAGE && pl.state != playerlist::k_EState::PAZER))
             continue;
 
