@@ -21,6 +21,7 @@ static settings::Int min_team_size{ "votekicks.min-team-size", "4" };
 static settings::Boolean rage_only{ "votekicks.rage-only", "false" };
 
 /* Priority settings */
+static settings::Boolean default_priority{ "votekicks.prioritize.default", "true" };
 static settings::Boolean prioritize_rage{ "votekicks.prioritize.rage", "true" };
 static settings::Boolean prioritize_previously_kicked{ "votekicks.prioritize.previous", "true" };
 /* If highest score target >= this rvar (& gt 0), make them highest priority to kick */
@@ -37,7 +38,7 @@ static int GetKickScore(int uid)
 
     uid = 0;
     /* lowest priority */
-    if (enabled && pl.state == playerlist::k_EState::DEFAULT)
+    if (default_priority && pl.state == playerlist::k_EState::DEFAULT)
         uid += 200;
     /* they know who we are second priority */
     if (prioritize_previously_kicked && previously_kicked.find(i.friendsID) != previously_kicked.end())
