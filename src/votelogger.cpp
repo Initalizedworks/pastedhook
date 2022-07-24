@@ -129,7 +129,6 @@ void dispatchUserMessage(bf_read &buffer, int type)
             bool friendly_kicked = !player_tools::shouldTargetSteamId(info.friendsID);
             bool friendly_caller = !player_tools::shouldTargetSteamId(info2.friendsID);
 
-            int vote_option   = -1;
             /* Determine string */
             std::string state = "DEFAULT";
             switch (pl.state)
@@ -159,25 +158,24 @@ void dispatchUserMessage(bf_read &buffer, int type)
 
             if (*vote_kickn && friendly_kicked)
             {
-                vote_option = 2;
-                logging::Info("Voting F%d because %s [U:1:%u] is %s playerlist state",vote_option, info.name, info.friendsID, state);
+                if (*vote_wait)
+                    vote_command = { format_cstr("wait %d;vote %d option2", UniformRandomInt(*vote_wait_min, *vote_wait_max), vote_id).get() };
+                else
+                    vote_command = { format_cstr("vote %d option2", vote_id).get() };
+                vote_command.timer.update();
+                logging::Info("Voting F2 because %s [U:1:%u] is %s playerlist state", info.name, info.friendsID, state);
                 if (*vote_rage_vote && !friendly_caller)
                     pl_caller.state = k_EState::RAGE;
-                    logging::Info("Voting F%d because %s [U:1:%u] is %s playerlist state. A Counter-kick will be called on %s [U:1:%u] when we can vote.",vote_option, info.name, info.friendsID, state, info2.name, info2.friendsID);
+                    logging::Info("Voting F2 because %s [U:1:%u] is %s playerlist state. A Counter-kick will be called on %s [U:1:%u] when we can vote.", info.name, info.friendsID, state, info2.name, info2.friendsID);
             }
             else if (*vote_kicky && !friendly_kicked)
             {
-                vote_option = 1;
-                logging::Info("Voting F%d because %s [U:1:%u] is %s",vote_option, info.name, info.friendsID);
-            }
-            if (vote_option != -1)
-            {
-                /* i swear to god if you break again */
-                if (*vote_wait)
-                    vote_command = { format_cstr("wait %d;vote %d option%d", UniformRandomInt(*vote_wait_min, *vote_wait_max), vote_id).get(), vote_option };
+                 if (*vote_wait)
+                    vote_command = { format_cstr("wait %d;vote %d option1", UniformRandomInt(*vote_wait_min, *vote_wait_max), vote_id).get() };
                 else
-                    vote_command = { format_cstr("vote %d option%d", vote_id).get(), vote_option };
+                    vote_command = { format_cstr("vote %d option1", vote_id).get() };
                 vote_command.timer.update();
+                logging::Info("Voting F1 because %s [U:1:%u] is %s", info.name, info.friendsID);
             }
         }
         if (*chat_partysay)
