@@ -33,7 +33,7 @@ static bool was_local_player_caller{ false };
     static int F2count = 0; */
 static Timer local_kick_timer{};
 static int kicked_player;
-    
+
 void Reset()
 {
     was_local_player        = false;
@@ -116,7 +116,7 @@ void dispatchUserMessage(bf_read &buffer, int type)
         if (info.friendsID == g_ISteamUser->GetSteamID().GetAccountID())
             was_local_player = true;
             local_kick_timer.update();
-        
+
         if (info2.friendsID == g_ISteamUser->GetSteamID().GetAccountID())
             was_local_player_caller = true;
 
@@ -175,10 +175,9 @@ void dispatchUserMessage(bf_read &buffer, int type)
                 /* i swear to god if you break again */
                 if (*vote_wait)
                     vote_command = { format_cstr("wait %d;vote %d option%d", UniformRandomInt(*vote_wait_min, *vote_wait_max), vote_id).get(), vote_option };
-                    vote_command.timer.update();
                 else
                     vote_command = { format_cstr("vote %d option%d", vote_id).get(), vote_option };
-                    vote_command.timer.update();
+                vote_command.timer.update();
             }
         }
         if (*chat_partysay)
