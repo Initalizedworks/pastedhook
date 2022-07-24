@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-SUDO=${CH_SUDO:-sudo}
-# simple fix lolz
 pushd external/
 if [ ! -e boost-cmake ]; then
 git clone https://github.com/Orphis/boost-cmake
@@ -39,7 +37,7 @@ exit 1
 cwd="$(pwd)"
 cmake --build . --target data || {
 echo -e "\033[1;31m\nFailed to update /opt/cathook/data directory! Trying with root rights!\n\033[0m"
-$SUDO bash -c "cd \"$cwd\"; cmake --build . --target data" || {
+sudo bash -c "cd \"$cwd\"; cmake --build . --target data" || {
     echo -e "\033[1;31m\nFailed to update /opt/cathook/data directory\n\033[0m"
     exit 1
     }
@@ -47,7 +45,9 @@ $SUDO bash -c "cd \"$cwd\"; cmake --build . --target data" || {
 popd
 echo -e "\n\033[1;34mCathook updated successfully\n\033[0m"
 
-sleep 5;
+read -r -p "Remove /external extras? [y/N] " response
+if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]
+then
 
 pushd external/
 rm -rf boost-cmake
@@ -59,3 +59,5 @@ rm -rf MicroPather
 rm -rf simple-ipc
 rm -rf libglez
 popd
+
+fi

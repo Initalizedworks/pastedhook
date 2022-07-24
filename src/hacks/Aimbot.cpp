@@ -351,15 +351,6 @@ Vector viewangles_this_tick(0.0f);
 bool slow_can_shoot = false;
 bool projectileAimbotRequired;
 
-enum slots
-{
-    primary   = 1,
-    secondary = 2,
-    melee     = 3,
-    pda1      = 4,
-    pda2      = 5
-};
-
 // This array will store calculated projectile/hitscan predictions
 // for current frame, to avoid performing them again
 AimbotCalculatedData_s calculated_data_array[2048]{};
@@ -411,7 +402,7 @@ static void CreateMove()
                     int weapon_case = LOCAL_W->m_iClassID();
                     doAutoZoom(true);
                     /* very much simple ""fix"" for the aimbot death stare */
-                    if (g_pLocalPlayer->holding_sniper_rifle && g_pLocalPlayer->bZoomed && CE_GOOD(LOCAL_W) && re::C_BaseCombatWeapon::GetSlot(RAW_ENT(LOCAL_W)) + 1 != melee)
+                    if (g_pLocalPlayer->holding_sniper_rifle && g_pLocalPlayer->bZoomed && CE_GOOD(LOCAL_W) && re::C_BaseCombatWeapon::GetSlot(RAW_ENT(LOCAL_W)) + 1 != 3)
                         Aim(target_entity);
                     else if (!g_pLocalPlayer->holding_sniper_rifle)
                         Aim(target_entity);
