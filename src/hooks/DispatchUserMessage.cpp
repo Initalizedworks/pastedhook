@@ -1,65 +1,49 @@
+
 /*
   Created by Jenny White on 29.04.18.
   Copyright (c) 2018 nullworks. All rights reserved.
 */
 
 #include <chatlog.hpp>
-#include <boost/algorithm/string.hpp>
 #include <MiscTemporary.hpp>
-#include <hacks/AntiAim.hpp>
 #include <settings/Bool.hpp>
 #include "HookedMethods.hpp"
 #include "CatBot.hpp"
-#include "ChatCommands.hpp"
-#include "MiscTemporary.hpp"
-#include <iomanip>
-#include "votelogger.hpp"
 #include "nospread.hpp"
+#include "PlayerTools.hpp"
+#include "votelogger.hpp"
 
+static settings::Boolean clean_global{ "chat.censor.global-chat", "false" };
 static settings::Boolean dispatch_log{ "debug.log-dispatch-user-msg", "false" };
-static settings::Boolean chat_filter_enable{ "chat.censor.enable", "false" };
-static settings::Boolean anti_votekick{ "cat-bot.anti-autobalance", "false" };
+static settings::Boolean chat_filter{ "chat.censor.enable", "false" };
+static settings::String chat_filter_words{ "chat.censor.words", "skid;script;cheat;hak;hac;f1;f2;hax;ban;bot;report;vote;kick;kcik;kik;no;me;not;spam;chat;boat;avatar;picture;pfp" };
+static settings::Boolean chat_filter_class{ "chat.censor.class", "true" };
+static settings::Boolean chat_filter_friends{ "chat.censor.friends", "false" };
+/* Note the whitespace character in set */
+static settings::String chat_filter_remove_chars{ "chat.censor.remove_chars", "- .,:" };
+static settings::String chat_filter_find_chars{ "chat.censor.find_chars", "1430657" };
+static settings::String chat_filter_repl_chars{ "chat.censor.replacement_chars", "iaeogst" };
+/* >0 - find this amount of name characters in message
+ *  0 - disable
+ * <0 - use whole name */
+static settings::Int chat_filter_name_length{ "chat.censor.name_part_length", "4" };
+static settings::Boolean anti_autobalance{ "cat-bot.anti-autobalance", "false" };
+static settings::Boolean anti_autobalance_safety{ "cat-bot.anti-autobalance.safety", "true" };
 
-static bool retrun = false;
-static Timer gitgud{};
 
-const static std::string clear("GO FUCK YOURSELF");
-std::string lastfilter{};
-std::string lastname{};
+static Timer sendmsg{}, gitgud{};
 
-namespace hacks::autoheal
-{
-extern std::vector<int> called_medic;
-}
+// Using repeated char causes crash on some systems. Suboptimal solution.
+const static char *clear = "GO FUCK YOURSELF";
+static char *lastname, *lastfilter;
+
 namespace hooked_methods
 {
-static Timer sendmsg{};
-template <typename T> void SplitName(std::vector<T> &ret, const T &name, int num)
-{
-    T tmp;
-    int chars = 0;
-    for (char i : name)
-    {
-        if (i == ' ')
-            continue;
 
-        tmp.push_back(std::tolower(i));
-        ++chars;
-        if (chars == num + 1)
-        {
-            chars = 0;
-            ret.push_back(tmp);
-            tmp.clear();
-        }
-    }
-    if (tmp.size() > 2)
-        ret.push_back(tmp);
-}
-static int anti_balance_attempts = 0;
-static std::string previous_name = "";
+static char previous_address[64];
 static Timer reset_it{};
 static Timer wait_timer{};
-void Paint()
+static void Paint()
 {
     if (!wait_timer.test_and_set(1000))
         return;
@@ -69,228 +53,240 @@ void Paint()
     if (reset_it.test_and_set(20000))
     {
         anti_balance_attempts = 0;
-        previous_name         = "";
+        previous_address[0]   = 0;
     }
 }
-static InitRoutine Autobalance([]() { EC::Register(EC::Paint, Paint, "paint_autobalance", EC::average); });
+static bool HasNamePart(const char *tgt, const char *iname, int count)
+{
+    char name[32], *p = name, c;
+
+    int len = std::strlen(iname);
+    if (!len)
+        return false;
+
+    std::memcpy(name, iname, len + 1);
+    if (count < 0 || len < count)
+        count = len;
+
+    while ((c = p[count]))
+    {
+        p[count] = 0;
+        if (std::strstr(tgt, p))
+        {
+            logging::Info("Censor reason: message contained part of your name %s", p);
+            return true;
+        }
+        p[count] = c;
+        ++p;
+    }
+    return false;
+}
+static const char *GetActiveClassName()
+{
+    switch (g_pLocalPlayer->clazz)
+    {
+    case tf_scout:
+        return "scout";
+    case tf_soldier:
+        return "soldier";
+    case tf_pyro:
+        return "pyro";
+    case tf_demoman:
+        return "demo";
+    case tf_engineer:
+        return "engi";
+    case tf_heavy:
+        return "heavy";
+    case tf_medic:
+        return "med";
+    case tf_sniper:
+        return "sniper";
+    case tf_spy:
+        return "spy";
+    }
+    return nullptr;
+}
+
+static void CensorChat(int m_IDX, const char *event, const char *name, const char *message)
+{
+    if (std::strncmp(event, "TF_Chat", 7))
+        return;
+    if (!chat_filter_friends)
+    {
+        player_info_s info{};
+        if (g_IEngine->GetPlayerInfo(m_IDX, &info))
+        {
+            if (!player_tools::shouldTargetSteamId(info.friendsID))
+                return;
+        }
+    }
+
+    player_info_s info;
+    g_IEngine->GetPlayerInfo(LOCAL_E->m_IDX, &info);
+
+    std::size_t msg_len     = std::strlen(message);
+    char *processed_message = new char[msg_len + 1];
+    StringToLower(processed_message, message);
+
+    const char *filter_chars = (*chat_filter_remove_chars).c_str(),
+        *find_chars = (*chat_filter_find_chars).c_str(),
+        *repl_chars = (*chat_filter_repl_chars).c_str();
+
+    RemoveChars(processed_message, filter_chars, msg_len);
+    ReplaceChars(processed_message, find_chars, repl_chars);
+    logging::Info("Processed message: %s", processed_message);
+    bool matches = false;
+    if (*chat_filter_class)
+    {
+        const char *clazz = GetActiveClassName();
+        matches           = clazz && std::strstr(processed_message, clazz);
+        if (matches)
+            logging::Info("Censor reason: message contained name of your active class: %s", clazz);
+    }
+    if (!matches && (*chat_filter_words).size())
+    {
+        char *filter_words = new char[(*chat_filter_words).size() + 1];
+        StringToLower(filter_words, (*chat_filter_words).c_str());
+        RemoveChars(filter_words, filter_chars, (*chat_filter_words).size());
+        ReplaceChars(filter_words, find_chars, repl_chars);
+
+        char *tok_tmp, *cur_tok = strtok_r(filter_words, ";", &tok_tmp);
+        for (;!matches && cur_tok; cur_tok = strtok_r(nullptr, ";", &tok_tmp))
+        {
+            matches = std::strstr(processed_message, cur_tok);
+            if (matches)
+                logging::Info("Censor reason: message contained censored word: %s", cur_tok);
+        }
+        delete[] filter_words;
+    }
+    if (!matches && *chat_filter_name_length)
+    {
+        StringToLower(info.name, info.name);
+        RemoveChars(info.name, filter_chars);
+        ReplaceChars(info.name, find_chars, repl_chars);
+        matches = HasNamePart(processed_message, info.name, *chat_filter_name_length);
+    }
+    if (matches)
+    {
+        chat_stack::Say(clear, !*clean_global);
+#if ENABLE_VISUALS
+        if (lastname)
+        {
+            delete[] lastname;
+            delete[] lastfilter;
+        }
+        lastfilter = CStringDuplicate(message);
+        lastname   = CStringDuplicate(name);
+        gitgud.update();
+#endif
+    }
+    delete[] processed_message;
+}
+
+static InitRoutine Autobalance([]() {
+  EC::Register(EC::Paint, Paint, "paint_autobalance", EC::average);
+});
+
 DEFINE_HOOKED_METHOD(DispatchUserMessage, bool, void *this_, int type, bf_read &buf)
 {
+    int s, i, j;
+    char c, *p;
+
     if (!isHackActive())
         return original::DispatchUserMessage(this_, type, buf);
 
-    int s, i;
-    char c;
     const char *buf_data = reinterpret_cast<const char *>(buf.m_pData);
-
+    s = buf.GetNumBytesLeft();
     /* Delayed print of name and message, censored by chat_filter
      * TO DO: Document type 47
      */
-    if (retrun && type != 47 && gitgud.test_and_set(300))
+#if ENABLE_VISUALS
+    if (lastname && type != 47 && gitgud.test_and_set(300))
     {
-        PrintChat("\x07%06X%s\x01: %s", 0xe05938, lastname.c_str(), lastfilter.c_str());
-        retrun = false;
+        PrintChat("\x07%06X%s\x01: %s", 0xe05938, lastname, lastfilter);
+        delete[] lastname;
+        delete[] lastfilter;
+        lastname = lastfilter = nullptr;
     }
+#endif
     // We should bail out
     if (!hacks::nospread::DispatchUserMessage(&buf, type))
         return true;
-    std::string data;
     switch (type)
     {
-
-    case 25:
-    {
-        // DATA = [ 01 01 06  ] For "Charge me Doctor!"
-        // First Byte represents entityid
-        int ent_id = buf.ReadByte();
-        // Second Byte represents the voicemenu used for it
-        int voice_menu = buf.ReadByte();
-        // Third Byte represents the command in that voicemenu (starting from 0)
-        int command_id = buf.ReadByte();
-
-        if (voice_menu == 1 && command_id == 6)
-            hacks::autoheal::called_medic.push_back(ent_id);
-        // If we don't .Seek(0) the game will have a bad  time reading
-        buf.Seek(0);
-        break;
-    }
-    // Hud message
-    case 26:
-    {
-        // Hud message type
-        auto message_type = buf.ReadByte();
-
-        // Truce activated
-        if (message_type == 26)
-            setTruce(true);
-        // Truce deactivated
-        else if (message_type == 27)
-            setTruce(false);
-
-        buf.Seek(0);
-        break;
-    }
     case 12:
         if (hacks::catbot::anti_motd && hacks::catbot::catbotmode)
         {
-            data = std::string(buf_data);
-            if (data.find("class_") != data.npos)
+            if (std::strstr(buf_data, "class_"))
                 return false;
         }
         break;
     case 5:
     {
-        if (*anti_votekick && buf.GetNumBytesLeft() > 35)
+        if (!anti_autobalance || s <= 35 || CE_BAD(LOCAL_E))
+            break;
+
+        INetChannel *server = (INetChannel *) g_IEngine->GetNetChannelInfo();
+        if (!server)
+            break;
+
+        if (!std::strstr(buf_data, "TeamChangeP"))
+            break;
+
+        auto current_address = server->GetAddress();
+        if (std::strncmp(previous_address, current_address, sizeof(previous_address)))
         {
-            INetChannel *server = (INetChannel *) g_IEngine->GetNetChannelInfo();
-            data                = std::string(buf_data);
-            logging::Info("%s", data.c_str());
-            if (data.find("TeamChangeP") != data.npos && CE_GOOD(LOCAL_E))
-            {
-                std::string server_name(server->GetAddress());
-                if (server_name != previous_name)
-                {
-                    previous_name         = server_name;
-                    anti_balance_attempts = 0;
-                }
-                if (anti_balance_attempts < 2)
-                {
-                    ignoredc = true;
-                    g_IEngine->ClientCmd_Unrestricted("killserver;wait 100;cat_mm_join");
-                }
-                else
-                {
-                    std::string autobalance_msg = "tf_party_chat \"autobalanced in 3 seconds";
-                    if (ipc::peer && ipc::peer->connected)
-                        autobalance_msg += format(" IPC ID ", ipc::peer->client_id, "\"");
-                    else
-                        autobalance_msg += "\"";
-                    g_IEngine->ClientCmd_Unrestricted(autobalance_msg.c_str());
-                }
-                anti_balance_attempts++;
-            }
+            std::strncpy(previous_address, current_address, sizeof(previous_address));
+            anti_balance_attempts = 0;
         }
+        if (!anti_autobalance_safety || anti_balance_attempts < 2)
+        {
+            ignoredc = true;
+            logging::Info("Rejoin: anti autobalance");
+            g_IEngine->ClientCmd_Unrestricted("killserver;wait 10;cat_mm_join");
+        }
+        else
+            re::CTFPartyClient::GTFPartyClient()->SendPartyChat("Will be autobalanced in 3 seconds");
+
+        anti_balance_attempts++;
         break;
     }
     case 4:
-    {
-        s = buf.GetNumBytesLeft();
         if (s >= 256 || CE_BAD(LOCAL_E))
             break;
 
-        for (i = 0; i < s; i++)
-            data.push_back(buf_data[i]);
         /* First byte is player ENT index
          * Second byte is unindentified (equals to 0x01)
          */
-        const char *p = data.c_str() + 2;
-        std::string event(p), name((p += event.size() + 1)), message(p + name.size() + 1);
-        if (chat_filter_enable && data[0] == LOCAL_E->m_IDX && event == "#TF_Name_Change")
-        {
-            chat_stack::Say("\e" + clear, false);
-        }
-        else if (chat_filter_enable && data[0] != LOCAL_E->m_IDX && event.find("TF_Chat") == 0)
-        {
-            player_info_s info{};
-            GetPlayerInfo(LOCAL_E->m_IDX, &info);
-            const char *claz  = nullptr;
-            std::string name1 = info.name;
+        const char *event = buf_data + 2, *name = event + std::strlen(event) + 1,
+            *message = name + std::strlen(name) + 1;
 
-            switch (g_pLocalPlayer->clazz)
-            {
-            case tf_scout:
-                claz = "scout";
-                break;
-            case tf_soldier:
-                claz = "soldier";
-                break;
-            case tf_pyro:
-                claz = "pyro";
-                break;
-            case tf_demoman:
-                claz = "demo";
-                break;
-            case tf_engineer:
-                claz = "engi";
-                break;
-            case tf_heavy:
-                claz = "heavy";
-                break;
-            case tf_medic:
-                claz = "med";
-                break;
-            case tf_sniper:
-                claz = "sniper";
-                break;
-            case tf_spy:
-                claz = "spy";
-                break;
-            default:
-                break;
-            }
+        if (*chat_filter)
+            CensorChat(buf_data[0], event, name, message);
 
-            std::vector<std::string> res = { "skid", "script", "cheat", "hak", "hac", "f1", "hax", "vac", "ban", "bot", "report", "kick", "hcak", "chaet", "one" };
-            if (claz)
-                res.emplace_back(claz);
-
-            SplitName(res, name1, 2);
-            SplitName(res, name1, 3);
-
-            std::string message2(message);
-            /* Boost here */
-            boost::to_lower(message2);
-
-            const char *toreplace[]   = { " ", "4", "3", "0", "6", "5", "7", "@", ".", ",", "-" };
-            const char *replacewith[] = { "", "a", "e", "o", "g", "s", "t", "a", "", "", "" };
-
-            for (int i = 0; i < 7; i++)
-                /* Boost here */
-                boost::replace_all(message2, toreplace[i], replacewith[i]);
-
-            for (auto filter : res)
-                /* Boost here */
-                if (boost::contains(message2, filter))
-                {
-                    chat_stack::Say("\e" + clear, true);
-                    retrun     = true;
-                    lastfilter = message;
-                    lastname   = format(name);
-                    gitgud.update();
-                    break;
-                }
-        }
-        if (event.find("TF_Chat") == 0)
-            hacks::ChatCommands::handleChatMessage(message, data[0]);
-        chatlog::LogMessage(data[0], message);
-        buf = bf_read(data.c_str(), data.size());
-        buf.Seek(0);
+        chatlog::LogMessage(buf_data[0], message);
         break;
     }
-    }
-
     if (dispatch_log)
     {
-        logging::Info("D> %i", type);
-        std::ostringstream str;
-        while (buf.GetNumBytesLeft())
-            str << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(buf.ReadByte()) << ' ';
+        char *m = new char[4096];
+        if (s >= 1024)
+            s = 1024;
 
-        std::string msg(str.str());
-        logging::Info("MESSAGE %d, DATA = [ %s ] strings listed below", type, msg.c_str());
-        buf.Seek(0);
+        for (i = 0; i < s; ++i)
+            std::snprintf(&m[i * 3], 4, "%02X ", int(buf_data[i]) & 0xFF);
 
-        i = 0;
-        msg.clear();
-        while (buf.GetNumBytesLeft())
+        logging::Info("MESSAGE %d, DATA = [ %s] strings listed below", type, m);
+        j = 0;
+        for (i = 0; i < s; ++i)
         {
-            if ((c = buf.ReadByte()))
-                msg.push_back(c);
-            else
+            if (!(m[j++] = buf_data[i]))
             {
-                logging::Info("[%d] %s", i++, msg.c_str());
-                msg.clear();
+                logging::Info("%s", m);
+                j = 0;
             }
         }
-        buf.Seek(0);
+        delete[] m;
     }
     votelogger::dispatchUserMessage(buf, type);
     return original::DispatchUserMessage(this_, type, buf);

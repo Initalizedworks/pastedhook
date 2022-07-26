@@ -34,7 +34,7 @@ static settings::Boolean vischeck{ "esp.vischeck", "true" };
 static settings::Boolean hide_invis{ "esp.hide-invis", "false" };
 static settings::Boolean legit{ "esp.legit", "false" };
 
-static settings::Boolean local_esp{ "esp.show.local", "true" };
+static settings::Boolean local_esp{ "esp.show.local", "false" };
 static settings::Boolean buildings{ "esp.show.buildings", "true" };
 static settings::Boolean team_buildings{ "esp.show.team-buildings", "false" };
 static settings::Boolean teammates{ "esp.show.teammates", "true" };

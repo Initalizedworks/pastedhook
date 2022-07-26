@@ -1,8 +1,7 @@
 <Tab name="Movement" padding="6 6 6 6">
     <Box padding="12 6 6 6" width="content" height="content" name="General">
         <List width="150">
-            <AutoVariable width="fill" target="misc.auto-jump" label="Auto jump" tooltip="Automatically bunnyhop."/>
-            <AutoVariable width="fill" target="misc.auto-jump.chance" label="Auto jump chance" tooltip="% chance of a successful bunnyhop"/>
+            <AutoVariable width="fill" target="misc.auto-jump" label="Bhop" tooltip="Automatically bunnyhop."/>
             <LabeledObject width="fill" label="Auto strafe">
                 <Select target="misc.autostrafe">
                     <Option name="Off" value="0"/>
@@ -11,6 +10,9 @@
                 </Select>
             </LabeledObject>
         </List>
+        <AutoVariable width="fill" target="misc.no-push" label="Nopush"/>
+        <AutoVariable width="fill" target="misc.roll-speedhack" label="Moonwalk" tooltip="Increase crouched movement speed"/>
+        <AutoVariable width="fill" target="misc.roll-speedhack.forward" label="Moonwalk forwards"/>
     </Box>
     <Box padding="12 6 6 6" width="content" height="content" name="FollowBot" x="170">
         <List width="180">
@@ -34,7 +36,7 @@
             <AutoVariable width="fill" target="follow-bot.draw-crumbs" label="Draw crumbs" tooltip="Draw follow path"/>
         </List>
     </Box>
-    <Box padding="12 6 6 6" width="content" height="content" name="NavBot" y="65">
+    <Box padding="12 6 6 6" width="content" height="content" name="NavBot" y="100">
         <List width="150">
             <AutoVariable width="fill" target="nav.enabled" label="Enable pathing"/>
             <AutoVariable width="fill" target="nav.draw" label="Draw path"/>
@@ -63,22 +65,6 @@
             </LabeledObject>
             <AutoVariable width="fill" target="navbot.snipe-sentries" label="Try to target sentries"/>
             <AutoVariable width="fill" target="navbot.stay-near" label="Stalk and murder"/>
-        </List>
-    </Box>
-    <Box padding="12 6 6 6" width="content" height="content" name="Anti-backstab" x="170" y="300">
-        <List width="180">
-            <AutoVariable width="fill" target="antibackstab.enable" label="Enable anti-backstab"/>
-            <AutoVariable width="fill" target="antibackstab.angle" label="Detection angle"/>
-            <AutoVariable width="fill" target="antibackstab.distance" label="Detection distance"/>
-            <AutoVariable width="fill" target="antibackstab.silent" label="Silent"/>
-            <AutoVariable width="fill" target="antibackstab.nope" label="Nope!" tooltip="Have your character say 'no'"/>
-        </List>
-    </Box>
-    <Box padding="12 6 6 6" width="content" height="content" name="Misc" x="370">
-        <List width="150">
-            <AutoVariable width="fill" target="misc.no-push" label="Nopush"/>
-            <AutoVariable width="fill" target="misc.roll-speedhack" label="Moonwalk" tooltip="Increase crouched movement speed"/>
-            <AutoVariable width="fill" target="misc.roll-speedhack.forward" label="Moonwalk forwards"/>
         </List>
     </Box>
 </Tab>

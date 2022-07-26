@@ -13,6 +13,8 @@ static settings::Boolean enabled{ "votekicks.enabled", "false" };
 static settings::Int mode{ "votekicks.mode", "0" };
 /* Time between calling a vote in milliseconds */
 static settings::Int timer{ "votekicks.timer", "1000" };
+/* Minimum amount of team members to start a vote */
+static settings::Int min_team_size{ "votekicks.min-team-size", "4" };
 /* Only kick rage or antibot playerlist states */
 static settings::Boolean rage_only{ "votekicks.rage-only", "false" };
 
@@ -54,6 +56,7 @@ static void CreateMove()
     player_info_s local_info{};
     std::vector<int> targets;
     std::vector<int> scores;
+    int teamSize = 0;
 
     if (CE_BAD(LOCAL_E) || !g_IEngine->GetPlayerInfo(LOCAL_E->m_IDX, &local_info))
         return;
@@ -64,6 +67,7 @@ static void CreateMove()
             continue;
         if (g_pPlayerResource->GetTeam(i) != g_pLocalPlayer->team)
             continue;
+        teamSize++;
 
         if (info.friendsID == local_info.friendsID)
             continue;
@@ -76,7 +80,7 @@ static void CreateMove()
         targets.push_back(info.userID);
         scores.push_back(g_pPlayerResource->GetScore(g_IEngine->GetPlayerForUserID(info.userID)));
     }
-    if (targets.empty() || scores.empty())
+    if (targets.empty() || scores.empty() || teamSize <= *min_team_size)
         return;
 
     int target;

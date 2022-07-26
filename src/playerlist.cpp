@@ -340,8 +340,7 @@ CatCommand pl_set_state("pl_set_state", "cat_pl_set_state [playername] [state] (
                                 return;
                             }
                             std::string state = args.Arg(2);
-                            /* Boost here */
-                            boost::to_upper(state);
+                            StringToUpper(state.data(), state.data());
                             player_info_s info;
                             GetPlayerInfo(id, &info);
 
@@ -398,25 +397,24 @@ static int cat_pl_set_state_completionCallback(const char *c_partial, char comma
 
     if (parts[0].empty() || (parts[1].empty() && (!parts[0].empty() && partial.back() != ' ')))
     {
-        /* Boost here */
-        boost::to_lower(parts[0]);
+        StringToLower(parts[0].data(), parts[0].data());
         for (const auto &s : names)
         {
-            // if (s.find(parts[0]) == 0)
-            /* Boost here */
-            if (boost::to_lower_copy(s).find(parts[0]) == 0)
+            std::string c(s);
+            StringToLower(c.data(), c.data());
+            if (c.find(parts[0]) == 0)
             {
                 snprintf(commands[count++], COMMAND_COMPLETION_ITEM_LENGTH - 1, "cat_pl_set_state %s", s.c_str());
             }
         }
         return count;
     }
-    /* Boost here */
-    boost::to_lower(parts[1]);
+    StringToLower(parts[1].data(), parts[1].data());
     for (const auto &s : k_Names)
     {
-        /* Boost here */
-        if (boost::to_lower_copy(s).find(parts[1]) == 0)
+        std::string c(s);
+        StringToLower(c.data(), c.data());
+        if (c.find(parts[1]) == 0)
         {
             snprintf(commands[count++], COMMAND_COMPLETION_ITEM_LENGTH - 1, "cat_pl_set_state %s %s", parts[0].c_str(), s.c_str());
             if (count == COMMAND_COMPLETION_MAXITEMS)

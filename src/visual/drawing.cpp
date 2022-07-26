@@ -167,35 +167,35 @@ std::unique_ptr<font> center_screen{ nullptr };
 } // namespace fonts
 
 static InitRoutine font_size(
-    []()
-    {
-        esp_font_size.installChangeCallback(
-            [](settings::VariableBase<int> &var, int after)
-            {
-                if (after > 0 && after < 100)
-                {
+   []()
+   {
+       esp_font_size.installChangeCallback(
+           [](settings::VariableBase<int> &var, int after)
+           {
+               if (after > 0 && after < 100)
+               {
 #if ENABLE_GLEZ_DRAWING
-                    fonts::esp->unload();
-                    fonts::esp.reset(new fonts::font(paths::getDataPath("/fonts/Verdana.ttf"), after));
+                   fonts::esp->unload();
+                   fonts::esp.reset(new fonts::font(paths::getDataPath("/fonts/notosans.ttf"), after));
 #else
-                    fonts::esp->changeSize(after);
+                   fonts::esp->changeSize(after);
 #endif
-                }
-            });
-        center_font_size.installChangeCallback(
-            [](settings::VariableBase<int> &var, int after)
-            {
-                if (after > 0 && after < 100)
-                {
+               }
+           });
+       center_font_size.installChangeCallback(
+           [](settings::VariableBase<int> &var, int after)
+           {
+               if (after > 0 && after < 100)
+               {
 #if ENABLE_GLEZ_DRAWING
-                    fonts::center_screen->unload();
-                    fonts::center_screen.reset(new fonts::font(paths::getDataPath("/fonts/Verdana.ttf"), after));
+                   fonts::center_screen->unload();
+                   fonts::center_screen.reset(new fonts::font(paths::getDataPath("/fonts/Verdana.ttf"), after));
 #else
-                    fonts::center_screen->changeSize(after);
+                   fonts::center_screen->changeSize(after);
 #endif
-                }
-            });
-    });
+               }
+           });
+   });
 namespace draw
 {
 
@@ -203,28 +203,28 @@ unsigned int texture_white = 0;
 
 void Initialize()
 {
-    if (!draw::width || !draw::height)
-    {
-        g_IEngine->GetScreenSize(draw::width, draw::height);
-    }
+   if (!draw::width || !draw::height)
+   {
+       g_IEngine->GetScreenSize(draw::width, draw::height);
+   }
 #if ENABLE_GLEZ_DRAWING
-    glez::preInit();
-    fonts::menu.reset(new fonts::font(paths::getDataPath("/fonts/Verdana.ttf"), 10));
-    fonts::esp.reset(new fonts::font(paths::getDataPath("/fonts/Verdana.ttf"), 10));
-    fonts::center_screen.reset(new fonts::font(paths::getDataPath("/fonts/Verdana.ttf"), 12));
+   glez::preInit();
+   fonts::menu.reset(new fonts::font(paths::getDataPath("/fonts/Verdana.ttf"), 10));
+   fonts::esp.reset(new fonts::font(paths::getDataPath("/fonts/notosans.ttf"), 10));
+   fonts::center_screen.reset(new fonts::font(paths::getDataPath("/fonts/Verdana.ttf"), 12));
 #elif ENABLE_ENGINE_DRAWING
-    fonts::menu.reset(new fonts::font(paths::getDataPath("/fonts/Verdana.ttf"), 10, true));
-    fonts::esp.reset(new fonts::font(paths::getDataPath("/fonts/Verdana.ttf"), 10, true));
-    fonts::center_screen.reset(new fonts::font(paths::getDataPath("/fonts/Verdana.ttf"), 12, true));
+   fonts::menu.reset(new fonts::font(paths::getDataPath("/fonts/Verdana.ttf"), 10, true));
+   fonts::esp.reset(new fonts::font(paths::getDataPath("/fonts/notosans.ttf"), 10, true));
+   fonts::center_screen.reset(new fonts::font(paths::getDataPath("/fonts/Verdana.ttf"), 12, true));
 #elif ENABLE_IMGUI_DRAWING
-    fonts::menu.reset(new fonts::font(paths::getDataPath("/fonts/Verdana.ttf"), 13, true));
-    fonts::esp.reset(new fonts::font(paths::getDataPath("/fonts/Verdana.ttf"), 13, true));
-    fonts::center_screen.reset(new fonts::font(paths::getDataPath("/fonts/Verdana.ttf"), 14, true));
+   fonts::menu.reset(new fonts::font(paths::getDataPath("/fonts/Verdana.ttf"), 13, true));
+   fonts::esp.reset(new fonts::font(paths::getDataPath("/fonts/notosans.ttf"), 15));
+   fonts::center_screen.reset(new fonts::font(paths::getDataPath("/fonts/Verdana.ttf"), 14, true));
 #endif
 #if ENABLE_ENGINE_DRAWING
-    texture_white                = g_ISurface->CreateNewTextureID();
-    unsigned char colorBuffer[4] = { 255, 255, 255, 255 };
-    g_ISurface->DrawSetTextureRGBA(texture_white, colorBuffer, 1, 1, false, true);
+   texture_white                = g_ISurface->CreateNewTextureID();
+   unsigned char colorBuffer[4] = { 255, 255, 255, 255 };
+   g_ISurface->DrawSetTextureRGBA(texture_white, colorBuffer, 1, 1, false, true);
 #endif
 }
 

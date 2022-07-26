@@ -95,15 +95,7 @@ endif()
 find_package(Git REQUIRED)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/external")
 find_package(SDL2 REQUIRED)
-SET (Boost_NO_SYSTEM_PATHS true)
-find_package(Boost 1.71.0 EXACT)
-if (NOT ${Boost_FOUND})
-    set(BOOST_LIBS_OPTIONAL "" CACHE STRING "Boost libs to be compiled")
-    add_subdirectory(external/boost-cmake)
-    set(BOOST_ROOT ${CMAKE_BINARY_DIR}/_deps/boost-src)
-    find_package(Boost 1.71.0 EXACT REQUIRED)
-    include_directories(${Boost_INCLUDE_DIRS})
-endif()
+find_package(Boost REQUIRED)
 
 execute_process(COMMAND
         "${GIT_EXECUTABLE}" log -1 --pretty=\"%h\"

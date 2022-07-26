@@ -249,6 +249,7 @@ void CreateMove()
         }
     }
 #endif
+
     if (current_user_cmd->command_number)
         last_number = current_user_cmd->command_number;
     // AntiAfk That after a certian time without movement keys depressed, causes
@@ -616,14 +617,6 @@ CatCommand get_value("get", "Set value",
                          if (!var)
                              return;
                          logging::Info("'%s': '%s'", args.Arg(1), var->GetString());
-                     });
-CatCommand say_lines("say_lines", "Say with newlines (\\n)",
-                     [](const CCommand &args)
-                     {
-                         std::string message(args.ArgS());
-                         ReplaceSpecials(message);
-                         std::string cmd = format("say ", message);
-                         g_IEngine->ServerCmd(cmd.c_str());
                      });
 CatCommand disconnect("disconnect", "Disconnect with custom reason",
                       [](const CCommand &args)

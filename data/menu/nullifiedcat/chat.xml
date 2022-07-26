@@ -16,9 +16,10 @@
             <AutoVariable width="fill" target="spam.random" label="Randomize"/>
             <AutoVariable width="fill" target="spam.delay" label="Spam delay" tooltip="Delay in milliseconds"/>
             <AutoVariable width="fill" target="spam.teamchat" label="Spam in teamchat" tooltip="Spam in teamchat instead of game chat"/>
+            <AutoVariable width="fill" target="spam.query-static" label="Static Query"/>
         </List>
     </Box>
-    <Box name="Voice spam" width="content" height="content" padding="12 6 6 6" y="100">
+    <Box name="Voice spam" width="content" height="content" padding="12 6 6 6" y="115">
         <List width="150">
             <LabeledObject width="fill" label="Voice spam" tooltip="Spam character voicelines">
                 <Select target="spam.voicecommand">
@@ -51,16 +52,22 @@
             </LabeledObject>
         </List>
     </Box>
-    <Box padding="12 6 6 6" width="content" height="content" name="Chat log" y="135">
+    <Box padding="12 6 6 6" width="content" height="content" name="Chat log" y="150">
         <List width="150">
             <AutoVariable width="fill" target="chat-log.enable" label="Enable chat log"/>
             <AutoVariable width="fill" target="chat-log.no-ipc" label="Ignore IPC" tooltip="Don't save IPC chat"/>
             <AutoVariable width="fill" target="chat-log.no-spam" label="Anti spam" tooltip="Don't save your chat spam to the log"/>
         </List>
     </Box>
-    <Box name="Chat censor" width="content" height="content" padding="12 6 6 6" y="200">
+    <Box name="Chat Censor" width="content" height="content" padding="12 6 6 6" y="220">
         <List width="150">
             <AutoVariable width="fill" target="chat.censor.enable" label="Enable Chat Censor"/>
+            <AutoVariable width="fill" target="chat.censor.class" label="Censor Class"/>
+            <AutoVariable width="fill" target="chat.censor.words" label="Censor Words"/>
+            <AutoVariable width="fill" target="chat.censor.global-chat" label="Global chat"/>
+            <AutoVariable width="fill" target="chat.censor.filter" label="Filter"/>
+            <AutoVariable width="fill" target="chat.censor.remove_chars" label="Remove Chars" tooltip="Removes Chars When Filtering"/>
+            <AutoVariable width="fill" target="chat.censor.name_part_length" label="Name Length" tooltip="Number Of Letters In Your Name We Should Filter"/>
         </List>
     </Box>
     <Box name="Killsay" width="177" height="content" padding="12 6 6 6" x="170">
@@ -79,9 +86,7 @@
     </Box>
     <Box name="Misc" width="content" height="content" padding="12 6 6 6" x="352">
         <List width="177">
-            <AutoVariable width="fill" target="chat.clean" label="Remove newlines" tooltip="Hides newline spam"/>
             <AutoVariable width="fill" target="chat.anti-spam" label="Anti-spam" tooltip="Hides chat spam"/>
-            <AutoVariable width="fill" target="chat.crypto" label="Crypto chat"/>
             <AutoVariable width="fill" target="chat.prefix-newlines" label="Newlines"/>
             <AutoVariable width="fill" target="chat.log-events" label="Event logger"/>
             <AutoVariable width="fill" target="chat.log-events.hurt" label="Log hurt events"/>

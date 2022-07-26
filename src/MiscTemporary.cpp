@@ -11,6 +11,7 @@ std::array<Timer, 32> timers{};
 std::array<int, 32> bruteint{};
 
 int spectator_target;
+int anti_balance_attempts = 0;
 CLC_VoiceData *voicecrash{};
 bool firstcm = false;
 Timer DelayTimer{};
@@ -22,9 +23,7 @@ bool ignoredc             = false;
 
 bool *bSendPackets{ nullptr };
 bool ignoreKeys{ false };
-settings::Boolean clean_chat{ "chat.clean", "false" };
 
-settings::Boolean crypt_chat{ "chat.crypto", "true" };
 settings::Boolean nolerp{ "misc.no-lerp", "false" };
 float backup_lerp = 0.0f;
 settings::Int fakelag_amount{ "misc.fakelag", "0" };

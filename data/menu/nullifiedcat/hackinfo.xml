@@ -1,4 +1,4 @@
-<Tab name="Pastedhook" padding="4 4 4 4">
+<Tab name="Info" padding="4 4 4 4">
     <Box height="content" width="content" padding="12 6 6 6" name="Pastedhook">
         <List width="150">
             <AutoVariable width="fill" target="hack.enable" label="Enable Pastedhook"/>

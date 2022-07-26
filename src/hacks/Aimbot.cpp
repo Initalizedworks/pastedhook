@@ -383,8 +383,6 @@ static void CreateMove()
         return;
     }
 
-    if (CE_INT(LOCAL_W, netvar.m_iClip1) == 0)
-        return;
     doAutoZoom(false);
     CachedEntity *target_entity = target_last = RetrieveBestTarget(aimkey_status);
     bool should_backtrack = hacks::backtrack::backtrackEnabled();
@@ -408,6 +406,8 @@ static void CreateMove()
                         Aim(target_entity);
 
                     if(!hitscan_special_cases(target_entity, weapon_case))
+                        DoAutoshoot();
+                    else if (hitscan_special_cases(target_entity, weapon_case) && (CE_INT(LOCAL_W, netvar.m_iClip1) == 0))
                         DoAutoshoot();
             }
         break;
