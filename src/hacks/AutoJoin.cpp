@@ -19,7 +19,6 @@ static settings::Boolean autojoin_team{ "autojoin.team", "false" };
 static settings::Int autojoin_class{ "autojoin.class", "0" };
 static settings::Boolean auto_queue{ "autojoin.auto-queue", "false" };
 static settings::Boolean auto_requeue{ "autojoin.auto-requeue", "false" };
-static settings::Boolean auto_unqueue{ "autojoin.auto-unqueue", "false" };
 static settings::Boolean partybypass{ "hack.party-bypass", "true" };
 
 /*
@@ -70,14 +69,6 @@ void updateSearch()
 
     re::CTFGCClientSystem *gc = re::CTFGCClientSystem::GTFGCClientSystem();
     re::CTFPartyClient *pc    = re::CTFPartyClient::GTFPartyClient();
-
-    if (auto_unqueue && current_user_cmd && gc && gc->BConnectedToMatchServer(false) && gc->BHaveLiveMatch())
-    {
-#if not ENABLE_VISUALS
-        queue_time.update();
-#endif
-        tfmm::leaveQueue();
-    }
 
     if (auto_requeue)
     {
