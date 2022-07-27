@@ -59,17 +59,6 @@
             <AutoVariable width="fill" target="chat-log.no-spam" label="Anti spam" tooltip="Don't save your chat spam to the log"/>
         </List>
     </Box>
-    <Box name="Chat Censor" width="content" height="content" padding="12 6 6 6" y="220">
-        <List width="150">
-            <AutoVariable width="fill" target="chat.censor.enable" label="Enable Chat Censor"/>
-            <AutoVariable width="fill" target="chat.censor.class" label="Censor Class"/>
-            <AutoVariable width="fill" target="chat.censor.words" label="Censor Words"/>
-            <AutoVariable width="fill" target="chat.censor.global-chat" label="Global chat"/>
-            <AutoVariable width="fill" target="chat.censor.filter" label="Filter"/>
-            <AutoVariable width="fill" target="chat.censor.remove_chars" label="Remove Chars" tooltip="Removes Chars When Filtering"/>
-            <AutoVariable width="fill" target="chat.censor.name_part_length" label="Name Length" tooltip="Number Of Letters In Your Name We Should Filter"/>
-        </List>
-    </Box>
     <Box name="Killsay" width="177" height="content" padding="12 6 6 6" x="170">
         <List width="150">
             <LabeledObject width="fill" label="Killsay mode">
