@@ -43,8 +43,6 @@ struct font
 };
 #elif ENABLE_IMGUI_DRAWING
 typedef im_renderer::font font;
-#elif ENABLE_GLEZ_DRAWING
-typedef glez::font font;
 #endif
 
 extern std::unique_ptr<font> esp;
@@ -105,8 +103,6 @@ private:
 };
 #elif ENABLE_IMGUI_DRAWING
 typedef im_renderer::Texture Texture;
-#else
-typedef glez::texture Texture;
 #endif
 
 void Line(float x1, float y1, float x2, float y2, rgba_t color, float thickness);

@@ -15,7 +15,6 @@
 #define ENABLE_CLIP @EnableClip@
 
 #define ENABLE_VISUALS @EnableVisuals@
-#define ENABLE_GLEZ_DRAWING @EnableGlezDrawing@
 #define ENABLE_ENGINE_DRAWING @EnableEngineDrawing@
 #define ENABLE_IMGUI_DRAWING @EnableImGuiDrawing@
 #define EXTERNAL_DRAWING @ExternalDrawing@
