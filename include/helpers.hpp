@@ -213,13 +213,9 @@ float GetFov(Vector ang, Vector src, Vector dst);
 
 void ReplaceString(std::string &input, const std::string &what, const std::string &with_what);
 void ReplaceSpecials(std::string &input);
-std::size_t RemoveChars(char *str, const char *chars, std::size_t len = ~0U);
-void ReplaceChars(char *str, const char *what, const char *with_what);
 
 void StringToLower(char *dest, const char *src);
 void StringToUpper(char *dest, const char *src);
-
-char *CStringDuplicate(const char *str);
 
 Vector ComputeMove(const Vector &a, const Vector &b);
 std::pair<float, float> ComputeMovePrecise(const Vector &a, const Vector &b);

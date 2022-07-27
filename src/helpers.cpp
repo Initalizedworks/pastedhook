@@ -32,23 +32,6 @@ std::vector<ConCommand *> &RegisteredCommandsList()
 void BeginConVars()
 {
     logging::Info("Begin ConVars");
-    if (!std::ifstream("tf/cfg/cat_autoexec_textmode.cfg"))
-    {
-        std::ofstream cfg_autoexec_textmode("tf/cfg/cat_autoexec_textmode.cfg", std::ios::out | std::ios::trunc);
-        if (cfg_autoexec_textmode.good())
-        {
-            cfg_autoexec_textmode << "// Put your custom cathook settings in this "
-                                     "file\n// This script will be executed EACH TIME "
-                                     "YOU INJECT TEXTMODE CATHOOK\n"
-                                     "\n"
-                                     "engine_no_focus_sleep 0\n"
-                                     "hud_fastswitch 1\n"
-                                     "tf_medigun_autoheal 1\n"
-                                     "fps_max 67\n"
-                                     "cat_ipc_connect\n"
-                                     "exec trusted.cfg";
-        }
-    }
     if (!std::ifstream("tf/cfg/cat_autoexec.cfg"))
     {
         std::ofstream cfg_autoexec("tf/cfg/cat_autoexec.cfg", std::ios::out | std::ios::trunc);
@@ -56,7 +39,8 @@ void BeginConVars()
         {
             cfg_autoexec << "// Put your custom cathook settings in this "
                             "file\n// This script will be executed EACH TIME "
-                            "YOU INJECT CATHOOK\n";
+                            "YOU INJECT CATHOOK\n"
+                            "exec trusted.cfg";
         }
     }
     if (!std::ifstream("tf/cfg/cat_matchexec.cfg"))
@@ -647,46 +631,6 @@ void ReplaceSpecials(std::string &str)
     str.resize(len - c);
 }
 
-std::size_t RemoveChars(char *str, const char *chars, std::size_t len)
-{
-    if (!len)
-        return 0;
-
-    if (len == ~0U)
-        len = std::strlen(str);
-
-    std::size_t gap = 0, to_remove = 0;
-    char *prev = nullptr, *p = str;
-    do
-    {
-        p = std::strpbrk(p, chars);
-        if (!p)
-            p = str + len;
-
-        if (prev)
-        {
-            std::memmove(prev - gap, prev + to_remove, (std::size_t) p - (std::size_t) prev - to_remove);
-            gap += to_remove;
-        }
-        prev      = p;
-        to_remove = std::strspn(p + 1, chars) + 1;
-        p += to_remove;
-    } while (prev != str + len);
-
-    str[len - gap] = 0;
-    return len - gap;
-}
-
-void ReplaceChars(char *str, const char *what, const char *with_what)
-{
-    char *p = str;
-    while ((p = std::strpbrk(p, what)))
-    {
-        const char *w = std::strchr(what, *p);
-        *p++          = with_what[reinterpret_cast<std::size_t>(w) - reinterpret_cast<std::size_t>(what)];
-    }
-}
-
 void StringToLower(char *dest, const char *src)
 {
     while (*src)
@@ -701,15 +645,6 @@ void StringToUpper(char *dest, const char *src)
         *dest++ = std::toupper(static_cast<uint8_t>(*src++));
 
     *dest = 0;
-}
-
-char *CStringDuplicate(const char *str)
-{
-    std::size_t len = std::strlen(str) + 1;
-    char *p         = new char[len];
-    std::memcpy(p, str, len);
-
-    return p;
 }
 
 powerup_type GetPowerupOnPlayer(CachedEntity *player)
