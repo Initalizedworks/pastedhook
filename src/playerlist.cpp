@@ -18,8 +18,8 @@ namespace playerlist
 
 std::unordered_map<unsigned, userdata> data{};
 
-const std::string k_Names[]                                     = { "DEFAULT", "FRIEND", "RAGE", "IPC", "TEXTMODE", "CAT", "PRIVATE", "PAZER", "PARTY" };
-const char *const k_pszNames[]                                  = { "DEFAULT", "FRIEND", "RAGE", "IPC", "TEXTMODE", "CAT", "PRIVATE", "PAZER", "PARTY" };
+const std::string k_Names[]                                     = { "DEFAULT", "FRIEND", "RAGE", "IPC", "CAT", "PRIVATE", "PAZER", "PARTY" };
+const char *const k_pszNames[]                                  = { "DEFAULT", "FRIEND", "RAGE", "IPC", "CAT", "PRIVATE", "PAZER", "PARTY" };
 const std::array<std::pair<k_EState, size_t>, 4> k_arrGUIStates = { std::pair(k_EState::DEFAULT, 0), { k_EState::FRIEND, 1 }, { k_EState::RAGE, 2 }, { k_EState::PAZER, 3 } };
 const userdata null_data{};
 #if ENABLE_VISUALS
@@ -192,15 +192,6 @@ bool ChangeState(unsigned int steamid, k_EState state, bool force)
         return false;
     case k_EState::PRIVATE:
         return false;
-    /* Textmode here */
-    case k_EState::TEXTMODE:
-        if (state != k_EState::PRIVATE || state == k_EState::IPC || state == k_EState::FRIEND)
-        {
-            ChangeState(steamid, state, true);
-            return true;
-        }
-        else
-            return false;
     case k_EState::PARTY:
         if (state == k_EState::FRIEND || state != k_EState::PRIVATE)
         {
@@ -210,7 +201,7 @@ bool ChangeState(unsigned int steamid, k_EState state, bool force)
         else
             return false;
     case k_EState::IPC:
-        if (state != k_EState::PRIVATE || state == k_EState::FRIEND || state == k_EState::TEXTMODE || state == k_EState::PARTY)
+        if (state != k_EState::PRIVATE || state == k_EState::FRIEND || state == k_EState::PARTY)
         {
             ChangeState(steamid, state, true);
             return true;

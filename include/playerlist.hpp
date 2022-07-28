@@ -21,7 +21,6 @@ enum class k_EState
     FRIEND,
     RAGE,
     IPC,
-    TEXTMODE,
     CAT,
     PRIVATE,
     PAZER,

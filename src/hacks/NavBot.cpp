@@ -24,7 +24,6 @@ static settings::Boolean capture_objectives("navbot.capture-objectives", "false"
 static settings::Boolean defend_payload("navbot.defend-payload", "false");
 static settings::Boolean autozoom("navbot.autozoom.enabled", "false");
 static settings::Float zoom_distance("navbot.autozoom.trigger-distance", "600");
-static settings::Int zoom_time("navbot.autozoom.unzoom-time", "5000");
 static settings::Int melee_range("navbot.primary-only-melee-range", "150");
 static settings::Boolean snipe_sentries("navbot.snipe-sentries", "false");
 static settings::Boolean escape_danger("navbot.escape-danger", "false");
@@ -37,9 +36,6 @@ static settings::Boolean blacklist_dormat("navbot.proximity-blacklist.dormant", 
 static settings::Int blacklist_delay_dormat("navbot.proximity-blacklist.delay-dormant", "1000");
 static settings::Int blacklist_slightdanger_limit("navbot.proximity-blacklist.slight-danger.amount", "2");
 static settings::Boolean engie_mode("navbot.engineer-mode", "false");
-#if ENABLE_VISUALS
-static settings::Boolean draw_danger("navbot.draw-danger", "false");
-#endif
 
 // Allow for custom danger configs, mainly for debugging purposes
 static settings::Boolean danger_config_custom("navbot.danger-config.enabled", "false");
@@ -1343,17 +1339,12 @@ static void autoZoom(std::pair<CachedEntity *, float> &nearest)
         return;
     if (CE_BAD(LOCAL_E) || !LOCAL_E->m_bAlivePlayer() || CE_BAD(LOCAL_W))
         return;
-    static Timer last_zoom{};
-    static Timer timeinzoom{};
-    if (!last_zoom.test_and_set(1000) && g_pLocalPlayer->holding_sniper_rifle)
+    if (g_pLocalPlayer->holding_sniper_rifle)
         return;
     // Zoom in and update timeinzoom
     if (g_pLocalPlayer->holding_sniper_rifle && nearest.second <= *zoom_distance && !g_pLocalPlayer->bZoomed)
         current_user_cmd->buttons |= IN_ATTACK2;
-    if (nearest.second <= *zoom_distance)
-        timeinzoom.update();
-    // If we've been zoomed in for more than (amount), unzoom.
-    if (g_pLocalPlayer->bZoomed && g_pLocalPlayer->holding_sniper_rifle && timeinzoom.check(*zoom_time) && !nearest.second <= *zoom_distance)
+    if (g_pLocalPlayer->bZoomed && g_pLocalPlayer->holding_sniper_rifle &&!nearest.second <= *zoom_distance)
         current_user_cmd->buttons |= IN_ATTACK2;
     if (LOCAL_W->m_iClassID() == CL_CLASS(CTFMinigun) && nearest.second <= *zoom_distance)
         current_user_cmd->buttons |= IN_JUMP | IN_ATTACK2;
@@ -1570,7 +1561,7 @@ void LevelInit()
 #if ENABLE_VISUALS
 void Draw()
 {
-    if (!draw_danger || !navparser::NavEngine::isReady())
+    if (!navparser::NavEngine::isReady())
         return;
     for (auto &area : slight_danger_drawlist_normal)
     {

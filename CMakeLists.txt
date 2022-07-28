@@ -28,13 +28,6 @@ set(DrawTypes "Textmode;No Visuals;Engine;IMGUI;IMGUI Streamproof" CACHE INTERNA
 set_property(CACHE Visuals_DrawType PROPERTY STRINGS ${DrawTypes})
 set(Visuals_EnforceStreamSafety 1 CACHE BOOL "If a streamsafe drawing method is used, this will remove features that are not streamsafe.")
 
-set(EnableVisuals 1)
-set(EnableEngineDrawing 0)
-set(EnableImGuiDrawing 0)
-set(ExternalDrawing 0)
-set(Textmode 0)
-#set (NullGraphics 0)
-
 if (Visuals_DrawType STREQUAL "Textmode")
     set(EnableVisuals 0)
     set(Textmode 1)
@@ -53,19 +46,25 @@ if (NOT ExternalDrawing)
 endif()
 
 set(EnableProfiler 0 CACHE BOOL "Enable Profiler")
+set(EnableVisuals 1 CACHE BOOL "Enable Visuals")
+set(ExternalDrawing 0 CACHE BOOL "External Visuals")
+set(EnableEngineDrawing 0 CACHE BOOL "Draw using engine")
+set(EnableImGuiDrawing 1 CACHE BOOL "Draw using ImGui's drawlists")
 set(EnableGUI 1 CACHE BOOL "Enable GUI")
 set(EnableIPC 1 CACHE BOOL "Enable IPC")
 set(DataPath "/opt/cathook/data" CACHE FILEPATH "Data location")
 set(VACBypass 0 CACHE BOOL "Textmode VAC bypass")
+set(Textmode 0 CACHE BOOL "Various textmode-only features for bots")
 set(EnableTextmodeStdin 0 CACHE BOOL "Textmode Stdin -> Console bridge (EXPERIMENTAL)")
-# set(EnableNullGraphics 0 CACHE BOOL "Enable experimental textmode hooks (CRASHES)")
 set(EnableWarnings 0 CACHE BOOL "Enable compile warnings")
+set(EnableNullGraphics 0 CACHE BOOL "Enable experimental textmode hooks (CRASHES)")
 set(EnableLogging 1 CACHE BOOL "Enable logging to /tmp/")
 set(EnableClip 1 CACHE BOOL "Enable anti electron/chromium freezing")
 set(Unity_ZeroKernel 1 CACHE BOOL "Use a unity build for zerokernel files")
 if (NOT EnableVisuals)
     set(EnableGUI 0)
 endif()
+
 
 # Internal variables
 # INTERNAL implies "FORCE" by default, so don't set if already set

@@ -9,10 +9,10 @@
                     <Option name="Multidir" value="2"/>
                 </Select>
             </LabeledObject>
+            <AutoVariable width="fill" target="misc.no-push" label="Nopush"/>
+            <AutoVariable width="fill" target="misc.roll-speedhack" label="Moonwalk" tooltip="Increase crouched movement speed"/>
+            <AutoVariable width="fill" target="misc.roll-speedhack.forward" label="Moonwalk forwards"/>
         </List>
-        <AutoVariable width="fill" target="misc.no-push" label="Nopush"/>
-        <AutoVariable width="fill" target="misc.roll-speedhack" label="Moonwalk" tooltip="Increase crouched movement speed"/>
-        <AutoVariable width="fill" target="misc.roll-speedhack.forward" label="Moonwalk forwards"/>
     </Box>
     <Box padding="12 6 6 6" width="content" height="content" name="FollowBot" x="170">
         <List width="180">

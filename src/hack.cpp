@@ -185,7 +185,7 @@ void hack::Hook()
 #endif
     hooks::client.Apply();
 
-#if ENABLE_VISUALS || ENABLE_TEXTMODE
+#if ENABLE_VISUALS || ENABLE_NULL_GRAPHICS
     hooks::panel.Set(g_IPanel);
     hooks::panel.HookMethod(hooked_methods::methods::PaintTraverse, offsets::PaintTraverse(), &hooked_methods::original::PaintTraverse);
     hooks::panel.Apply();
@@ -211,7 +211,7 @@ void hack::Hook()
     hooks::input.HookMethod(HOOK_ARGS(CreateMoveInput));
     hooks::input.Apply();
 
-#if ENABLE_VISUALS || ENABLE_TEXTMODE
+#if ENABLE_VISUALS || ENABLE_NULL_GRAPHICS
     hooks::modelrender.Set(g_IVModelRender);
     hooks::modelrender.HookMethod(HOOK_ARGS(DrawModelExecute));
     hooks::modelrender.Apply();
@@ -266,36 +266,7 @@ void hack::Initialize()
     ::signal(SIGABRT, &critical_error_handler);
 #endif
     time_injected = time(nullptr);
-/*passwd *pwd   = getpwuid(getuid());
-char *logname = format_cstr("/tmp/cathook-game-stdout-%s-%u.log", pwd->pw_name,
-time_injected);
-freopen(logname, "w", stdout);
-free(logname);
-logname = format_cstr("/tmp/cathook-game-stderr-%s-%u.log", pwd->pw_name,
-time_injected);
-freopen(logname, "w", stderr);
-free(logname);*/
-// Essential files must always exist, except when the game is running in text
-// mode.
-#if ENABLE_VISUALS
 
-    {
-        std::vector<std::string> essential = { "fonts/tf2build.ttf" };
-        for (const auto &s : essential)
-        {
-            std::ifstream exists(paths::getDataPath("/" + s), std::ios::in);
-            if (not exists)
-            {
-                Error(("Missing essential file: " + s +
-                       "/%s\nYou MUST run install-data script to finish "
-                       "installation")
-                          .c_str(),
-                      s.c_str());
-            }
-        }
-    }
-
-#endif /* TEXTMODE */
     logging::Info("Initializing...");
     InitRandom();
     sharedobj::LoadLauncher();
@@ -306,7 +277,7 @@ free(logname);*/
     sharedobj::LoadEarlyObjects();
 
 // Fix locale issues caused by steam update
-#if ENABLE_TEXTMODE
+#if ENABLE_NULL_GRAPHICS
     static BytePatch patch(gSignatures.GetEngineSignature, "74 ? 89 5C 24 ? 8D 9D ? ? ? ? 89 74 24", 0, { 0x71 });
     patch.Patch();
 #endif
@@ -360,11 +331,7 @@ free(logname);*/
         init_stack().pop();
     }
     logging::Info("Initializer stack done");
-#if ENABLE_TEXTMODE
-    hack::command_stack().push("exec cat_autoexec_textmode");
-#else
     hack::command_stack().push("exec cat_autoexec");
-#endif
     auto extra_exec = std::getenv("CH_EXEC");
     if (extra_exec)
         hack::command_stack().push(extra_exec);

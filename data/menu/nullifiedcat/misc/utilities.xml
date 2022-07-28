@@ -21,8 +21,16 @@
             <AutoVariable width="fill" target="autojoin.team" label="Autojoin team" tooltip="Automatically join a team"/>
         </List>
     </Box>
-    <Box name="Catbot" width="content" height="content" padding="12 6 6 6" x="215">
+    <Box name="Bot-Utilities" width="content" height="content" padding="12 6 6 6" x="215">
         <List width="200">
+            <AutoVariable width="fill" target="cat-bot.abandon-if.enable" label="Enable Abandon-if"/>
+            <AutoVariable width="fill" target="cat-bot.abandon-if.bots-gte" label="Abandon if bots gte"/>
+            <AutoVariable width="fill" target="cat-bot.abandon-if.ipc-bots-gte" label="Abandon if IPC bots gte"/>
+            <AutoVariable width="fill" target="cat-bot.abandon-if.humans-lte" label="Abandon if humans lte"/>
+            <AutoVariable width="fill" target="cat-bot.abandon-if.players-lte" label="Abandon if players lte"/>
+            <AutoVariable width="fill" target="cat-bot.abandon-if.team-lte" label="Abandon if team Lte"/>
+            <AutoVariable width="fill" target="cat-bot.auto-crouch" label="Autocrouch"/>
+            <AutoVariable width="fill" target="cat-bot.mark-human-after-kills" label="Mark human after kills"/>
             <AutoVariable width="fill" target="cat-bot.micspam.enable" label="Micspam"/>
             <AutoVariable width="fill" target="cat-bot.micspam.interval-off" label="Micspam interval off"/>
             <AutoVariable width="fill" target="cat-bot.micspam.interval-on" label="Micspam interval on"/>
@@ -30,8 +38,6 @@
             <AutoVariable width="fill" target="misc.autodisguise" label="Autodisguise"/>
             <AutoVariable width="fill" target="cat-bot.anti-motd" label="Anti MOTD"/>
             <AutoVariable width="fill" target="cat-bot.autovote-map" label="Autovote for current map"/>
-            <AutoVariable width="fill" target="noisemaker-spam.enable" label="Noisemaker spam"/>
-            <AutoVariable width="fill" target="misc.auto-noisemaker" label="Auto unlock and equip noisemakers"/>
         </List>
     </Box>
     <Box name="Vote Utilities" width="content" height="content" padding="12 6 6 6" y="95">

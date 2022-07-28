@@ -130,7 +130,7 @@ static InitRoutine misc_init(
                 patch2.reset();
             },
             "misctemp_shutdown");
-#if ENABLE_TEXTMODE
+#if ENABLE_NULL_GRAPHICS
         // Ensure that we trigger the callback for textmode builds
         nolerp = false;
         nolerp = true;
