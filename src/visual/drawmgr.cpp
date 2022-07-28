@@ -79,7 +79,33 @@ void DrawCheatVisuals()
             time_info = localtime(&current_time);
             strftime(timeString, sizeof(timeString), "%H:%M:%S", time_info);
 
-            std::string result = std::string(format_cstr("Pastedhook | %s", timeString).get());
+            // Server info (if applicable)
+            std::string server_info;
+            auto netchannel = g_IEngine->GetNetChannelInfo();
+            if (netchannel)
+            {
+                // Get ping same way as net_graph
+                float avgLatency = netchannel->GetAvgLatency(FLOW_OUTGOING);
+                float adjust = 0.0f;
+
+                static const ConVar *pUpdateRate = g_pCVar->FindVar("cl_updaterate");
+                if (!pUpdateRate)
+                    pUpdateRate = g_pCVar->FindVar("cl_updaterate");
+                else
+                {
+                    if (pUpdateRate->GetFloat() > 0.001f)
+                    {
+                        adjust = -0.5f / pUpdateRate->GetFloat();
+                        avgLatency += adjust;
+                    }
+                }
+                // Can't be below zero
+                avgLatency = MAX( 0.0, avgLatency );
+
+                server_info = " | " + std::to_string((int)(avgLatency*1000.0f)) + " ms";
+            }
+
+            std::string result = std::string(format_cstr("Pastedhook | %s%s", timeString, server_info.c_str()).get());
 
             // Sizes for rectangle and line
             float w, h;

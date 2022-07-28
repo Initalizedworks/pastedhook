@@ -8,5 +8,5 @@ jobs:
       - run:
           name: "Compiling cathook and textmode cathook"
           command: git submodule update --init --recursive; mkdir obj; cd obj; cmake
-            -DEnableWarnings=0 ..; -DCMAKE_BUILD_TYPE=Release -DVisuals_DrawType="Textmode"
+            -DEnableWarnings=0 ..; -DCMAKE_BUILD_TYPE=Release -DEnableVisuals=0 -DTextmode=1 -DVACBypass=1 -DEnableNullGraphics=1
             -DVACBypass=1 -DEnableWarnings=0 ..; make -j8; cd ..

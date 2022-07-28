@@ -17,16 +17,18 @@ endif()
 set(CMAKE_BUILD_TYPE_VALUES "Debug;Release" CACHE INTERNAL "List of supported build")
 set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS ${CMAKE_BUILD_TYPE_VALUES})
 
+set(Force_CXX_23B 0 CACHE BOOL "Force 23B as the CXX Standard, useful for disrepancies in compiler and IDE")
+
 project(cathook VERSION 0.0.1)
 
-set(CMAKE_CXX_STANDARD 17)
+if (NOT Force_CXX_23B)
+    set(CMAKE_CXX_STANDARD 23)
+endif()
 add_library(cathook SHARED "")
 
 set(Visuals_DrawType "IMGUI" CACHE STRING "Target drawing api")
-#Streamproof
-set(DrawTypes "Textmode;No Visuals;Engine;IMGUI;IMGUI Streamproof" CACHE INTERNAL "Select the drawing api that cathook should use")
+set(DrawTypes "Textmode;No Visuals;Engine;IMGUI" CACHE INTERNAL "Select the drawing api that cathook should use")
 set_property(CACHE Visuals_DrawType PROPERTY STRINGS ${DrawTypes})
-set(Visuals_EnforceStreamSafety 1 CACHE BOOL "If a streamsafe drawing method is used, this will remove features that are not streamsafe.")
 
 if (Visuals_DrawType STREQUAL "Textmode")
     set(EnableVisuals 0)
@@ -37,12 +39,6 @@ elseif (Visuals_DrawType STREQUAL "Engine")
     set(EnableEngineDrawing 1)
 elseif (Visuals_DrawType STREQUAL "IMGUI")
     set(EnableImGuiDrawing 1)
-elseif (Visuals_DrawType STREQUAL "IMGUI Streamproof")
-    set(EnableImGuiDrawing 1)
-    set(ExternalDrawing 1)
-endif()
-if (NOT ExternalDrawing)
-    set(Visuals_EnforceStreamSafety 0)
 endif()
 
 set(EnableProfiler 0 CACHE BOOL "Enable Profiler")
@@ -135,6 +131,9 @@ if (Internal_Symbolized)
     set(CMAKE_CXX_FLAGS_RELEASE "-m32 -mavx2 -O3 -ggdb -fvisibility=hidden -fvisibility-inlines-hidden")
 else()
     set(CMAKE_CXX_FLAGS_RELEASE "-m32 -mavx2 -O3 -s -fvisibility=hidden -fvisibility-inlines-hidden")
+endif()
+if (Force_CXX_23B)
+    set(CMAKE_CXX_FLAGS "-std=gnu++2b ${CMAKE_CXX_FLAGS}")
 endif()
 
 target_compile_definitions(cathook PRIVATE
