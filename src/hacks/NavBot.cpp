@@ -770,6 +770,7 @@ bool stayNear()
     return false;
 }
 
+// bald
 bool isVisible;
 // Try to attack people using melee if we are in a situation where this is viable
 bool meleeAttack(int slot, std::pair<CachedEntity *, float> &nearest)
