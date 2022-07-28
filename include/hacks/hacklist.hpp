@@ -18,6 +18,7 @@
 #include "Aimbot.hpp"
 #include "AntiAim.hpp"
 #include "navparser.hpp"
+#include "NavBot.hpp"
 #include "AutoJoin.hpp"
 #include "AntiBackstab.hpp"
 #include "FollowBot.hpp"
