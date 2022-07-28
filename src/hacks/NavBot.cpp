@@ -770,7 +770,6 @@ bool stayNear()
     return false;
 }
 
-
 bool isVisible;
 // Try to attack people using melee if we are in a situation where this is viable
 bool meleeAttack(int slot, std::pair<CachedEntity *, float> &nearest)
@@ -814,7 +813,7 @@ bool meleeAttack(int slot, std::pair<CachedEntity *, float> &nearest)
             hacks::NavBot::isVisible = false;
     }
     // If we are close enough, don't even bother with using the navparser to get there
-    if (nearest.second < 200 && hacks::NavBot::isVisible)
+    if (nearest.second < 400 && hacks::NavBot::isVisible)
     {
         WalkTo(nearest.first->m_vecOrigin());
         navparser::NavEngine::cancelPath();
