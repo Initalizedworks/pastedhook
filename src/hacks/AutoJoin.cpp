@@ -71,25 +71,17 @@ void updateSearch()
     re::CTFPartyClient *pc    = re::CTFPartyClient::GTFPartyClient();
 
     if (auto_requeue)
-    {
-        if (startqueue_timer.check(1000) && gc && !gc->BConnectedToMatchServer(false) && !gc->BHaveLiveMatch() && !invites)
-            if (pc && !(pc->BInQueueForMatchGroup(tfmm::getQueue()) || pc->BInQueueForStandby()))
-            {
-                logging::Info("Starting queue for standby, Invites %d", invites);
-                tfmm::startQueue();
-            }
-    }
+        if (startqueue_timer.check(1000))
+            logging::Info("Starting queue for standby, Invites %d", invites);
+            tfmm::startQueue();
 
     if (auto_queue)
     {
-        if (startqueue_timer.check(2000) && gc && !gc->BConnectedToMatchServer(false) && !gc->BHaveLiveMatch() && !invites)
-            if (pc && !(pc->BInQueueForMatchGroup(tfmm::getQueue()) || pc->BInQueueForStandby()))
-            {
-                logging::Info("Starting queue, Invites %d", invites);
-                tfmm::startQueue();
-            }
+        if (startqueue_timer.check(1000))
+            logging::Info("Starting queue, Invites %d", invites);
+            tfmm::startQueue();
     }
-    startqueue_timer.test_and_set(2000);
+    startqueue_timer.test_and_set(1000);
 }
 static void update()
 {

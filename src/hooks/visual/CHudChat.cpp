@@ -89,6 +89,7 @@ DEFINE_HOOKED_METHOD(ChatPrintf, void, CHudBaseChat *_this, int player_idx, int 
             }
         }
     }
+    return original::ChatPrintf(_this, player_idx, iFilter, "%s", buf.get());
 }
 static InitRoutine initlevlinit(
     []()
