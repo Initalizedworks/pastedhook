@@ -17,7 +17,7 @@
 #include "Think.hpp"
 #include "Aimbot.hpp"
 #include "NavBot.hpp"
-//bald
+
 namespace hacks::warp
 {
 static settings::Boolean enabled{ "warp.enabled", "false" };
