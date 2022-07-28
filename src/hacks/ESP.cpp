@@ -26,7 +26,7 @@ static settings::Boolean draw_bones{ "esp.bones", "false" };
 static settings::Float bones_thickness{ "esp.bones.thickness", "0.5" };
 static settings::Boolean bones_color{ "esp.bones.color", "false" };
 
-static settings::Int healthbar{ "esp.health-bar", "3" };
+static settings::Int healthbar{ "esp.health-bar", "0" };
 static settings::Int sightlines{ "esp.sightlines", "0" };
 static settings::Int esp_text_position{ "esp.text-position", "0" };
 static settings::Int esp_expand{ "esp.expand", "0" };
@@ -41,7 +41,7 @@ static settings::Boolean teammates{ "esp.show.teammates", "true" };
 static settings::Boolean npc{ "esp.show.npc", "true" };
 
 static settings::Boolean show_weapon{ "esp.info.weapon", "false" };
-static settings::Boolean show_distance{ "esp.info.distance", "true" };
+static settings::Boolean show_distance{ "esp.info.distance", "false" };
 static settings::Boolean show_health{ "esp.info.health", "true" };
 static settings::Boolean show_name{ "esp.info.name", "true" };
 static settings::Boolean show_class{ "esp.info.class", "true" };

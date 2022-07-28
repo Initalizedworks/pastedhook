@@ -36,9 +36,9 @@ static int melee_damage    = 0;
 static int round_damage    = 0;
 static bool is_out_of_sync = false;
 // Optimization
-bool calling_crithelper = false;
 static int shots_to_fill_bucket = 0;
 
+bool calling_crithelper = false;
 static float getBucketCap()
 {
     static ConVar *tf_weapon_criticals_bucket_cap = g_ICvar->FindVar("tf_weapon_criticals_bucket_cap");

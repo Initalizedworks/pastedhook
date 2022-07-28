@@ -15,7 +15,7 @@ static settings::Int mode{ "votekicks.mode", "0" };
 static settings::Int timer{ "votekicks.timer", "1000" };
 /* Minimum amount of team members to start a vote */
 static settings::Int min_team_size{ "votekicks.min-team-size", "4" };
-/* Only kick rage or antibot playerlist states */
+/* Only kick rage or pazer playerlist states */
 static settings::Boolean rage_only{ "votekicks.rage-only", "false" };
 
 /* Priority settings */

@@ -10,6 +10,7 @@
                     <Option name="Nullcore" value="4"/>
                     <Option name="Lmaobox" value="5"/>
                     <Option name="Lithium" value="6"/>
+                    <Option name="Pazer" value="7"/>
                 </Select>
             </LabeledObject>
             <AutoVariable width="fill" target="spam.filename" label="Custom spam"/>
