@@ -35,6 +35,7 @@ static settings::Boolean draw("nav.draw", "false");
 static settings::Boolean look{ "nav.look-at-path", "false" };
 static settings::Boolean draw_debug_areas("nav.draw.debug-areas", "false");
 static settings::Boolean log_pathing{ "nav.log", "false" };
+static settings::Int crumb_tollerance("nav.crumb-tollerance", "50");
 static settings::Int stuck_time{ "nav.stuck-time", "1000" };
 static settings::Int vischeck_cache_time{ "nav.vischeck-cache.time", "240" };
 static settings::Boolean vischeck_runtime{ "nav.vischeck-runtime.enabled", "true" };
@@ -660,7 +661,7 @@ static void followCrumbs()
         current_vec.z = g_pLocalPlayer->v_Origin.z;
 
     // We are close enough to the crumb to have reached it
-    if (current_vec.DistTo(g_pLocalPlayer->v_Origin) < 50)
+    if (current_vec.DistTo(g_pLocalPlayer->v_Origin) < *crumb_tollerance)
     {
         last_crumb = crumbs[0];
         crumbs.erase(crumbs.begin());
@@ -675,7 +676,7 @@ static void followCrumbs()
         current_vec.z = g_pLocalPlayer->v_Origin.z;
 
     // We are close enough to the second crumb, Skip both (This is espcially helpful with drop downs)
-    if (crumbs.size() > 1 && crumbs[1].vec.DistTo(g_pLocalPlayer->v_Origin) < 50)
+    if (crumbs.size() > 1 && crumbs[1].vec.DistTo(g_pLocalPlayer->v_Origin) < *crumb_tollerance)
     {
         last_crumb = crumbs[1];
         crumbs.erase(crumbs.begin(), std::next(crumbs.begin()));
