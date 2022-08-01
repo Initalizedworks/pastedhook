@@ -40,7 +40,7 @@
             <AutoVariable width="fill" target="cat-bot.autovote-map" label="Autovote for current map"/>
         </List>
     </Box>
-    <Box name="Vote Utilities" width="content" height="content" padding="12 6 6 6" y="95">
+    <Box name="Vote Utilities" width="content" height="content" padding="12 6 6 6" y="105">
         <List width="200">
             <AutoVariable width="fill" target="votekicks.enabled" label="Votekick"/>
             <LabeledObject width="fill" label="Votekicks Mode">
@@ -51,6 +51,14 @@
                 </Select>
             </LabeledObject>
             <AutoVariable width="fill" target="votekicks.timer" label="Votekick Timer"/>
+            <!-- <LabeledObject width="fill" label="Votekick Reason">
+                <Select target="votekicks.reason">
+                    <Option name="No Reason" value="0"/>
+                    <Option name="Cheating" value="1"/>
+                    <Option name="Scamming" value="2"/>
+                    <Option name="Idle" value="3"/>
+                </Select>
+            </LabeledObject> -->
             <AutoVariable width="fill" target="votekicks.rage-only" label="Rage Only"/>
             <AutoVariable width="fill" target="votekicks.prioritize.rage" label="Prioritize Rage"/>
             <AutoVariable width="fill" target="votekicks.prioritize.previous" label="Prioritize Previous"/>

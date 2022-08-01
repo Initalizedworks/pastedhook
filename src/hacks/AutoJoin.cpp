@@ -1,3 +1,4 @@
+
 /*
  * AutoJoin.cpp
  *
@@ -70,18 +71,39 @@ void updateSearch()
     re::CTFGCClientSystem *gc = re::CTFGCClientSystem::GTFGCClientSystem();
     re::CTFPartyClient *pc    = re::CTFPartyClient::GTFPartyClient();
 
+    if (current_user_cmd && gc && gc->BConnectedToMatchServer(false) && gc->BHaveLiveMatch())
+    {
+#if not ENABLE_VISUALS
+        queue_time.update();
+#endif
+    }
+
     if (auto_requeue)
-        if (startqueue_timer.check(1000))
-            logging::Info("Starting queue for standby, Invites %d", invites);
-            tfmm::startQueue();
+    {
+        if (startqueue_timer.check(1000) && gc && !gc->BConnectedToMatchServer(false) && !gc->BHaveLiveMatch() && !invites)
+            if (pc && !(pc->BInQueueForMatchGroup(tfmm::getQueue()) || pc->BInQueueForStandby()))
+            {
+                logging::Info("Starting queue for standby, Invites %d", invites);
+                tfmm::startQueueStandby();
+            }
+    }
 
     if (auto_queue)
     {
-        if (startqueue_timer.check(1000))
-            logging::Info("Starting queue, Invites %d", invites);
-            tfmm::startQueue();
+        if (startqueue_timer.check(2000) && gc && !gc->BConnectedToMatchServer(false) && !gc->BHaveLiveMatch() && !invites)
+            if (pc && !(pc->BInQueueForMatchGroup(tfmm::getQueue()) || pc->BInQueueForStandby()))
+            {
+                logging::Info("Starting queue, Invites %d", invites);
+                tfmm::startQueue();
+            }
     }
-    startqueue_timer.test_and_set(1000);
+    startqueue_timer.test_and_set(2000);
+#if not ENABLE_VISUALS
+    if (queue_time.test_and_set(1800000))
+    {
+        g_IEngine->ClientCmd_Unrestricted("quit"); // lol
+    }
+#endif
 }
 static void update()
 {
@@ -95,7 +117,6 @@ static void update()
         {
             if (int(autojoin_class) < 10)
                 g_IEngine->ExecuteClientCmd(format("join_class ", classnames[int(autojoin_class) - 1]).c_str());
-                hack::command_stack().push("menuclosed");
         }
     }
 }

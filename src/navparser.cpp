@@ -33,7 +33,6 @@ namespace navparser
 static settings::Boolean enabled("nav.enabled", "false");
 static settings::Boolean draw("nav.draw", "false");
 static settings::Boolean look{ "nav.look-at-path", "false" };
-static settings::Boolean draw_debug_areas("nav.draw.debug-areas", "false");
 static settings::Boolean log_pathing{ "nav.log", "false" };
 static settings::Int crumb_tollerance("nav.crumb-tollerance", "50");
 static settings::Int stuck_time{ "nav.stuck-time", "1000" };
@@ -492,7 +491,6 @@ Vector last_destination;
 
 bool isReady()
 {
-    // F you Pipeline
     return enabled && map && map->state == NavState::Active && (g_pGameRules->roundmode > 3);
 }
 
@@ -980,16 +978,6 @@ void Draw()
 {
     if (!isReady() || !draw)
         return;
-    if (draw_debug_areas && CE_GOOD(LOCAL_E) && LOCAL_E->m_bAlivePlayer())
-    {
-        auto area = map->findClosestNavSquare(g_pLocalPlayer->v_Origin);
-        auto edge = area->getNearestPoint(g_pLocalPlayer->v_Origin.AsVector2D());
-        Vector scrEdge;
-        edge.z += PLAYER_JUMP_HEIGHT;
-        if (draw::WorldToScreen(edge, scrEdge))
-            draw::Rectangle(scrEdge.x - 2.0f, scrEdge.y - 2.0f, 4.0f, 4.0f, colors::red);
-        drawNavArea(area);
-    }
 
     if (crumbs.empty())
         return;

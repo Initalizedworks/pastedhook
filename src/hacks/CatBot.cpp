@@ -47,53 +47,6 @@ static Timer timer_abandon{};
 Timer level_init_timer{};
 Timer micspam_on_timer{}, micspam_off_timer{};
 
-Timer crouchcdr{};
-void smart_crouch()
-{
-    if (g_Settings.bInvalid)
-        return;
-    if (!current_user_cmd)
-        return;
-    if (*always_crouch)
-    {
-        current_user_cmd->buttons |= IN_DUCK;
-        if (crouchcdr.test_and_set(10000))
-            current_user_cmd->buttons &= ~IN_DUCK;
-        return;
-    }
-    bool foundtar      = false;
-    static bool crouch = false;
-    if (crouchcdr.test_and_set(2000))
-    {
-        for (int i = 1; i <= g_IEngine->GetMaxClients(); i++)
-        {
-            auto ent = ENTITY(i);
-            if (CE_BAD(ent) || ent->m_Type() != ENTITY_PLAYER || ent->m_iTeam() == LOCAL_E->m_iTeam() || !(ent->hitboxes.GetHitbox(0)) || !(ent->m_bAlivePlayer()) || !player_tools::shouldTarget(ent))
-                continue;
-            bool failedvis = false;
-            for (int j = 0; j < 18; j++)
-                if (IsVectorVisible(g_pLocalPlayer->v_Eye, ent->hitboxes.GetHitbox(j)->center))
-                    failedvis = true;
-            if (failedvis)
-                continue;
-            for (int j = 0; j < 18; j++)
-            {
-                if (!LOCAL_E->hitboxes.GetHitbox(j))
-                    continue;
-                // Check if they see my hitboxes
-                if (!IsVectorVisible(ent->hitboxes.GetHitbox(0)->center, LOCAL_E->hitboxes.GetHitbox(j)->center) && !IsVectorVisible(ent->hitboxes.GetHitbox(0)->center, LOCAL_E->hitboxes.GetHitbox(j)->min) && !IsVectorVisible(ent->hitboxes.GetHitbox(0)->center, LOCAL_E->hitboxes.GetHitbox(j)->max))
-                    continue;
-                foundtar = true;
-                crouch   = true;
-            }
-        }
-        if (!foundtar && crouch)
-            crouch = false;
-    }
-    if (crouch)
-        current_user_cmd->buttons |= IN_DUCK;
-}
-
 CatCommand print_ammo("debug_print_ammo", "debug", []() {
     if (CE_BAD(LOCAL_E) || !LOCAL_E->m_bAlivePlayer() || CE_BAD(LOCAL_W))
         return;
@@ -134,9 +87,6 @@ static void cm()
 
     if (CE_BAD(LOCAL_E) || CE_BAD(LOCAL_W))
         return;
-
-    if (*auto_crouch)
-        smart_crouch();
 
     static const int classes[3]{ tf_spy, tf_sniper, tf_pyro };
     if (*auto_disguise && g_pPlayerResource->GetClass(LOCAL_E) == tf_spy && !IsPlayerDisguised(LOCAL_E) && disguise.test_and_set(3000))

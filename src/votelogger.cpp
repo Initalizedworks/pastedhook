@@ -11,7 +11,7 @@
 #include "votelogger.hpp"
 #include "Votekicks.hpp"
 #include "PlayerTools.hpp"
-/* FIXME F1/F2 count */
+
 static settings::Int vote_wait_min{ "votelogger.autovote.wait.min", "10" };
 static settings::Int vote_wait_max{ "votelogger.autovote.wait.max", "40" };
 static settings::Boolean vote_wait{ "votelogger.autovote.wait", "false" };
@@ -29,8 +29,6 @@ namespace votelogger
 
 static bool was_local_player{ false };
 static bool was_local_player_caller{ false };
-/*  static int F1count = 0;
-    static int F2count = 0; */
 static Timer local_kick_timer{};
 static int kicked_player;
 
@@ -38,8 +36,6 @@ void Reset()
 {
     was_local_player        = false;
     was_local_player_caller = false;
-/*  F1count                 = 0;
-    F2count                 = 0; */
 }
 
 static void vote_rage_back()
@@ -85,6 +81,8 @@ void dispatchUserMessage(bf_read &buffer, int type)
     /* info is the person getting kicked,*/
     /* info2 is the person calling the kick.*/
     player_info_s info{}, info2{};
+    int caller, team, vote_id;
+    char reason[64], name[64], formated_string[256];
     switch (type)
     {
     case 45:
@@ -94,13 +92,11 @@ void dispatchUserMessage(bf_read &buffer, int type)
     {
         Reset();
         /* Team where vote occured */
-        int team         = buffer.ReadByte();
+        team         = buffer.ReadByte();
         /* Each team can have its own vote */
-        int vote_id      = buffer.ReadLong();
+        vote_id      = buffer.ReadLong();
         /* Who called the kick ? */
-        int caller       = buffer.ReadByte();
-        char reason[64];
-        char name[64];
+        caller       = buffer.ReadByte();
         /* Reason for vote */
         buffer.ReadString(reason, 64, false, nullptr);
         buffer.ReadString(name, 64, false, nullptr);
@@ -159,7 +155,7 @@ void dispatchUserMessage(bf_read &buffer, int type)
             if (*vote_kickn && friendly_kicked)
             {
                 if (*vote_wait)
-                    vote_command = { format_cstr("wait %d;vote %d option2", UniformRandomInt(*vote_wait_min, *vote_wait_max), vote_id).get() };
+                    vote_command = { format_cstr("vote %d option2", vote_id).get(), *vote_wait_min + (rand() % *vote_wait_max) };
                 else
                     vote_command = { format_cstr("vote %d option2", vote_id).get() };
                 vote_command.timer.update();
@@ -171,7 +167,7 @@ void dispatchUserMessage(bf_read &buffer, int type)
             else if (*vote_kicky && !friendly_kicked)
             {
                  if (*vote_wait)
-                    vote_command = { format_cstr("wait %d;vote %d option1", UniformRandomInt(*vote_wait_min, *vote_wait_max), vote_id).get() };
+                    vote_command = { format_cstr("vote %d option1", vote_id).get(), *vote_wait_min + (rand() % *vote_wait_max) };
                 else
                     vote_command = { format_cstr("vote %d option1", vote_id).get() };
                 vote_command.timer.update();
@@ -180,7 +176,6 @@ void dispatchUserMessage(bf_read &buffer, int type)
         }
         if (*chat_partysay)
         {
-            char formated_string[256];
             std::snprintf(formated_string, sizeof(formated_string), "Kick called: %s => %s (%s)", info2.name, info.name, reason);
             if (chat_partysay)
                 re::CTFPartyClient::GTFPartyClient()->SendPartyChat(formated_string);
@@ -290,6 +285,7 @@ public:
         }
     }
 };
+
 static VoteEventListener listener{};
 static InitRoutine init(
     []()

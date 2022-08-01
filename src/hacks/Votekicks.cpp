@@ -11,6 +11,7 @@ namespace hacks::votekicks
 static settings::Boolean enabled{ "votekicks.enabled", "false" };
 /* 0 - Smart, 1 - Random, 2 - Sequential */
 static settings::Int mode{ "votekicks.mode", "0" };
+/* static settings::Int reason{ "votekicks.reason", "0" }; */
 /* Time between calling a vote in milliseconds */
 static settings::Int timer{ "votekicks.timer", "1000" };
 /* Minimum amount of team members to start a vote */
@@ -25,6 +26,8 @@ static settings::Boolean prioritize_previously_kicked{ "votekicks.prioritize.pre
 static settings::Int prioritize_highest_score{ "votekicks.prioritize.highest-score", "0" };
 
 std::unordered_set<uint32> previously_kicked;
+
+/*const std::string votekickreason[] = { "", "cheating", "scamming", "idle" }; */
 
 static int GetKickScore(int uid)
 {
@@ -106,7 +109,7 @@ static void CreateMove()
     player_info_s info{};
     if (!g_IEngine->GetPlayerInfo(g_IEngine->GetPlayerForUserID(target), &info))
         return;
-    hack::ExecuteCommand("callvote kick \"" + std::to_string(target) + " cheating\"");
+    hack::ExecuteCommand(/*format(*/"callvote kick \"" + std::to_string(target) + " cheating\""/*, votekickreason[int(reason)]).c_str()*/);
 }
 
 static CatCommand debugKickScore("debug_kickscore", "Prints kick score for each player", []() {

@@ -1,4 +1,3 @@
-remove engie mode
-remove escape danger
 add a proper (working) vote delay
 fix catbots crashing when using lobby object
+add votekick reason
