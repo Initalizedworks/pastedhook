@@ -240,6 +240,8 @@ template <typename... Args> std::string format(const Args &...args)
     return stream.str();
 }
 
+CSteamID CSteamIDFrom32(uint32_t id32);
+
 extern const std::string classes[10];
 extern const char *powerups[POWERUP_COUNT];
 bool isTruce();
