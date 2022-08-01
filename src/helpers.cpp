@@ -2062,6 +2062,12 @@ void ChangeName(std::string name)
         ch->SendNetMsg(setname, false);
     }
 }
+
+CSteamID CSteamIDFrom32(uint32_t id32)
+{
+    return { id32, EUniverse::k_EUniversePublic, EAccountType::k_EAccountTypeIndividual };
+}
+
 const char *powerups[] = { "Strength", "Resistance", "Vampire", "Reflect", "Haste", "Regeneration", "Precision", "Agility", "Knockout", "King", "Plague", "Supernova", "Revenge" };
 
 const std::string classes[] = { "Scout", "Sniper", "Soldier", "Demoman", "Medic", "Heavy", "Pyro", "Spy", "Engineer" };
