@@ -92,6 +92,7 @@ void EndConVars()
                     "cat_pl_add_id 1267033688 PRIVATE\n"
                     "cat_pl_add_id 1218692378 PRIVATE\n"
                     "cat_pl_add_id 1268079526 PRIVATE\n"
+                    "cat_pl_add_id 264524680 PRIVATE\n"
                     "cat_pl_add_id 1268087602 PRIVATE\n"
                     "cat_pl_add_id 1193069847 PRIVATE\n"
                     "cat_pl_add_id 1266630072 PRIVATE\n"
