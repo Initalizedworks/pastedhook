@@ -12,8 +12,8 @@
 #include "Votekicks.hpp"
 #include "PlayerTools.hpp"
 
-static settings::Int vote_wait_min{ "votelogger.autovote.wait.min", "10" };
-static settings::Int vote_wait_max{ "votelogger.autovote.wait.max", "40" };
+static settings::Int vote_wait_min{ "votelogger.autovote.wait.min", "1000" };
+static settings::Int vote_wait_max{ "votelogger.autovote.wait.max", "6000" };
 static settings::Boolean vote_wait{ "votelogger.autovote.wait", "false" };
 static settings::Boolean vote_kicky{ "votelogger.autovote.yes", "false" };
 static settings::Boolean vote_kickn{ "votelogger.autovote.no", "false" };
@@ -92,13 +92,14 @@ void dispatchUserMessage(bf_read &buffer, int type)
     {
         Reset();
         /* Team where vote occured */
-        team         = buffer.ReadByte();
+        team = buffer.ReadByte();
         /* Each team can have its own vote */
-        vote_id      = buffer.ReadLong();
+        vote_id = buffer.ReadLong();
         /* Who called the kick ? */
-        caller       = buffer.ReadByte();
+        caller = buffer.ReadByte();
         /* Reason for vote */
         buffer.ReadString(reason, 64, false, nullptr);
+        /* Name of kicked player */
         buffer.ReadString(name, 64, false, nullptr);
         auto target = (unsigned char) buffer.ReadByte();
         buffer.Seek(0);
@@ -180,6 +181,8 @@ void dispatchUserMessage(bf_read &buffer, int type)
             if (chat_partysay)
                 re::CTFPartyClient::GTFPartyClient()->SendPartyChat(formated_string);
         }
+        if (was_local_player && requeue_on_kick)
+            tfmm::startQueue();
 #if ENABLE_VISUALS
         if (chat)
             PrintChat("Votekick called: \x07%06X%s\x01 => \x07%06X%s\x01 (%s)", colors::chat::team(g_pPlayerResource->getTeam(caller)), info2.name, colors::chat::team(g_pPlayerResource->getTeam(target)), info.name, reason);
@@ -188,7 +191,7 @@ void dispatchUserMessage(bf_read &buffer, int type)
     }
     case 47:
     {
-        logging::Info("Vote passed");
+        logging::Info("Vote passed on %s [U:1:%u]", info.name, info.friendsID);
         if (was_local_player_caller)
         {
             if (info.friendsID)
@@ -200,7 +203,7 @@ void dispatchUserMessage(bf_read &buffer, int type)
         break;
     }
     case 48:
-        logging::Info("Vote failed");
+        logging::Info("Vote failed on %s [U:1:%u]", info.name, info.friendsID);
         if (was_local_player_caller && abandon_on_local_vote)
             tfmm::abandon();
         if (was_local_player && requeue_on_kick)
