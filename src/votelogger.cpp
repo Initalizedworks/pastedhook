@@ -21,6 +21,7 @@ static settings::Boolean vote_kickn{ "votelogger.autovote.no", "false" };
 static settings::Boolean vote_rage_vote{ "votelogger.autovote.no.rage", "false" };
 static settings::Boolean chat{ "votelogger.chat", "true" };
 static settings::Boolean chat_partysay{ "votelogger.chat.partysay", "false" };
+static settings::Boolean chat_partysay_result{ "votelogger.chat.partysay.result", "false" };
 static settings::Boolean chat_casts{ "votelogger.chat.casts", "false" };
 static settings::Boolean abandon_on_local_vote{ "votelogger.leave-after-local-vote", "false" };
 static settings::Boolean requeue_on_kick{ "votelogger.requeue-on-kick", "false" };
@@ -131,10 +132,12 @@ void dispatchUserMessage(bf_read &buffer, int type)
         
         if (info.friendsID == g_ISteamUser->GetSteamID().GetAccountID())
             was_local_player = true;
+            logging::Info("We are currently being kicked ): ):")
             local_kick_timer.update();
 
         if (info2.friendsID == g_ISteamUser->GetSteamID().GetAccountID())
             was_local_player_caller = true;
+            logging::Info("Hellz yez we are calling the kick")
 
         if (*vote_kickn || *vote_kicky)
         {
@@ -211,6 +214,11 @@ void dispatchUserMessage(bf_read &buffer, int type)
     case 47:
     {
         logging::Info("Vote passed on %s [U:1:%u]", info.name, info.friendsID);
+        /*if (*chat_partysay_result)
+        {
+            std::snprintf(formated_string, sizeof(formated_string), "Vote passed on %s [U:1:%u] with %i F1's and %i F2's", info.name, info.friendsID, F1count + 1, F2count + 1);
+            re::CTFPartyClient::GTFPartyClient()->SendPartyChat(formated_string);
+        }*/
         if (was_local_player_caller)
         {
             if (info.friendsID)
@@ -223,6 +231,11 @@ void dispatchUserMessage(bf_read &buffer, int type)
     }
     case 48:
         logging::Info("Vote failed on %s [U:1:%u]", info.name, info.friendsID);
+        /*if (*chat_partysay_result)
+        {
+            std::snprintf(formated_string, sizeof(formated_string), "Vote failed on %s [U:1:%u] with %i F1's and %i F2's", info.name, info.friendsID, F1count + 1, F2count + 1);
+            re::CTFPartyClient::GTFPartyClient()->SendPartyChat(formated_string);
+        }*/
         if (was_local_player_caller && abandon_on_local_vote)
             tfmm::abandon();
         if (was_local_player && requeue_on_kick)
@@ -284,7 +297,7 @@ class VoteEventListener : public IGameEventListener
 public:
     void FireGameEvent(KeyValues *event) override
     {
-        if (!*chat_casts || (!*chat_partysay && !chat))
+        if (!*chat_casts && !*chat_partysay && !chat /* && !*chat_partysay_result*/)
             return;
         const char *name = event->GetName();
         if (!strcmp(name, "vote_cast"))
