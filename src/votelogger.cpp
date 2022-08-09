@@ -132,12 +132,10 @@ void dispatchUserMessage(bf_read &buffer, int type)
         
         if (info.friendsID == g_ISteamUser->GetSteamID().GetAccountID())
             was_local_player = true;
-            logging::Info("We are currently being kicked ): ):")
             local_kick_timer.update();
 
         if (info2.friendsID == g_ISteamUser->GetSteamID().GetAccountID())
             was_local_player_caller = true;
-            logging::Info("Hellz yez we are calling the kick")
 
         if (*vote_kickn || *vote_kicky)
         {
