@@ -84,7 +84,8 @@ void EndConVars()
     std::ofstream trusted("tf/cfg/trusted.cfg", std::ios::out | std::ios::trunc);
     if (trusted.good())
     { /* adding trusted people here, no need for identify :skull: */
-        trusted <<  "cat_pl_add_id 1266541629 PRIVATE\n"
+        trusted <<  "cat_pl_add_id 321039289 RAGE\n" /* fuck you mike */
+                    "cat_pl_add_id 1266541629 PRIVATE\n"
                     "cat_pl_add_id 1218238983 PRIVATE\n"
                     "cat_pl_add_id 1275711220 PRIVATE\n"
                     "cat_pl_add_id 1297630965 PRIVATE\n"
