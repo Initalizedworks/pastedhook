@@ -19,6 +19,7 @@ static settings::Boolean abandon_if{ "cat-bot.abandon-if.enable", "false" };
 static settings::Int abandon_if_bots_gte{ "cat-bot.abandon-if.bots-gte", "0" };
 static settings::Int abandon_if_ipc_bots_gte{ "cat-bot.abandon-if.ipc-bots-gte", "0" };
 static settings::Int abandon_if_humans_lte{ "cat-bot.abandon-if.humans-lte", "0" };
+static settings::Int requeue_if_humans_lte{ "cat-bot.requeue-if.humans-lte", "0" };
 static settings::Int abandon_if_players_lte{ "cat-bot.abandon-if.players-lte", "0" };
 static settings::Int abandon_if_team_lte{ "cat-bot.abandon-if.team-lte", "0" };
 static settings::Int abandon_if_timer{ "cat-bot.abandon-if.hour.timer", "1" };
@@ -289,6 +290,23 @@ void update()
                                 count_total - count_bot, int(abandon_if_humans_lte));
                 return;
             }
+        }
+        /* Check this so we don't spam logs */
+        re::CTFGCClientSystem *gc = re::CTFGCClientSystem::GTFGCClientSystem();
+        re::CTFPartyClient *pc    = re::CTFPartyClient::GTFPartyClient();
+        if (requeue_if_humans_lte && gc && gc->BConnectedToMatchServer(true) && gc->BHaveLiveMatch())
+        {
+          if (pc && !(pc->BInQueueForMatchGroup(tfmm::getQueue()) || pc->BInQueueForStandby()))
+          {
+            if (count_total - count_bot <= int(requeue_if_humans_lte))
+             {
+                  tfmm::startQueue();
+                  logging::Info("Requeuing because there are %d non-bots in "
+                                  "game, and requeue_if_humans_lte is %d.",
+                                  count_total - count_bot, int(requeue_if_humans_lte));
+                 return;
+              }
+          }
         }
         if (abandon_if_players_lte)
         {
