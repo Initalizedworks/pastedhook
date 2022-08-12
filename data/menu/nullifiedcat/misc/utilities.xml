@@ -24,6 +24,7 @@
     <Box name="Bot-Utilities" width="content" height="content" padding="12 6 6 6" x="215">
         <List width="200">
             <AutoVariable width="fill" target="cat-bot.abandon-if.enable" label="Enable Abandon-if"/>
+            <AutoVariable width="fill" target="cat-bot.requeue-if.humans-lte" label="Requeue if humans lte"/>
             <AutoVariable width="fill" target="cat-bot.abandon-if.bots-gte" label="Abandon if bots gte"/>
             <AutoVariable width="fill" target="cat-bot.abandon-if.ipc-bots-gte" label="Abandon if IPC bots gte"/>
             <AutoVariable width="fill" target="cat-bot.abandon-if.humans-lte" label="Abandon if humans lte"/>
