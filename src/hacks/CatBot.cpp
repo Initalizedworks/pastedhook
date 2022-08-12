@@ -296,18 +296,18 @@ void update()
         re::CTFPartyClient *pc    = re::CTFPartyClient::GTFPartyClient();
         if (requeue_if_humans_lte && gc && gc->BConnectedToMatchServer(true) && gc->BHaveLiveMatch())
         {
-          if (pc && !(pc->BInQueueForMatchGroup(tfmm::getQueue()) || pc->BInQueueForStandby()))
-          {
-            if (count_total - count_bot <= int(requeue_if_humans_lte))
-             {
-                  tfmm::startQueue();
-                  logging::Info("Requeuing because there are %d non-bots in "
-                                  "game, and requeue_if_humans_lte is %d.",
-                                  count_total - count_bot, int(requeue_if_humans_lte));
-                 return;
-              }
-          }
-        }
+            if (pc && !(pc->BInQueueForMatchGroup(tfmm::getQueue()) || pc->BInQueueForStandby()))
+            {
+                if (count_total - count_bot <= int(requeue_if_humans_lte))
+                {
+                    tfmm::startQueue();
+                    logging::Info("Requeuing because there are %d non-bots in "
+                                    "game, and requeue_if_humans_lte is %d.",
+                                    count_total - count_bot, int(requeue_if_humans_lte));
+                    return;
+                }
+            }
+        } 
         if (abandon_if_players_lte)
         {
             if (count_total <= int(abandon_if_players_lte))
