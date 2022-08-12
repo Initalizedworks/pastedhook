@@ -1,4 +1,3 @@
-fix catbots crashing when using lobby object
 add votekick reason
 remove Toolchain-cross-m32.cmake (BASED BLOATWARE)
 fix aimbot shooting through cart
