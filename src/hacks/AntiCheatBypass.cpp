@@ -53,4 +53,4 @@ void CreateMoveLate()
 }
 
 static InitRoutine init([]() { EC::Register(EC::CreateMoveLate, CreateMoveLate, "acb_cml"); });
-} // namespace hacks::tf2::antianticheat
+} // namespace hacks::antianticheat
