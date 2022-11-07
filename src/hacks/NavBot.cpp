@@ -13,6 +13,7 @@
 #include "navparser.hpp"
 #include "MiscAimbot.hpp"
 #include "Misc.hpp"
+#include "NavBot.hpp"
 
 namespace hacks::NavBot
 {
@@ -23,8 +24,6 @@ static settings::Boolean stay_near("navbot.stay-near", "false");
 static settings::Boolean capture_objectives("navbot.capture-objectives", "false");
 static settings::Boolean defend_intel("navbot.defend-intel", "false");
 static settings::Boolean roam_defend("navbot.defend-idle", "false");
-static settings::Boolean autozoom("navbot.autozoom.enabled", "false");
-static settings::Float zoom_distance("navbot.autozoom.trigger-distance", "600");
 static settings::Int melee_range("navbot.primary-only-melee-range", "150");
 static settings::Boolean snipe_sentries("navbot.snipe-sentries", "false");
 static settings::Boolean primary_only("navbot.primary-only", "true");
@@ -876,29 +875,6 @@ bool doRoam()
 
 static int slot = primary;
 
-static void autoZoom(std::pair<CachedEntity *, float> &nearest)
-{
-    if (!autozoom)
-        return;
-    if (CE_BAD(LOCAL_E) || !LOCAL_E->m_bAlivePlayer() || CE_BAD(LOCAL_W))
-        return;
-    if (g_pLocalPlayer->holding_sniper_rifle)
-        return;
-    // Zoom in and update timeinzoom
-    if (g_pLocalPlayer->holding_sniper_rifle && nearest.second <= *zoom_distance && !g_pLocalPlayer->bZoomed)
-        current_user_cmd->buttons |= IN_ATTACK2;
-    if (g_pLocalPlayer->bZoomed && g_pLocalPlayer->holding_sniper_rifle &&!nearest.second <= *zoom_distance)
-        current_user_cmd->buttons |= IN_ATTACK2;
-    if (LOCAL_W->m_iClassID() == CL_CLASS(CTFMinigun) && nearest.second <= *zoom_distance)
-        current_user_cmd->buttons |= IN_JUMP | IN_ATTACK2;
-}
-
-static void autoZoomEnabled(std::pair<CachedEntity *, float> &nearest)
-{
-    if (!nearest.second <= *zoom_distance)
-        return;
-}
-
 static slots getBestSlot(slots active_slot, std::pair<CachedEntity *, float> &nearest)
 {
     if (force_slot)
@@ -1038,7 +1014,6 @@ void CreateMove()
     auto nearest = getNearestPlayerDistance();
 
     updateSlot(nearest);
-    autoZoom(nearest);
     updateEnemyBlacklist(slot);
 
     if (meleeAttack(slot, nearest))

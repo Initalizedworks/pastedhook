@@ -24,8 +24,6 @@
             <AutoVariable width="fill" target="navbot.defend-intel" label="Defend intel" tooltip="Defend our intel when its dropped or stolen"/>
             <AutoVariable width="fill" target="navbot.defend-idle" label="Defend Idle" tooltip="Defend our current objective if there are no enemy team players or if we are idle"/>
             <AutoVariable width="fill" target="navbot.autozoom.enabled" label="Enable autozoom"/>
-            <AutoVariable width="fill" target="navbot.autozoom.trigger-distance" label="Zoom distance"/>
-            <AutoVariable width="fill" target="navbot.autozoom.unzoom-time" label="Unzoom Time"/>
             <AutoVariable width="fill" target="navbot.primary-only-melee-range" label="Melee Range"/>
             <AutoVariable width="fill" target="navbot.search-health" label="Search health"/>
             <AutoVariable width="fill" target="navbot.search-ammo" label="Search ammo"/>
