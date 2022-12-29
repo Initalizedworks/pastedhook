@@ -79,7 +79,7 @@ void NetVars::Init()
     this->iCond2                    = gNetvars.get_offset("DT_TFPlayer", "m_Shared", "m_nPlayerCondEx2");
     this->iCond3                    = gNetvars.get_offset("DT_TFPlayer", "m_Shared", "m_nPlayerCondEx3");
     this->iClass                    = gNetvars.get_offset("DT_TFPlayer", "m_PlayerClass", "m_iClass");
-    this->flChargedDamage           = gNetvars.get_offset("DT_TFSniperRifle", "SniperRifleLocalData", "m_flChargedDamage");           = gNetvars.get_offset("DT_TFSniperRifle", "SniperRifleLocalData", "m_flChargedDamage");
+    this->flChargedDamage           = gNetvars.get_offset("DT_TFSniperRifle", "SniperRifleLocalData", "m_flChargedDamage");
 
     // sentry
     this->m_iAmmoShells       = gNetvars.get_offset("DT_ObjectSentrygun", "m_iAmmoShells");
