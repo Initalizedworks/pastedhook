@@ -15,7 +15,7 @@
 #include <sstream>
 
 #include <steam/isteamclient.h>
-#define GAME_PTR_OFFSET 11815160
+#define GAME_PTR_OFFSET 0x45
 // class ISteamFriends002;
 
 IVModelRender *g_IVModelRender                     = nullptr;
@@ -148,7 +148,7 @@ void CreateInterfaces()
     g_IInput           = **(reinterpret_cast<IInput ***>((uintptr_t) 1 + gSignatures.GetClientSignature("A1 ? ? ? ? C6 05 ? ? ? ? ? 8B 10 89 04 24 FF 92 ? ? ? ? A1")));
     g_ISteamUser       = g_ISteamClient->GetISteamUser(su, sp, "SteamUser018");
     g_IModelInfo       = BruteforceInterface<IVModelInfoClient>("VModelInfoClient", sharedobj::engine());
-    g_IBaseClientState = *(reinterpret_cast<CBaseClientState **>(gSignatures.GetEngineSignature("C7 04 24 ? ? ? ? E8 ? ? ? ? C7 04 24 ? ? ? ? 89 44 24 04 E8 ? ? ? ? A1 ? ? ? ?") + 3));
+    g_IBaseClientState = *(reinterpret_cast<CBaseClientState **>(gSignatures.GetEngineSignature("C7 04 24 ? ? ? ? E8 ? ? ? ? C7 04 24 ? ? ? ? 89 44 24 04 E8 ? ? ? ? A1") + 3));
     logging::Info("BaseClientState: 0x%08x", g_IBaseClientState);
     g_IAchievementMgr      = g_IEngine->GetAchievementMgr();
     g_ISteamUserStats      = g_ISteamClient->GetISteamUserStats(su, sp, "STEAMUSERSTATS_INTERFACE_VERSION011");
