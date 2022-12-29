@@ -42,7 +42,8 @@ void NetVars::Init()
     m_angEyeAnglesLocal             = gNetvars.get_offset("DT_TFPlayer", "tflocaldata", "m_angEyeAngles[0]");
     this->bGlowEnabled              = gNetvars.get_offset("DT_TFPlayer", "m_bGlowEnabled");
     this->iItemDefinitionIndex      = gNetvars.get_offset("DT_EconEntity", "m_AttributeManager", "m_Item", "m_iItemDefinitionIndex");
-    this->AttributeList             = gNetvars.get_offset("DT_EconEntity", "m_AttributeManager", "m_Item", "m_AttributeList");
+    this->AttributeList             = gNetvars.get_offset("DT_EconEntity", "m_AttributeManager", "m_Item", 
+                                                          "m_AttributeList");
     this->flChargeBeginTime         = gNetvars.get_offset("DT_WeaponPipebombLauncher", "PipebombLauncherLocalData", "m_flChargeBeginTime");
     this->flDetonateTime            = gNetvars.get_offset("DT_WeaponGrenadeLauncher", "m_flDetonateTime");
     this->flLastFireTime            = gNetvars.get_offset("DT_TFWeaponBase", "LocalActiveTFWeaponData", "m_flLastFireTime");
